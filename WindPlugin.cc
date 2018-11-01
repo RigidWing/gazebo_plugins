@@ -23,7 +23,7 @@
 
 #include "gazebo/sensors/Noise.hh"
 
-#include "plugins/WindPlugin.hh"
+#include "WindPlugin.hh"
 
 /// \brief Private class for WindPlugin
 class gazebo::WindPluginPrivate
