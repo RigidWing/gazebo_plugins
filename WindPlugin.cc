@@ -310,10 +310,6 @@ void WindPlugin::OnUpdate()
       if (!link->WindMode())
         continue;
 
-      // Add wind velocity as a force to the body
-      link->AddRelativeForce(link->GetInertial()->Mass() *
-          this->dataPtr->forceApproximationScalingFactor *
-          (link->RelativeWindLinearVel() - link->RelativeLinearVel()));
     }
   }
 }
