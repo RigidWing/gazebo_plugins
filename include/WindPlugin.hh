@@ -24,6 +24,21 @@
 #include "gazebo/common/Plugin.hh"
 #include "gazebo/physics/physics.hh"
 
+/*
+ * taken from gazebo_wind_field_plugin.h
+ */
+#include <string>
+#include <gazebo/common/common.hh>
+#include <gazebo/common/Plugin.hh>
+#include <gazebo/gazebo.hh>
+#include <gazebo/physics/physics.hh>
+// KITEPOWER (Xander)
+#include "WindField.pb.h"
+#include "common.h"
+/*
+ * end
+ */
+
 namespace gazebo
 {
   // Forward declaration
@@ -45,6 +60,31 @@ namespace gazebo
   //
   // - Vertical amplitude:
   //      Noise proportionnal to wind magnitude.
+
+/*
+ * taken from gazebo_wind_field_plugin.h
+ */
+// Default values
+static const std::string kDefaultNamespace = "";
+static const std::string kDefaultFrameId = "world";
+
+static constexpr double kDefaultWindVelocityMean = 0.0;
+static constexpr double kDefaultWindVelocityVariance = 0.0;
+static constexpr double kDefaultWindGustVelocityMean = 0.0;
+static constexpr double kDefaultWindGustVelocityVariance = 0.0;
+
+static constexpr double kDefaultWindGustStart = 10.0;
+static constexpr double kDefaultWindGustDuration = 0.0;
+
+static constexpr double kDefaultWindAzimuth = 0.0;
+static constexpr double kDefaultWindGustAzimuth = M_PI/4;
+
+// KITEPOWER (Xander)
+static const std::string kDefaultWindFieldPubTopic= "/wind_field";
+/*
+ * end
+ */
+
   class GAZEBO_VISIBLE WindPlugin : public WorldPlugin
   {
     /// \brief Constructor.
@@ -68,7 +108,41 @@ namespace gazebo
     /// \internal
     /// \brief Pointer to private data.
     private: std::unique_ptr<WindPluginPrivate> dataPtr;
-  };
-}
+
+/*
+ * taken from gazebo_wind_field_plugin.h
+ */
+    private:
+    /// \brief Pointer to the update event connection.
+    event::ConnectionPtr update_connection_;
+
+    physics::WorldPtr world_;
+    physics::ModelPtr model_;
+    physics::LinkPtr link_;
+
+    std::string namespace_;
+
+    std::string frame_id_;
+    std::string link_name_;
+    std::string wind_pub_topic_;
+
+    double wind_velocity_mean_;
+    double wind_velocity_variance_;
+    double wind_gust_velocity_mean_;
+    double wind_gust_velocity_variance_;
+
+    double wind_azimuth_;
+    double wind_gust_azimuth_;
+
+    common::Time wind_gust_end_;
+    common::Time wind_gust_start_;
+
+    transport::NodePtr node_handle_;
+    transport::PublisherPtr wind_pub_;
+    };
+/*
+ * end
+ */
+} 
 
 #endif
