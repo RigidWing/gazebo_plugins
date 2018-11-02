@@ -104,6 +104,10 @@ void WindPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   this->dataPtr->world = _world;
 
   physics::Wind &wind = this->dataPtr->world->Wind();
+  //model_ = _model;
+  // todo is this needed: world_ = model_->GetWorld();
+  double wind_gust_start = kDefaultWindGustStart; //todo where is this defined/declared?
+  double wind_gust_duration = kDefaultWindGustDuration; //todo where is this defined/declared?
 
   if (_sdf->HasElement("horizontal"))
   {
@@ -175,6 +179,21 @@ void WindPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
             sdfDir->GetElement("noise"));
       }
     }
+  getSdfParam<std::string>(_sdf, "windPubTopic", wind_pub_topic_, wind_pub_topic_);
+  getSdfParam<std::string>(_sdf, "frameId", frame_id_, frame_id_);
+  getSdfParam<std::string>(_sdf, "linkName", link_name_, link_name_);
+  // Get the wind params from SDF.
+  getSdfParam<double>(_sdf, "windVelocityMean", wind_velocity_mean_, wind_velocity_mean_);
+  getSdfParam<double>(_sdf, "windVelocityVariance", wind_velocity_variance_, wind_velocity_variance_);
+  getSdfParam<double>(_sdf, "windAzimuth", wind_azimuth_, wind_azimuth_);
+  // Get the wind gust params from SDF.
+  getSdfParam<double>(_sdf, "windGustStart", wind_gust_start, wind_gust_start);
+  getSdfParam<double>(_sdf, "windGustDuration", wind_gust_duration, wind_gust_duration);
+  getSdfParam<double>(_sdf, "windGustVelocityMean", wind_gust_velocity_mean_, wind_gust_velocity_mean_);
+  getSdfParam<double>(_sdf, "windGustVelocityVariance", wind_gust_velocity_variance_, wind_gust_velocity_variance_);
+  getSdfParam<double>(_sdf, "windGustAzimuth", wind_gust_azimuth_, wind_gust_azimuth_);
+  wind_pub_ = node_handle_->Advertise<wind_field_msgs::msgs::WindField>(wind_pub_topic_, 1);
+
   }
 
   if (_sdf->HasElement("vertical"))
@@ -291,7 +310,37 @@ ignition::math::Vector3d WindPlugin::LinearVel(const physics::Wind *_wind,
 /////////////////////////////////////////////////
 void WindPlugin::OnUpdate()
 {
-  // Update loop for using the force on mass approximation
+
+  // Get the current simulation time.
+  common::Time now = this->dataPtr->world->SimTime().Double();
+
+  // Calculate the wind velocity.
+  double wind_velocity = wind_velocity_mean_; // todo need to add where this is defined
+
+  ignition::math::Vector3d wind_gust(0, 0, 0);
+  // Calculate the wind gust velocity.
+  double wind_gust_velocity = 0;
+  if (now >= wind_gust_start_ && now < wind_gust_end_) {
+    wind_gust_velocity = wind_gust_velocity_mean_;
+  }
+  // Add the wind gust to the default wind
+  double wind_vel_x = sin(wind_azimuth_)*wind_velocity + sin(wind_gust_azimuth_)*wind_gust_velocity;
+  double wind_vel_y = cos(wind_azimuth_)*wind_velocity + cos(wind_gust_azimuth_)*wind_gust_velocity;
+
+  double wind_total_velocity = sqrt(wind_vel_x*wind_vel_x + wind_vel_y*wind_vel_y);
+  double wind_total_azimuth  = atan2(wind_vel_x,wind_vel_y);
+
+  wind_field_msgs::msgs::WindField wind_msg;
+
+  wind_msg.set_frame_id(frame_id_);
+  Set(wind_msg.mutable_stamp(), now);
+  wind_msg.set_azimuth(wind_total_azimuth);
+  wind_msg.set_velocity(wind_total_velocity);
+
+  wind_pub_->Publish(wind_msg);
+
+// todo: this can be removed too, right?
+/*  // Update loop for using the force on mass approximation
   // This is not recommended. Please use the LiftDragPlugin instead.
 
   // Get all the models
@@ -311,5 +360,6 @@ void WindPlugin::OnUpdate()
         continue;
 
     }
-  }
+  } */
+
 }

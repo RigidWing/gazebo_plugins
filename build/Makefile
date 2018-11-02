@@ -123,6 +123,33 @@ gazebo_wind_field/fast:
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/build
 .PHONY : gazebo_wind_field/fast
 
+WindField.pb.o: WindField.pb.cc.o
+
+.PHONY : WindField.pb.o
+
+# target to build an object file
+WindField.pb.cc.o:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o
+.PHONY : WindField.pb.cc.o
+
+WindField.pb.i: WindField.pb.cc.i
+
+.PHONY : WindField.pb.i
+
+# target to preprocess a source file
+WindField.pb.cc.i:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.i
+.PHONY : WindField.pb.cc.i
+
+WindField.pb.s: WindField.pb.cc.s
+
+.PHONY : WindField.pb.s
+
+# target to generate assembly for a file
+WindField.pb.cc.s:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.s
+.PHONY : WindField.pb.cc.s
+
 WindPlugin.o: WindPlugin.cc.o
 
 .PHONY : WindPlugin.o
@@ -150,6 +177,60 @@ WindPlugin.cc.s:
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.s
 .PHONY : WindPlugin.cc.s
 
+time.pb.o: time.pb.cc.o
+
+.PHONY : time.pb.o
+
+# target to build an object file
+time.pb.cc.o:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o
+.PHONY : time.pb.cc.o
+
+time.pb.i: time.pb.cc.i
+
+.PHONY : time.pb.i
+
+# target to preprocess a source file
+time.pb.cc.i:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/time.pb.cc.i
+.PHONY : time.pb.cc.i
+
+time.pb.s: time.pb.cc.s
+
+.PHONY : time.pb.s
+
+# target to generate assembly for a file
+time.pb.cc.s:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/time.pb.cc.s
+.PHONY : time.pb.cc.s
+
+vector3d.pb.o: vector3d.pb.cc.o
+
+.PHONY : vector3d.pb.o
+
+# target to build an object file
+vector3d.pb.cc.o:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o
+.PHONY : vector3d.pb.cc.o
+
+vector3d.pb.i: vector3d.pb.cc.i
+
+.PHONY : vector3d.pb.i
+
+# target to preprocess a source file
+vector3d.pb.cc.i:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.i
+.PHONY : vector3d.pb.cc.i
+
+vector3d.pb.s: vector3d.pb.cc.s
+
+.PHONY : vector3d.pb.s
+
+# target to generate assembly for a file
+vector3d.pb.cc.s:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.s
+.PHONY : vector3d.pb.cc.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -159,9 +240,18 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... gazebo_wind_field"
+	@echo "... WindField.pb.o"
+	@echo "... WindField.pb.i"
+	@echo "... WindField.pb.s"
 	@echo "... WindPlugin.o"
 	@echo "... WindPlugin.i"
 	@echo "... WindPlugin.s"
+	@echo "... time.pb.o"
+	@echo "... time.pb.i"
+	@echo "... time.pb.s"
+	@echo "... vector3d.pb.o"
+	@echo "... vector3d.pb.i"
+	@echo "... vector3d.pb.s"
 .PHONY : help
 
 

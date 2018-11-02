@@ -29,12 +29,10 @@
  */
 #include <string>
 #include <gazebo/common/common.hh>
-#include <gazebo/common/Plugin.hh>
 #include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
+#include "common.h"
 // KITEPOWER (Xander)
 #include "WindField.pb.h"
-#include "common.h"
 /*
  * end
  */
@@ -143,6 +141,6 @@ static const std::string kDefaultWindFieldPubTopic= "/wind_field";
 /*
  * end
  */
-} 
+}
 
 #endif

@@ -57,9 +57,33 @@ include CMakeFiles/gazebo_wind_field.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/gazebo_wind_field.dir/flags.make
 
+WindField.pb.cc: ../msgs/WindField.proto
+WindField.pb.cc: /usr/bin/protoc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Running C++ protocol buffer compiler on /home/isabelle/gazebo_plugins/msgs/WindField.proto"
+	/usr/bin/protoc --cpp_out /home/isabelle/gazebo_plugins/build -I /home/isabelle/gazebo_plugins/msgs -I /usr/include/gazebo-9/gazebo/msgs/proto /home/isabelle/gazebo_plugins/msgs/WindField.proto
+
+WindField.pb.h: WindField.pb.cc
+	@$(CMAKE_COMMAND) -E touch_nocreate WindField.pb.h
+
+time.pb.cc: ../msgs/time.proto
+time.pb.cc: /usr/bin/protoc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Running C++ protocol buffer compiler on /home/isabelle/gazebo_plugins/msgs/time.proto"
+	/usr/bin/protoc --cpp_out /home/isabelle/gazebo_plugins/build -I /home/isabelle/gazebo_plugins/msgs -I /usr/include/gazebo-9/gazebo/msgs/proto /home/isabelle/gazebo_plugins/msgs/time.proto
+
+time.pb.h: time.pb.cc
+	@$(CMAKE_COMMAND) -E touch_nocreate time.pb.h
+
+vector3d.pb.cc: ../msgs/vector3d.proto
+vector3d.pb.cc: /usr/bin/protoc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Running C++ protocol buffer compiler on /home/isabelle/gazebo_plugins/msgs/vector3d.proto"
+	/usr/bin/protoc --cpp_out /home/isabelle/gazebo_plugins/build -I /home/isabelle/gazebo_plugins/msgs -I /usr/include/gazebo-9/gazebo/msgs/proto /home/isabelle/gazebo_plugins/msgs/vector3d.proto
+
+vector3d.pb.h: vector3d.pb.cc
+	@$(CMAKE_COMMAND) -E touch_nocreate vector3d.pb.h
+
 CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o: CMakeFiles/gazebo_wind_field.dir/flags.make
 CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o: ../WindPlugin.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o"
 	/usr/lib/ccache/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o -c /home/isabelle/gazebo_plugins/WindPlugin.cc
 
 CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.i: cmake_force
@@ -81,14 +105,92 @@ CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o.provides: CMakeFiles/gazebo_win
 CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o.provides.build: CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o
 
 
+CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o: CMakeFiles/gazebo_wind_field.dir/flags.make
+CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o: WindField.pb.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o"
+	/usr/lib/ccache/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o -c /home/isabelle/gazebo_plugins/build/WindField.pb.cc
+
+CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.i"
+	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isabelle/gazebo_plugins/build/WindField.pb.cc > CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.i
+
+CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.s"
+	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isabelle/gazebo_plugins/build/WindField.pb.cc -o CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.s
+
+CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o.requires:
+
+.PHONY : CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o.requires
+
+CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o.provides: CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o.requires
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o.provides.build
+.PHONY : CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o.provides
+
+CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o.provides.build: CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o
+
+
+CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o: CMakeFiles/gazebo_wind_field.dir/flags.make
+CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o: time.pb.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o"
+	/usr/lib/ccache/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o -c /home/isabelle/gazebo_plugins/build/time.pb.cc
+
+CMakeFiles/gazebo_wind_field.dir/time.pb.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gazebo_wind_field.dir/time.pb.cc.i"
+	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isabelle/gazebo_plugins/build/time.pb.cc > CMakeFiles/gazebo_wind_field.dir/time.pb.cc.i
+
+CMakeFiles/gazebo_wind_field.dir/time.pb.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gazebo_wind_field.dir/time.pb.cc.s"
+	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isabelle/gazebo_plugins/build/time.pb.cc -o CMakeFiles/gazebo_wind_field.dir/time.pb.cc.s
+
+CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o.requires:
+
+.PHONY : CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o.requires
+
+CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o.provides: CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o.requires
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o.provides.build
+.PHONY : CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o.provides
+
+CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o.provides.build: CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o
+
+
+CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o: CMakeFiles/gazebo_wind_field.dir/flags.make
+CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o: vector3d.pb.cc
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o"
+	/usr/lib/ccache/c++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o -c /home/isabelle/gazebo_plugins/build/vector3d.pb.cc
+
+CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.i"
+	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/isabelle/gazebo_plugins/build/vector3d.pb.cc > CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.i
+
+CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.s"
+	/usr/lib/ccache/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/isabelle/gazebo_plugins/build/vector3d.pb.cc -o CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.s
+
+CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o.requires:
+
+.PHONY : CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o.requires
+
+CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o.provides: CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o.requires
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o.provides.build
+.PHONY : CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o.provides
+
+CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o.provides.build: CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o
+
+
 # Object files for target gazebo_wind_field
 gazebo_wind_field_OBJECTS = \
-"CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o"
+"CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o" \
+"CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o" \
+"CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o" \
+"CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o"
 
 # External object files for target gazebo_wind_field
 gazebo_wind_field_EXTERNAL_OBJECTS =
 
 libgazebo_wind_field.so: CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o
+libgazebo_wind_field.so: CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o
+libgazebo_wind_field.so: CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o
+libgazebo_wind_field.so: CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o
 libgazebo_wind_field.so: CMakeFiles/gazebo_wind_field.dir/build.make
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libSimTKsimbody.so
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libSimTKmath.so
@@ -137,6 +239,7 @@ libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libignition-transport4.so.4.0
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libignition-msgs1.so.1.0.0
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libignition-common1.so.1.1.1
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libignition-fuel_tools1.so.1.2.0
+libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libprotobuf.so
 libgazebo_wind_field.so: /usr/lib/liblapack.so
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libgazebo.so
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libgazebo_client.so
@@ -197,7 +300,7 @@ libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libavcodec-ffmpeg.so
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libavutil-ffmpeg.so
 libgazebo_wind_field.so: /usr/lib/x86_64-linux-gnu/libavutil-ffmpeg.so
 libgazebo_wind_field.so: CMakeFiles/gazebo_wind_field.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX shared library libgazebo_wind_field.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX shared library libgazebo_wind_field.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/gazebo_wind_field.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -206,6 +309,9 @@ CMakeFiles/gazebo_wind_field.dir/build: libgazebo_wind_field.so
 .PHONY : CMakeFiles/gazebo_wind_field.dir/build
 
 CMakeFiles/gazebo_wind_field.dir/requires: CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o.requires
+CMakeFiles/gazebo_wind_field.dir/requires: CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o.requires
+CMakeFiles/gazebo_wind_field.dir/requires: CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o.requires
+CMakeFiles/gazebo_wind_field.dir/requires: CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o.requires
 
 .PHONY : CMakeFiles/gazebo_wind_field.dir/requires
 
@@ -213,7 +319,12 @@ CMakeFiles/gazebo_wind_field.dir/clean:
 	$(CMAKE_COMMAND) -P CMakeFiles/gazebo_wind_field.dir/cmake_clean.cmake
 .PHONY : CMakeFiles/gazebo_wind_field.dir/clean
 
-CMakeFiles/gazebo_wind_field.dir/depend:
+CMakeFiles/gazebo_wind_field.dir/depend: WindField.pb.cc
+CMakeFiles/gazebo_wind_field.dir/depend: WindField.pb.h
+CMakeFiles/gazebo_wind_field.dir/depend: time.pb.cc
+CMakeFiles/gazebo_wind_field.dir/depend: time.pb.h
+CMakeFiles/gazebo_wind_field.dir/depend: vector3d.pb.cc
+CMakeFiles/gazebo_wind_field.dir/depend: vector3d.pb.h
 	cd /home/isabelle/gazebo_plugins/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/isabelle/gazebo_plugins /home/isabelle/gazebo_plugins /home/isabelle/gazebo_plugins/build /home/isabelle/gazebo_plugins/build /home/isabelle/gazebo_plugins/build/CMakeFiles/gazebo_wind_field.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/gazebo_wind_field.dir/depend
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-#project(gazebo_wind_field)
+project(gazebo_wind_field)
 find_package(gazebo REQUIRED)
 find_package(Protobuf REQUIRED)
 
@@ -14,9 +14,11 @@ foreach(ITR ${GAZEBO_INCLUDE_DIRS})
 endforeach()
 
 set (msgs
+  #${CMAKE_SOURCE_DIR}/msgs/Wind.proto
+  # KITEPOWER (Xander)
   ${CMAKE_SOURCE_DIR}/msgs/WindField.proto
-  ${CMAKE_SOURCE_DIR}/msgs/time.proto
-  ${CMAKE_SOURCE_DIR}/msgs/vector3d.proto
+  ${PROTOBUF_IMPORT_DIRS}/time.proto
+  ${PROTOBUF_IMPORT_DIRS}/vector3d.proto
 )
 
 message("The messages" ${msgs})
@@ -24,30 +26,24 @@ PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${msgs})
 message(The PROTO_SRCS is at ${PROTO_SRCS})
 message(The PROTO_HDRS is at ${PROTO_HDRS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 
-##############################################
-########## Include and link directories ######
-##############################################
+########################################
+########## Include and link directories ###
+############################################
 include_directories(${GAZEBO_INCLUDE_DIRS})
 include_directories(${CMAKE_BINARY_DIR})
-
-# The following include directory points to the directory that contains the latest gazebo source code obtained from bitbucket
-set(PATH_TO_GAZEBO_SRC_DIR "/home/isabelle/gazebo_from_bitbucket")
-message("The path to the gazebo src dir", ${PATH_TO_GAZEBO_SRC_DIR})
-#include_directories(${PATH_TO_GAZEBO_SRC_DIR})
-# Get the corresponding paths for the cc files included in the directory.
-
 ########################
 ### Link Directories ###
 ########################
 link_directories(${GAZEBO_LIBRARY_DIRS})
-#list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
+list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 include_directories(include)
 
-
-add_library(gazebo_wind_field SHARED WindPlugin.cc ${PROTO_SRCS}) # 
+##############################################################################################
+### Add a library target called gazebo_wind_field to be built from the source files listed ###
+##############################################################################################
+add_library(gazebo_wind_field SHARED WindPlugin.cc) # add a library to the project using specified source files
 target_include_directories(
     gazebo_wind_field
     PRIVATE ${CMAKE_SOURCE_DIR}/msgs
