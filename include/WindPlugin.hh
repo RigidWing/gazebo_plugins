@@ -59,34 +59,48 @@ namespace gazebo
   // - Vertical amplitude:
   //      Noise proportionnal to wind magnitude.
 
-/*
- * taken from gazebo_wind_field_plugin.h
- */
-// Default values
-static const std::string kDefaultNamespace = "";
-static const std::string kDefaultFrameId = "world";
+  /*
+   * taken from gazebo_wind_field_plugin.h
+   */
+  // Default values
+  static const std::string kDefaultNamespace = "";
+  static const std::string kDefaultFrameId = "world";
 
-static constexpr double kDefaultWindVelocityMean = 0.0;
-static constexpr double kDefaultWindVelocityVariance = 0.0;
-static constexpr double kDefaultWindGustVelocityMean = 0.0;
-static constexpr double kDefaultWindGustVelocityVariance = 0.0;
+  static constexpr double kDefaultWindVelocityMean = 0.0;
+  static constexpr double kDefaultWindVelocityVariance = 0.0;
+  static constexpr double kDefaultWindGustVelocityMean = 0.0;
+  static constexpr double kDefaultWindGustVelocityVariance = 0.0;
 
-static constexpr double kDefaultWindGustStart = 10.0;
-static constexpr double kDefaultWindGustDuration = 0.0;
+  static constexpr double kDefaultWindGustStart = 10.0;
+  static constexpr double kDefaultWindGustDuration = 0.0;
 
-static constexpr double kDefaultWindAzimuth = 0.0;
-static constexpr double kDefaultWindGustAzimuth = M_PI/4;
+  static constexpr double kDefaultWindAzimuth = 0.0;
+  static constexpr double kDefaultWindGustAzimuth = M_PI/4;
 
-// KITEPOWER (Xander)
-static const std::string kDefaultWindFieldPubTopic= "/wind_field";
-/*
- * end
- */
+  // KITEPOWER (Xander)
+  static const std::string kDefaultWindFieldPubTopic= "/wind_field";
+  /*
+   * end
+   */
 
-  class GAZEBO_VISIBLE WindPlugin : public WorldPlugin
+  class GAZEBO_VISIBLE WindPlugin : public WorldPlugin //TODO: change to ModelPlugin
   {
     /// \brief Constructor.
-    public: WindPlugin();
+    public:
+      WindPlugin()
+         : WorldPlugin(),
+           namespace_(kDefaultNamespace),
+           wind_pub_topic_(kDefaultWindFieldPubTopic),
+           wind_velocity_mean_(kDefaultWindVelocityMean),
+           wind_velocity_variance_(kDefaultWindVelocityVariance),
+           wind_gust_velocity_mean_(kDefaultWindGustVelocityMean),
+           wind_gust_velocity_variance_(kDefaultWindGustVelocityVariance),
+           wind_azimuth_(kDefaultWindAzimuth),
+           wind_gust_azimuth_(kDefaultWindGustAzimuth),
+           frame_id_(kDefaultFrameId),
+           node_handle_(NULL) {}
+
+     virtual ~WindPlugin(); //
 
     // Documentation inherited
     public: virtual void Load(physics::WorldPtr _world, sdf::ElementPtr _sdf);
@@ -100,16 +114,20 @@ static const std::string kDefaultWindFieldPubTopic= "/wind_field";
             const physics::Wind *_wind,
             const physics::Entity *_entity);
 
+
+
     /// \brief Callback for World Update events.
     private: void OnUpdate();
 
     /// \internal
     /// \brief Pointer to private data.
-    private: std::unique_ptr<WindPluginPrivate> dataPtr;
+    // private: std::unique_ptr<WindPluginPrivate> dataPtr;
 
 /*
  * taken from gazebo_wind_field_plugin.h
  */
+
+ /*
     private:
     /// \brief Pointer to the update event connection.
     event::ConnectionPtr update_connection_;
@@ -137,6 +155,8 @@ static const std::string kDefaultWindFieldPubTopic= "/wind_field";
 
     transport::NodePtr node_handle_;
     transport::PublisherPtr wind_pub_;
+*/
+
     };
 /*
  * end

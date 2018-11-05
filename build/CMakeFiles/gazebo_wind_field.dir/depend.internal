@@ -5,10 +5,10 @@ CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o
  /home/isabelle/gazebo_plugins/build/WindField.pb.cc
  /home/isabelle/gazebo_plugins/build/WindField.pb.h
  /home/isabelle/gazebo_plugins/build/time.pb.h
-CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o
- ../include/WindPlugin.hh
+CMakeFiles/gazebo_wind_field.dir/gazebo_wind_field_plugin.cpp.o
  ../include/common.h
- /home/isabelle/gazebo_plugins/WindPlugin.cc
+ ../include/gazebo_wind_field_plugin.h
+ /home/isabelle/gazebo_plugins/gazebo_wind_field_plugin.cpp
  /usr/include/gazebo-9/gazebo/Master.hh
  /usr/include/gazebo-9/gazebo/Server.hh
  /usr/include/gazebo-9/gazebo/common/Animation.hh
@@ -250,7 +250,6 @@ CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o
  /usr/include/gazebo-9/gazebo/physics/WorldState.hh
  /usr/include/gazebo-9/gazebo/physics/physics.hh
  /usr/include/gazebo-9/gazebo/rendering/RenderTypes.hh
- /usr/include/gazebo-9/gazebo/sensors/Noise.hh
  /usr/include/gazebo-9/gazebo/sensors/SensorTypes.hh
  /usr/include/gazebo-9/gazebo/transport/CallbackHelper.hh
  /usr/include/gazebo-9/gazebo/transport/Connection.hh

@@ -25,65 +25,50 @@
 
 #include "WindPlugin.hh"
 
-/// \brief Private class for WindPlugin
+// added for printing on console
+#include <gazebo/gazebo.hh>
+#include <string>
+#include <iostream>
+using namespace std;
+
+
+// / \brief Private class for WindPlugin
+
 class gazebo::WindPluginPrivate
 {
+  /*
   /// \brief World pointer.
   public: physics::WorldPtr world;
 
   /// \brief Connection to World Update events.
   public: event::ConnectionPtr updateConnection;
+  */
+  event::ConnectionPtr update_connection_;
 
-  /// \brief Time for wind to rise
-  public: double characteristicTimeForWindRise = 1;
+  physics::WorldPtr world_;
+  physics::ModelPtr model_;
+  physics::LinkPtr link_;
 
-  /// \brief Wind amplitude
-  public: double magnitudeSinAmplitudePercent = 0;
+  std::string namespace_;
 
-  /// \brief Wind period
-  public: double magnitudeSinPeriod = 1;
+  std::string frame_id_;
+  std::string link_name_;
+  std::string wind_pub_topic_;
 
-  /// \brief Time for wind to change direction.
-  public: double characteristicTimeForWindOrientationChange = 1;
+  double wind_velocity_mean_;
+  double wind_velocity_variance_;
+  double wind_gust_velocity_mean_;
+  double wind_gust_velocity_variance_;
 
-  /// \brief Orientation amplitude
-  public: double orientationSinAmplitude = 0;
+  double wind_azimuth_;
+  double wind_gust_azimuth_;
 
-  /// \brief Orientation period
-  public: double orientationSinPeriod = 1;
+  common::Time wind_gust_end_;
+  common::Time wind_gust_start_;
 
-  /// \brief period over characteristicTimeForWindRise
-  public: double kMag = 0;
+  transport::NodePtr node_handle_;
+  transport::PublisherPtr wind_pub_;
 
-  /// \brief period over characteristicTimeForWindOrientationChange
-  public: double kDir = 0;
-
-  /// \brief Mean of the magnitude
-  public: double magnitudeMean = 0;
-
-  /// \brief Mean of the direction
-  public: double directionMean = 0;
-
-  /// \brief Noise added to magnitude
-  public: sensors::NoisePtr noiseMagnitude;
-
-  /// \brief Noise added to direction
-  public: sensors::NoisePtr noiseDirection;
-
-  /// \brief Noise added to Z axis
-  public: sensors::NoisePtr noiseVertical;
-
-  /// \brief Time for wind to rise
-  public: double characteristicTimeForWindRiseVertical = 1;
-
-  /// \brief period over characteristicTimeForWindRiseVertical
-  public: double kMagVertical = 0;
-
-  /// \brief Mean of the magnitude
-  public: double magnitudeMeanVertical = 0;
-
-  /// \brief The scaling factor to approximate wind as force on a mass.
-  public: double forceApproximationScalingFactor = 0;
 };
 
 
@@ -92,24 +77,27 @@ using namespace gazebo;
 GZ_REGISTER_WORLD_PLUGIN(WindPlugin)
 
 /////////////////////////////////////////////////
-WindPlugin::WindPlugin()
+/* WindPlugin::WindPlugin()
     : dataPtr(new WindPluginPrivate)
 {
 }
+*/
 
 /////////////////////////////////////////////////
-void WindPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
+void WindPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf) //void WindPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
 {
+  printf("Print something 3");
   GZ_ASSERT(_world, "WindPlugin world pointer is NULL");
-  this->dataPtr->world = _world;
+  world_ = _world;
 
-  physics::Wind &wind = this->dataPtr->world->Wind();
+
+  //physics::Wind &wind = this->dataPtr->world->Wind();
   //model_ = _model;
   // todo is this needed: world_ = model_->GetWorld();
   double wind_gust_start = kDefaultWindGustStart; //todo where is this defined/declared?
   double wind_gust_duration = kDefaultWindGustDuration; //todo where is this defined/declared?
 
-  if (_sdf->HasElement("horizontal"))
+/*  if (_sdf->HasElement("horizontal"))
   {
     sdf::ElementPtr sdfHoriz = _sdf->GetElement("horizontal");
 
@@ -179,6 +167,8 @@ void WindPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
             sdfDir->GetElement("noise"));
       }
     }
+  }*/
+  printf("Print something 4");
   getSdfParam<std::string>(_sdf, "windPubTopic", wind_pub_topic_, wind_pub_topic_);
   getSdfParam<std::string>(_sdf, "frameId", frame_id_, frame_id_);
   getSdfParam<std::string>(_sdf, "linkName", link_name_, link_name_);
@@ -192,127 +182,34 @@ void WindPlugin::Load(physics::WorldPtr _world, sdf::ElementPtr _sdf)
   getSdfParam<double>(_sdf, "windGustVelocityMean", wind_gust_velocity_mean_, wind_gust_velocity_mean_);
   getSdfParam<double>(_sdf, "windGustVelocityVariance", wind_gust_velocity_variance_, wind_gust_velocity_variance_);
   getSdfParam<double>(_sdf, "windGustAzimuth", wind_gust_azimuth_, wind_gust_azimuth_);
+
+  wind_gust_start_ = common::Time(wind_gust_start);
+  wind_gust_end_ = common::Time(wind_gust_start + wind_gust_duration);
+
+  link_ = model_->GetLink(link_name_);
+  if (link_ == NULL)
+    gzthrow("Couldn't find specified link \"" << link_name_ << "\".");
+
+  printf("Print something 5");
+
+  update_connection_ = event::Events::ConnectWorldUpdateBegin(
+          std::bind(&WindPlugin::OnUpdate, this, _1)); //TODO: FIX THIS PART HERE: NOTHING BEING BINDED
+  printf("Print something 6");
+
   wind_pub_ = node_handle_->Advertise<wind_field_msgs::msgs::WindField>(wind_pub_topic_, 1);
+  printf("Print something 7");
 
-  }
 
-  if (_sdf->HasElement("vertical"))
-  {
-    sdf::ElementPtr sdfVert = _sdf->GetElement("vertical");
-
-    if (sdfVert->HasElement("time_for_rise"))
-    {
-      this->dataPtr->characteristicTimeForWindRiseVertical =
-        sdfVert->Get<double>("time_for_rise");
-    }
-
-    if (sdfVert->HasElement("noise"))
-    {
-      this->dataPtr->noiseVertical = sensors::NoiseFactory::NewNoiseModel(
-            sdfVert->GetElement("noise"));
-    }
-  }
-
-  if (_sdf->HasElement("force_approximation_scaling_factor"))
-  {
-    sdf::ElementPtr sdfForceApprox =
-      _sdf->GetElement("force_approximation_scaling_factor");
-
-    this->dataPtr->forceApproximationScalingFactor =
-        sdfForceApprox->Get<double>();
-  }
-
-  // If the forceApproximationScalingFactor is very small don't update.
-  // It doesn't make sense to be negative, that would be negative wind drag.
-  if (std::fabs(this->dataPtr->forceApproximationScalingFactor) < 1e-6)
-  {
-    gzerr << "Please set <force_approximation_scaling_factor> to a value "
-          << "greater than 0" << std::endl;
-    return;
-  }
-
-  double period = this->dataPtr->world->Physics()->GetMaxStepSize();
-
-  this->dataPtr->kMag = period / this->dataPtr->characteristicTimeForWindRise;
-  this->dataPtr->kMagVertical =
-      period / this->dataPtr->characteristicTimeForWindRiseVertical;
-  this->dataPtr->kDir =
-      period / this->dataPtr->characteristicTimeForWindOrientationChange;
-
-  wind.SetLinearVelFunc(std::bind(&WindPlugin::LinearVel, this,
-        std::placeholders::_1, std::placeholders::_2));
-
-  this->dataPtr->updateConnection = event::Events::ConnectWorldUpdateBegin(
-          std::bind(&WindPlugin::OnUpdate, this));
-}
 
 /////////////////////////////////////////////////
-ignition::math::Vector3d WindPlugin::LinearVel(const physics::Wind *_wind,
-    const physics::Entity * /*_entity*/)
-{
-  // Compute magnitude
-  this->dataPtr->magnitudeMean = (1. - this->dataPtr->kMag) *
-      this->dataPtr->magnitudeMean + this->dataPtr->kMag *
-      std::sqrt(_wind->LinearVel().X() * _wind->LinearVel().X() +
-                        _wind->LinearVel().Y() * _wind->LinearVel().Y());
-  double magnitude = this->dataPtr->magnitudeMean;
-
-  // Compute magnitude
-  this->dataPtr->magnitudeMeanVertical = (1. - this->dataPtr->kMagVertical) *
-      this->dataPtr->magnitudeMeanVertical +
-      this->dataPtr->kMagVertical * _wind->LinearVel().Z();
-
-  magnitude += this->dataPtr->magnitudeSinAmplitudePercent *
-    this->dataPtr->magnitudeMean *
-    std::sin(2 * M_PI * this->dataPtr->world->SimTime().Double() /
-        this->dataPtr->magnitudeSinPeriod);
-
-  if (this->dataPtr->noiseMagnitude)
-  {
-    magnitude = this->dataPtr->noiseMagnitude->Apply(magnitude);
-  }
-
-  // Compute horizontal direction
-  //
-  double direction = IGN_RTOD(atan2(_wind->LinearVel().Y(),
-                                   _wind->LinearVel().X()));
-
-  this->dataPtr->directionMean = (1.0 - this->dataPtr->kDir) *
-      this->dataPtr->directionMean + this->dataPtr->kDir * direction;
-
-  direction = this->dataPtr->directionMean;
-
-  direction += this->dataPtr->orientationSinAmplitude *
-      std::sin(2 * M_PI * this->dataPtr->world->SimTime().Double() /
-        this->dataPtr->orientationSinPeriod);
-
-  if (this->dataPtr->noiseDirection)
-    direction = this->dataPtr->noiseDirection->Apply(direction);
-
-  // Apply wind velocity
-  ignition::math::Vector3d windVel;
-  windVel.X(magnitude * std::cos(IGN_DTOR(direction)));
-  windVel.Y(magnitude * std::sin(IGN_DTOR(direction)));
-
-  if (this->dataPtr->noiseVertical)
-  {
-    windVel.Z(this->dataPtr->noiseVertical->Apply(
-        this->dataPtr->magnitudeMeanVertical));
-  }
-  else
-  {
-    windVel.Z(this->dataPtr->magnitudeMeanVertical);
-  }
-
-  return windVel;
-}
-
-/////////////////////////////////////////////////
-void WindPlugin::OnUpdate()
+void WindPlugin::OnUpdate(const common::UpdateInfo& _info)
 {
 
   // Get the current simulation time.
-  common::Time now = this->dataPtr->world->SimTime().Double();
+  // common::Time now = this->dataPtr->world->SimTime().Double();
+
+  //TODO: get the time DONE
+  common::Time now = world_->GetSimTime();
 
   // Calculate the wind velocity.
   double wind_velocity = wind_velocity_mean_; // todo need to add where this is defined
@@ -338,7 +235,8 @@ void WindPlugin::OnUpdate()
   wind_msg.set_velocity(wind_total_velocity);
 
   wind_pub_->Publish(wind_msg);
-
+  printf("Print something");
+  cout << wind_total_velocity << endl;;
 // todo: this can be removed too, right?
 /*  // Update loop for using the force on mass approximation
   // This is not recommended. Please use the LiftDragPlugin instead.

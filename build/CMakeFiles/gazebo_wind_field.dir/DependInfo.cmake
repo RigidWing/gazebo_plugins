@@ -5,7 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/isabelle/gazebo_plugins/build/WindField.pb.cc" "/home/isabelle/gazebo_plugins/build/CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o"
-  "/home/isabelle/gazebo_plugins/WindPlugin.cc" "/home/isabelle/gazebo_plugins/build/CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o"
+  "/home/isabelle/gazebo_plugins/gazebo_wind_field_plugin.cpp" "/home/isabelle/gazebo_plugins/build/CMakeFiles/gazebo_wind_field.dir/gazebo_wind_field_plugin.cpp.o"
   "/home/isabelle/gazebo_plugins/build/time.pb.cc" "/home/isabelle/gazebo_plugins/build/CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o"
   "/home/isabelle/gazebo_plugins/build/vector3d.pb.cc" "/home/isabelle/gazebo_plugins/build/CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o"
   )

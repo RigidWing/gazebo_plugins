@@ -150,32 +150,32 @@ WindField.pb.cc.s:
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.s
 .PHONY : WindField.pb.cc.s
 
-WindPlugin.o: WindPlugin.cc.o
+gazebo_wind_field_plugin.o: gazebo_wind_field_plugin.cpp.o
 
-.PHONY : WindPlugin.o
+.PHONY : gazebo_wind_field_plugin.o
 
 # target to build an object file
-WindPlugin.cc.o:
-	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o
-.PHONY : WindPlugin.cc.o
+gazebo_wind_field_plugin.cpp.o:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/gazebo_wind_field_plugin.cpp.o
+.PHONY : gazebo_wind_field_plugin.cpp.o
 
-WindPlugin.i: WindPlugin.cc.i
+gazebo_wind_field_plugin.i: gazebo_wind_field_plugin.cpp.i
 
-.PHONY : WindPlugin.i
+.PHONY : gazebo_wind_field_plugin.i
 
 # target to preprocess a source file
-WindPlugin.cc.i:
-	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.i
-.PHONY : WindPlugin.cc.i
+gazebo_wind_field_plugin.cpp.i:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/gazebo_wind_field_plugin.cpp.i
+.PHONY : gazebo_wind_field_plugin.cpp.i
 
-WindPlugin.s: WindPlugin.cc.s
+gazebo_wind_field_plugin.s: gazebo_wind_field_plugin.cpp.s
 
-.PHONY : WindPlugin.s
+.PHONY : gazebo_wind_field_plugin.s
 
 # target to generate assembly for a file
-WindPlugin.cc.s:
-	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.s
-.PHONY : WindPlugin.cc.s
+gazebo_wind_field_plugin.cpp.s:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/gazebo_wind_field_plugin.cpp.s
+.PHONY : gazebo_wind_field_plugin.cpp.s
 
 time.pb.o: time.pb.cc.o
 
@@ -243,9 +243,9 @@ help:
 	@echo "... WindField.pb.o"
 	@echo "... WindField.pb.i"
 	@echo "... WindField.pb.s"
-	@echo "... WindPlugin.o"
-	@echo "... WindPlugin.i"
-	@echo "... WindPlugin.s"
+	@echo "... gazebo_wind_field_plugin.o"
+	@echo "... gazebo_wind_field_plugin.i"
+	@echo "... gazebo_wind_field_plugin.s"
 	@echo "... time.pb.o"
 	@echo "... time.pb.i"
 	@echo "... time.pb.s"

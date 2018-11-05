@@ -5,7 +5,7 @@ file(REMOVE_RECURSE
   "time.pb.h"
   "vector3d.pb.cc"
   "vector3d.pb.h"
-  "CMakeFiles/gazebo_wind_field.dir/WindPlugin.cc.o"
+  "CMakeFiles/gazebo_wind_field.dir/gazebo_wind_field_plugin.cpp.o"
   "CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o"
   "CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o"
   "CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o"

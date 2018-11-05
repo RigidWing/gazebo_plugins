@@ -47,7 +47,7 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 include_directories(include)
 
 
-add_library(gazebo_wind_field SHARED WindPlugin.cc ${PROTO_SRCS}) # 
+add_library(gazebo_wind_field SHARED gazebo_wind_field_plugin.cpp ${PROTO_SRCS}) # 
 target_include_directories(
     gazebo_wind_field
     PRIVATE ${CMAKE_SOURCE_DIR}/msgs
