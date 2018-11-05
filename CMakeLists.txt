@@ -46,8 +46,8 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 #list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 include_directories(include)
 
-
-add_library(gazebo_wind_field SHARED gazebo_wind_field_plugin.cpp ${PROTO_SRCS}) # 
+##################################################################################
+add_library(gazebo_wind_field SHARED gazebo_wind_field_plugin.cpp ${PROTO_SRCS})  
 target_include_directories(
     gazebo_wind_field
     PRIVATE ${CMAKE_SOURCE_DIR}/msgs
@@ -60,3 +60,19 @@ target_include_directories(
 
 target_link_libraries(gazebo_wind_field ${GAZEBO_LIBRARIES})
 target_link_libraries(gazebo_wind_field ${PROTOBUF_LIBRARY})
+
+##################################################################################
+add_library(gazebo_lift_drag SHARED liftdrag_plugin.cpp ${PROTO_SRCS}) # 
+target_include_directories(
+    gazebo_lift_drag
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+    )
+
+
+
+target_link_libraries(gazebo_lift_drag ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_lift_drag ${PROTOBUF_LIBRARY})
+
+
+

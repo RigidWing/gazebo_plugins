@@ -115,5 +115,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/gazebo_lift_drag.dir/DependInfo.cmake"
   "CMakeFiles/gazebo_wind_field.dir/DependInfo.cmake"
   )

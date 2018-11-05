@@ -60,13 +60,50 @@ CMAKE_SOURCE_DIR = /home/isabelle/gazebo_plugins
 CMAKE_BINARY_DIR = /home/isabelle/gazebo_plugins/build
 
 #=============================================================================
+# Target rules for target CMakeFiles/gazebo_lift_drag.dir
+
+# All Build rule for target.
+CMakeFiles/gazebo_lift_drag.dir/all:
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/depend
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target gazebo_lift_drag"
+.PHONY : CMakeFiles/gazebo_lift_drag.dir/all
+
+# Include target in all.
+all: CMakeFiles/gazebo_lift_drag.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/gazebo_lift_drag.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/isabelle/gazebo_plugins/build/CMakeFiles 8
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/gazebo_lift_drag.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/isabelle/gazebo_plugins/build/CMakeFiles 0
+.PHONY : CMakeFiles/gazebo_lift_drag.dir/rule
+
+# Convenience name for target.
+gazebo_lift_drag: CMakeFiles/gazebo_lift_drag.dir/rule
+
+.PHONY : gazebo_lift_drag
+
+# clean rule for target.
+CMakeFiles/gazebo_lift_drag.dir/clean:
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/clean
+.PHONY : CMakeFiles/gazebo_lift_drag.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/gazebo_lift_drag.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/gazebo_wind_field.dir
 
 # All Build rule for target.
 CMakeFiles/gazebo_wind_field.dir/all:
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/depend
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target gazebo_wind_field"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/isabelle/gazebo_plugins/build/CMakeFiles --progress-num=9,10,11,12,13,14,15,16 "Built target gazebo_wind_field"
 .PHONY : CMakeFiles/gazebo_wind_field.dir/all
 
 # Include target in all.

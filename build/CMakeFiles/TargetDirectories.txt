@@ -1,3 +1,4 @@
 /home/isabelle/gazebo_plugins/build/CMakeFiles/rebuild_cache.dir
+/home/isabelle/gazebo_plugins/build/CMakeFiles/gazebo_lift_drag.dir
 /home/isabelle/gazebo_plugins/build/CMakeFiles/edit_cache.dir
 /home/isabelle/gazebo_plugins/build/CMakeFiles/gazebo_wind_field.dir
