@@ -110,7 +110,8 @@ void GazeboWindPlugin::OnUpdate() {
   wind_msg.set_azimuth(wind_total_azimuth);
   wind_msg.set_velocity(wind_total_velocity);
 
-  // std::cout << wind_vel_x << std::endl;
+  std::cout << "The time now is: " << now << std::endl;
+  std::cout << wind_vel_x << std::endl;
   wind_pub_->Publish(wind_msg);
   //printf("4");
 }
