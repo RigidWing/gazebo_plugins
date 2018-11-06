@@ -79,7 +79,7 @@ class GazeboWindPlugin : public ModelPlugin {
   GazeboWindPlugin()
       : ModelPlugin(),
         namespace_(kDefaultNamespace),
-        wind_field_sub_topic_(kDefaultWindFieldPubTopic),
+        wind_pub_topic_(kDefaultWindFieldPubTopic),
         wind_velocity_mean_(kDefaultWindVelocityMean),
         wind_velocity_variance_(kDefaultWindVelocityVariance),
         wind_gust_velocity_mean_(kDefaultWindGustVelocityMean),
@@ -117,7 +117,7 @@ class GazeboWindPlugin : public ModelPlugin {
 
   std::string frame_id_;
   std::string link_name_;
-  std::string wind_field_sub_topic_;
+  std::string wind_pub_topic_;
 
   double wind_velocity_mean_;
   double wind_velocity_variance_;

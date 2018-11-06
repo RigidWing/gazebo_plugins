@@ -43,7 +43,7 @@ void GazeboWindPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   node_handle_ = transport::NodePtr(new transport::Node());
   node_handle_->Init(namespace_);
 
-  getSdfParam<std::string>(_sdf, "windPubTopic", wind_field_sub_topic_, wind_field_sub_topic_);
+  getSdfParam<std::string>(_sdf, "windPubTopic", wind_pub_topic_, wind_pub_topic_);
   getSdfParam<std::string>(_sdf, "frameId", frame_id_, frame_id_);
   getSdfParam<std::string>(_sdf, "linkName", link_name_, link_name_);
   // Get the wind params from SDF.
@@ -61,7 +61,7 @@ void GazeboWindPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
   wind_gust_end_ = common::Time(wind_gust_start + wind_gust_duration);
 
   // For Debugging purposes
-  std::cout << "The wind_field_sub_topic_ is: " << wind_field_sub_topic_ << std::endl;
+  std::cout << "The  is: " << wind_pub_topic_ << std::endl;
   std::cout << "The link name is: " << link_name_ << std::endl;
 
   link_ = model_->GetLink(link_name_);
@@ -76,7 +76,7 @@ void GazeboWindPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) {
             std::bind(&GazeboWindPlugin::OnUpdate, this));
 
 
-  wind_pub_ = node_handle_->Advertise<wind_field_msgs::msgs::WindField>(wind_field_sub_topic_, 1);
+  wind_pub_ = node_handle_->Advertise<wind_field_msgs::msgs::WindField>(wind_pub_topic_, 1);
   // printf("2");
 }
 

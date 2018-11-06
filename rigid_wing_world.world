@@ -156,7 +156,7 @@
       </link>
       <pose frame=''>-0.05186 -0.149748 0 0 -0 0</pose>
       <plugin name="gazebo_wind_field" filename="libgazebo_wind_field.so">
-        <windPubTopic>"wind_topic"</windPubTopic>
+        <windPubTopic>/wind_field</windPubTopic>
         <frameId>"18"</frameId>
 	<linkName>rigid_wing::main_wing</linkName>
         <windVelocityMean>10.00</windVelocityMean>
