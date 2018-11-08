@@ -86,6 +86,25 @@
           </contact>
         </surface>
       </collision>
+		<!-- Sensors added here -->
+		<sensor type="altimeter" name="my_altimeter">
+			<always_on>true</always_on>
+			<topic>/altimeter_data</topic>
+			<update_rate>10</update_rate>
+			<frame name="altimeter_frame">
+				<pose frame="altimeter_frame">0 0 0 0 0 0</pose>				
+			</frame>
+			<altimeter>
+				<vertical_position>
+					<noise type="none">
+					</noise>
+				</vertical_position>
+				<vertical_velocity>
+					<noise type="none">
+					</noise>
+				</vertical_velocity>
+			</altimeter>
+		</sensor>
     </link>
     <static>0</static>
     <allow_auto_disable>1</allow_auto_disable>
