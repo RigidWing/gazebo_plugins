@@ -109,82 +109,9 @@
         <pose frame=''>0 0 10 0 -0 0</pose>
       </light>
     </state>
-    <model name='rigid_wing'>
-      <static>0</static>
-      <link name='main_wing'>
-        <pose frame=''>0 0 0.1 0 -0 0</pose>
-        <collision name='collision'>
-          <geometry>
-            <box>
-              <size>0.8 0.3 0.05</size>
-            </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <box>
-              <size>0.8 0.3 0.05</size>
-            </box>
-          </geometry>
-        </visual>
-        <self_collide>0</self_collide>
-        <inertial>
-          <inertia>
-            <ixx>1</ixx>
-            <ixy>0</ixy>
-            <ixz>0</ixz>
-            <iyy>1</iyy>
-            <iyz>0</iyz>
-            <izz>1</izz>
-          </inertia>
-          <mass>1</mass>
-        </inertial>
-        <kinematic>0</kinematic>
-      </link>
-      <pose frame=''>-0.05186 -0.149748 0 0 -0 0</pose>
-      <plugin name="gazebo_wind_field" filename="libgazebo_wind_field.so">
-        <windPubTopic>/wind_field</windPubTopic>
-        <frameId>"18"</frameId>
-	<linkName>rigid_wing::main_wing</linkName>
-        <windVelocityMean>10.00</windVelocityMean>
-        <windVelocityVariance>5.00</windVelocityVariance>
-        <windAzimuth>0.5</windAzimuth>
-        <windGustStart>5</windGustStart>
-        <windGustDuration>30</windGustDuration>
-        <windGustVelocityMean>2</windGustVelocityMean>
-	<windGustVelocityVariance>0.1</windGustVelocityVariance>
-	<windGustAzimuth>3.55</windGustAzimuth>        
-      </plugin>
-      <plugin name="gazebo_lift_drag" filename="libgazebo_lift_drag.so">
-        <radial_symmetry></radial_symmetry>
-	<a0>0.08727</a0>
-	<cla>5.418</cla>
-	<cda>0.0</cda>
-	<cma>0.0</cma>
-	<alpha_stall>0.3368</alpha_stall>
-	<cla_stall>-2.1419</cla_stall>
-	<cma_stall>0.0</cma_stall>
-	<cp>0.8</cp>
-	<forward>1 0 0</forward>
-	<upward>0 0 1</upward>
-	<area>2.00</area>
-	<air_density>1.225</air_density>
-	<link_name>rigid_wing::main_wing</link_name>
-      </plugin>
-    </model>      
+    <include>
+	<uri>model://rigid_wing/</uri>
+    </include>     
     <gui fullscreen='0'>
       <camera name='user_camera'>
         <pose frame=''>5 -5 2 0 0.275643 2.35619</pose>
