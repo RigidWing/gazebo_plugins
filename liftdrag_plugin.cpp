@@ -191,7 +191,9 @@ void LiftDragPlugin::Load(physics::ModelPtr _model,
   printf("Just before subscribing to the wind_field_sub_topic_ \n");
   //getSdfParam<std::string>(_sdf, "windFieldSubTopic", wind_field_sub_topic_, wind_field_sub_topic_);
   //wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>("~/" + this->model->GetName() + wind_field_sub_topic_, &LiftDragPlugin::WindFieldCallback, this);
-  wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>(wind_field_sub_topic_, &LiftDragPlugin::WindFieldCallback, this); 
+  wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>(wind_field_sub_topic_, &LiftDragPlugin::WindFieldCallback, this);
+  // An Additional SubscriberPtr To Subscribe to the test_msg Topic
+  test_msg_sub_ = node_handle_->Subscribe<msgs::Vector3d>("/test_topic",&LiftDragPlugin::TestMsgCallback, this);
 
   printf("Just After subscribing to the wind_field_sub_topic_ \n");
 }
@@ -489,5 +491,12 @@ void LiftDragPlugin::WindFieldCallback(WindFieldPtr &wind_field){
 	vel_wind = wind_field->velocity();
 	azimuth_wind = wind_field->azimuth();
   std::cout << "The wind velocity is " << vel_wind << std::endl;
+
+}
+
+void LiftDragPlugin::TestMsgCallback(TestMsgPtr &test_msg){
+  printf("Inside the WindFieldCallback function \n");
+	vel_wind = test_msg->x();
+  std::cout << "The test message x velocity is " << vel_wind << std::endl;
 
 }

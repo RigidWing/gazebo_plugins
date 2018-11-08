@@ -7,6 +7,7 @@ CMakeFiles/gazebo_lift_drag.dir/WindField.pb.cc.o: time.pb.h
 
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: ../include/common.h
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: ../include/liftdrag_plugin/liftdrag_plugin.h
+CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: ../include/send_protobuf_msgs.hh
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: ../liftdrag_plugin.cpp
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/Master.hh
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/Server.hh
@@ -61,6 +62,7 @@ CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gaz
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/common/common.hh
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/common/ffmpeg_inc.h
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/gazebo.hh
+CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/gazebo_client.hh
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/gazebo_config.h
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/gazebo_core.hh
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o: /usr/include/gazebo-9/gazebo/msgs/MessageTypes.hh

@@ -8,6 +8,7 @@ CMakeFiles/gazebo_lift_drag.dir/WindField.pb.cc.o
 CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o
  ../include/common.h
  ../include/liftdrag_plugin/liftdrag_plugin.h
+ ../include/send_protobuf_msgs.hh
  /home/isabelle/gazebo_plugins/liftdrag_plugin.cpp
  /usr/include/gazebo-9/gazebo/Master.hh
  /usr/include/gazebo-9/gazebo/Server.hh
@@ -62,6 +63,7 @@ CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o
  /usr/include/gazebo-9/gazebo/common/common.hh
  /usr/include/gazebo-9/gazebo/common/ffmpeg_inc.h
  /usr/include/gazebo-9/gazebo/gazebo.hh
+ /usr/include/gazebo-9/gazebo/gazebo_client.hh
  /usr/include/gazebo-9/gazebo/gazebo_config.h
  /usr/include/gazebo-9/gazebo/gazebo_core.hh
  /usr/include/gazebo-9/gazebo/msgs/MessageTypes.hh

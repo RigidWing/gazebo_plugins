@@ -11,22 +11,26 @@
 
 #include <gazebo/gazebo_client.hh>
 //#include "liftdrag_plugin/liftdrag_plugin.h"
+
 double argv_double;
 
 namespace gazebo{
 
   std::string namespace_;
-  std::string wind_pub_topic_;
-  std::string wind_field_sub_topic_;
+  std::string commandline_wind_pub_topic_;
+  std::string commandline_wind_field_sub_topic_;
   transport::NodePtr node_handle_;
-  transport::PublisherPtr wind_pub_;
-  transport::SubscriberPtr wind_field_sub_;
+  transport::PublisherPtr commandline_wind_pub_;
+  transport::SubscriberPtr commandline_wind_field_sub_;
   wind_field_msgs::msgs::WindField wind_msg;
 
   // The Test Topic and Test Message
   std::string test_pub_topic_;
   transport::PublisherPtr test_pub_;
   msgs::Vector3d test_msg;
+
+  // Create a different node that would subscribe to the /wind_field topic (new node possibly to resolve the mutex issue)
+  transport::NodePtr second_node_handle_;
 
   // a Message Ptr
   transport::MessagePtr previously_published_message;

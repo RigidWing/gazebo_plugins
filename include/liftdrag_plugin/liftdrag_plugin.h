@@ -30,13 +30,16 @@
 #include "common.h"
 #include <common.h>
 #include "WindField.pb.h"
+
+#include "send_protobuf_msgs.hh"
+
 static const std::string kDefaultWindFieldSubTopic = "/wind_field";
 
 
 namespace gazebo
 {
-// KITEPOWER (Xander)
-typedef const boost::shared_ptr<const wind_field_msgs::msgs::WindField> WindFieldPtr;
+  // KITEPOWER (Xander)
+  typedef const boost::shared_ptr<const wind_field_msgs::msgs::WindField> WindFieldPtr;
 
   /// \brief A plugin that simulates lift and drag.
   class GAZEBO_VISIBLE LiftDragPlugin : public ModelPlugin
@@ -149,16 +152,21 @@ typedef const boost::shared_ptr<const wind_field_msgs::msgs::WindField> WindFiel
 
     // KITEPOWER (Xander)
     private:
-	transport::NodePtr node_handle_;
-	std::string wind_field_sub_topic_;
-	transport::SubscriberPtr wind_field_sub_;
-	void WindFieldCallback(WindFieldPtr &wind_field);
-	std::string namespace_;
+	  transport::NodePtr node_handle_;
+	  std::string wind_field_sub_topic_;
+	  transport::SubscriberPtr wind_field_sub_;
+	  void WindFieldCallback(WindFieldPtr &wind_field);
+	  std::string namespace_;
+
+    // An Additional SubscriberPtr To Subscribe to the test_msg Topic
+    transport::SubscriberPtr test_msg_sub_;
+    typedef const boost::shared_ptr<const msgs::Vector3d> TestMsgPtr;
+    void TestMsgCallback(TestMsgPtr &test_msg);
 
     // KITEPOWER (Xander)
     protected:
-	double azimuth_wind;	// [rad/s]
-	double vel_wind;	// [m/s]
+	  double azimuth_wind;	// [rad/s]
+	  double vel_wind;	// [m/s]
 
     // KITEPOWER
     /// \brief set to true to use constant Coefficient of Drag
