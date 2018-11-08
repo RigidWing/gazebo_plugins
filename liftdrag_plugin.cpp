@@ -191,7 +191,7 @@ void LiftDragPlugin::Load(physics::ModelPtr _model,
   printf("Just before subscribing to the wind_field_sub_topic_ \n");
   //getSdfParam<std::string>(_sdf, "windFieldSubTopic", wind_field_sub_topic_, wind_field_sub_topic_);
   //wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>("~/" + this->model->GetName() + wind_field_sub_topic_, &LiftDragPlugin::WindFieldCallback, this);
-  wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>(wind_field_sub_topic_, &LiftDragPlugin::WindFieldCallback, this);
+  wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>(wind_field_sub_topic_, &LiftDragPlugin::WindFieldCallback, this); 
 
   printf("Just After subscribing to the wind_field_sub_topic_ \n");
 }

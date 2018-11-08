@@ -168,6 +168,22 @@
 	<windGustVelocityVariance>0.1</windGustVelocityVariance>
 	<windGustAzimuth>3.55</windGustAzimuth>        
       </plugin>
+      <plugin name="gazebo_lift_drag" filename="libgazebo_lift_drag.so">
+        <radial_symmetry></radial_symmetry>
+	<a0>0.08727</a0>
+	<cla>5.418</cla>
+	<cda>0.0</cda>
+	<cma>0.0</cma>
+	<alpha_stall>0.3368</alpha_stall>
+	<cla_stall>-2.1419</cla_stall>
+	<cma_stall>0.0</cma_stall>
+	<cp>0.8</cp>
+	<forward>1 0 0</forward>
+	<upward>0 0 1</upward>
+	<area>2.00</area>
+	<air_density>1.225</air_density>
+	<link_name>rigid_wing::main_wing</link_name>
+      </plugin>
     </model>      
     <gui fullscreen='0'>
       <camera name='user_camera'>

@@ -56,17 +56,6 @@ CMAKE_BINARY_DIR = /home/isabelle/gazebo_plugins/build
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target rebuild_cache
-rebuild_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
-.PHONY : rebuild_cache
-
-# Special rule for the target rebuild_cache
-rebuild_cache/fast: rebuild_cache
-
-.PHONY : rebuild_cache/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -77,6 +66,17 @@ edit_cache:
 edit_cache/fast: edit_cache
 
 .PHONY : edit_cache/fast
+
+# Special rule for the target rebuild_cache
+rebuild_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
+	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+.PHONY : rebuild_cache
+
+# Special rule for the target rebuild_cache
+rebuild_cache/fast: rebuild_cache
+
+.PHONY : rebuild_cache/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named gazebo_wind_field
+
+# Build rule for target.
+gazebo_wind_field: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 gazebo_wind_field
+.PHONY : gazebo_wind_field
+
+# fast build rule for target.
+gazebo_wind_field/fast:
+	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/build
+.PHONY : gazebo_wind_field/fast
+
+#=============================================================================
 # Target rules for targets named gazebo_lift_drag
 
 # Build rule for target.
@@ -124,17 +137,17 @@ gazebo_lift_drag/fast:
 .PHONY : gazebo_lift_drag/fast
 
 #=============================================================================
-# Target rules for targets named gazebo_wind_field
+# Target rules for targets named send_commandline_protobuf
 
 # Build rule for target.
-gazebo_wind_field: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 gazebo_wind_field
-.PHONY : gazebo_wind_field
+send_commandline_protobuf: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 send_commandline_protobuf
+.PHONY : send_commandline_protobuf
 
 # fast build rule for target.
-gazebo_wind_field/fast:
-	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/build
-.PHONY : gazebo_wind_field/fast
+send_commandline_protobuf/fast:
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/build
+.PHONY : send_commandline_protobuf/fast
 
 WindField.pb.o: WindField.pb.cc.o
 
@@ -142,8 +155,9 @@ WindField.pb.o: WindField.pb.cc.o
 
 # target to build an object file
 WindField.pb.cc.o:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/WindField.pb.cc.o
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.o
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/WindField.pb.cc.o
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/WindField.pb.cc.o
 .PHONY : WindField.pb.cc.o
 
 WindField.pb.i: WindField.pb.cc.i
@@ -152,8 +166,9 @@ WindField.pb.i: WindField.pb.cc.i
 
 # target to preprocess a source file
 WindField.pb.cc.i:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/WindField.pb.cc.i
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.i
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/WindField.pb.cc.i
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/WindField.pb.cc.i
 .PHONY : WindField.pb.cc.i
 
 WindField.pb.s: WindField.pb.cc.s
@@ -162,8 +177,9 @@ WindField.pb.s: WindField.pb.cc.s
 
 # target to generate assembly for a file
 WindField.pb.cc.s:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/WindField.pb.cc.s
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/WindField.pb.cc.s
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/WindField.pb.cc.s
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/WindField.pb.cc.s
 .PHONY : WindField.pb.cc.s
 
 gazebo_wind_field_plugin.o: gazebo_wind_field_plugin.cpp.o
@@ -220,14 +236,42 @@ liftdrag_plugin.cpp.s:
 	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.s
 .PHONY : liftdrag_plugin.cpp.s
 
+send_protobuf_msgs.o: send_protobuf_msgs.cc.o
+
+.PHONY : send_protobuf_msgs.o
+
+# target to build an object file
+send_protobuf_msgs.cc.o:
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/send_protobuf_msgs.cc.o
+.PHONY : send_protobuf_msgs.cc.o
+
+send_protobuf_msgs.i: send_protobuf_msgs.cc.i
+
+.PHONY : send_protobuf_msgs.i
+
+# target to preprocess a source file
+send_protobuf_msgs.cc.i:
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/send_protobuf_msgs.cc.i
+.PHONY : send_protobuf_msgs.cc.i
+
+send_protobuf_msgs.s: send_protobuf_msgs.cc.s
+
+.PHONY : send_protobuf_msgs.s
+
+# target to generate assembly for a file
+send_protobuf_msgs.cc.s:
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/send_protobuf_msgs.cc.s
+.PHONY : send_protobuf_msgs.cc.s
+
 time.pb.o: time.pb.cc.o
 
 .PHONY : time.pb.o
 
 # target to build an object file
 time.pb.cc.o:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/time.pb.cc.o
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/time.pb.cc.o
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/time.pb.cc.o
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/time.pb.cc.o
 .PHONY : time.pb.cc.o
 
 time.pb.i: time.pb.cc.i
@@ -236,8 +280,9 @@ time.pb.i: time.pb.cc.i
 
 # target to preprocess a source file
 time.pb.cc.i:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/time.pb.cc.i
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/time.pb.cc.i
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/time.pb.cc.i
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/time.pb.cc.i
 .PHONY : time.pb.cc.i
 
 time.pb.s: time.pb.cc.s
@@ -246,8 +291,9 @@ time.pb.s: time.pb.cc.s
 
 # target to generate assembly for a file
 time.pb.cc.s:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/time.pb.cc.s
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/time.pb.cc.s
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/time.pb.cc.s
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/time.pb.cc.s
 .PHONY : time.pb.cc.s
 
 vector3d.pb.o: vector3d.pb.cc.o
@@ -256,8 +302,9 @@ vector3d.pb.o: vector3d.pb.cc.o
 
 # target to build an object file
 vector3d.pb.cc.o:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/vector3d.pb.cc.o
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.o
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/vector3d.pb.cc.o
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/vector3d.pb.cc.o
 .PHONY : vector3d.pb.cc.o
 
 vector3d.pb.i: vector3d.pb.cc.i
@@ -266,8 +313,9 @@ vector3d.pb.i: vector3d.pb.cc.i
 
 # target to preprocess a source file
 vector3d.pb.cc.i:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/vector3d.pb.cc.i
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.i
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/vector3d.pb.cc.i
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/vector3d.pb.cc.i
 .PHONY : vector3d.pb.cc.i
 
 vector3d.pb.s: vector3d.pb.cc.s
@@ -276,8 +324,9 @@ vector3d.pb.s: vector3d.pb.cc.s
 
 # target to generate assembly for a file
 vector3d.pb.cc.s:
-	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/vector3d.pb.cc.s
 	$(MAKE) -f CMakeFiles/gazebo_wind_field.dir/build.make CMakeFiles/gazebo_wind_field.dir/vector3d.pb.cc.s
+	$(MAKE) -f CMakeFiles/gazebo_lift_drag.dir/build.make CMakeFiles/gazebo_lift_drag.dir/vector3d.pb.cc.s
+	$(MAKE) -f CMakeFiles/send_commandline_protobuf.dir/build.make CMakeFiles/send_commandline_protobuf.dir/vector3d.pb.cc.s
 .PHONY : vector3d.pb.cc.s
 
 # Help Target
@@ -286,10 +335,11 @@ help:
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
-	@echo "... rebuild_cache"
-	@echo "... gazebo_lift_drag"
 	@echo "... edit_cache"
 	@echo "... gazebo_wind_field"
+	@echo "... gazebo_lift_drag"
+	@echo "... send_commandline_protobuf"
+	@echo "... rebuild_cache"
 	@echo "... WindField.pb.o"
 	@echo "... WindField.pb.i"
 	@echo "... WindField.pb.s"
@@ -299,6 +349,9 @@ help:
 	@echo "... liftdrag_plugin.o"
 	@echo "... liftdrag_plugin.i"
 	@echo "... liftdrag_plugin.s"
+	@echo "... send_protobuf_msgs.o"
+	@echo "... send_protobuf_msgs.i"
+	@echo "... send_protobuf_msgs.s"
 	@echo "... time.pb.o"
 	@echo "... time.pb.i"
 	@echo "... time.pb.s"

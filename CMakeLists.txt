@@ -34,8 +34,8 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 include_directories(${CMAKE_BINARY_DIR})
 
 # The following include directory points to the directory that contains the latest gazebo source code obtained from bitbucket
-set(PATH_TO_GAZEBO_SRC_DIR "/home/isabelle/gazebo_from_bitbucket")
-message("The path to the gazebo src dir", ${PATH_TO_GAZEBO_SRC_DIR})
+#set(PATH_TO_GAZEBO_SRC_DIR "/home/isabelle/gazebo_from_bitbucket")
+#message("The path to the gazebo src dir", ${PATH_TO_GAZEBO_SRC_DIR})
 #include_directories(${PATH_TO_GAZEBO_SRC_DIR})
 # Get the corresponding paths for the cc files included in the directory.
 
@@ -47,7 +47,7 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 include_directories(include)
 
 ##################################################################################
-add_library(gazebo_wind_field SHARED gazebo_wind_field_plugin.cpp ${PROTO_SRCS})  
+add_library(gazebo_wind_field SHARED gazebo_wind_field_plugin.cpp ${PROTO_SRCS})
 target_include_directories(
     gazebo_wind_field
     PRIVATE ${CMAKE_SOURCE_DIR}/msgs
@@ -62,7 +62,7 @@ target_link_libraries(gazebo_wind_field ${GAZEBO_LIBRARIES})
 target_link_libraries(gazebo_wind_field ${PROTOBUF_LIBRARY})
 
 ##################################################################################
-add_library(gazebo_lift_drag SHARED liftdrag_plugin.cpp ${PROTO_SRCS}) # 
+add_library(gazebo_lift_drag SHARED liftdrag_plugin.cpp ${PROTO_SRCS}) #
 target_include_directories(
     gazebo_lift_drag
     PRIVATE ${CMAKE_SOURCE_DIR}/msgs
@@ -74,5 +74,14 @@ target_include_directories(
 target_link_libraries(gazebo_lift_drag ${GAZEBO_LIBRARIES})
 target_link_libraries(gazebo_lift_drag ${PROTOBUF_LIBRARY})
 
+##################################################################################
 
+add_executable(send_commandline_protobuf send_protobuf_msgs.cc ${PROTO_SRCS})
+target_include_directories(
+    send_commandline_protobuf
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+)
 
+target_link_libraries(send_commandline_protobuf ${GAZEBO_LIBRARIES})
+target_link_libraries(send_commandline_protobuf ${PROTOBUF_LIBRARY})
