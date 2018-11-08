@@ -494,8 +494,9 @@ void LiftDragPlugin::WindFieldCallback(WindFieldPtr &wind_field){
 
 }
 
+// Callback of the SubscriberPtr to the test_msg Topic
 void LiftDragPlugin::TestMsgCallback(TestMsgPtr &test_msg){
-  printf("Inside the WindFieldCallback function \n");
+  printf("Inside the TestMsgCallback function \n");
 	vel_wind = test_msg->x();
   std::cout << "The test message x velocity is " << vel_wind << std::endl;
 
