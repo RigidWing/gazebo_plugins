@@ -87,9 +87,10 @@
         </surface>
       </collision>
 		<!-- Sensors added here -->
-		<sensor type="altimeter" name="my_altimeter">
+		<sensor type="altimeter" name="main_altimeter">
 			<always_on>true</always_on>
 			<topic>/altimeter_data</topic>
+			<visualize>true</visualize>
 			<update_rate>10</update_rate>
 			<frame name="altimeter_frame">
 				<pose frame="altimeter_frame">0 0 0 0 0 0</pose>				
@@ -104,6 +105,47 @@
 					</noise>
 				</vertical_velocity>
 			</altimeter>
+		</sensor>
+		<sensor type="force_torque" name="main_force_torque">
+			<always_on>true</always_on>	
+			<topic>/force_torque_data</topic>
+			<visualize>true</visualize>
+			<update_rate>100</update_rate>
+			<frame name="force_torque_frame">
+				<pose frame="force_torque_frame">0 0 0 0 0 0</pose>				
+			</frame>
+			<force_torque>
+				<frame >child</frame>
+				<measure_direction>child_to_parent</measure_direction>
+			</force_torque>
+		</sensor>
+        <!--sensor name="tether_force_torque" type="force_torque">
+			<always_on>true</always_on>
+			<update_rate>100</update_rate>
+			<force_torque>
+			  <frame>child</frame>
+			  <measure_direction>child_to_parent</measure_direction>
+			</force_torque>
+        </sensor-->
+		<sensor type="magnetometer" name="main_magnetometer">
+			<always_on>true</always_on>	
+			<topic>/magnetometer_data</topic>
+			<visualize>true</visualize>
+			<update_rate>10</update_rate>
+			<frame name="magnetometer_frame">
+				<pose frame="magnetometer_frame">0 0 0 0 0 0</pose>				
+			</frame>
+			<magnetometer>
+				<x>
+					<noise type="none"></noise>
+				</x>
+				<y>
+					<noise type="none"></noise>				
+				</y>
+				<z>
+					<noise type="none"></noise>				
+				</z>
+			</magnetometer>
 		</sensor>
     </link>
     <static>0</static>
@@ -124,7 +166,7 @@
       <air_density>1.225</air_density>
       <link_name>rigid_wing::main_wing</link_name>
     </plugin>
-    <plugin name='gazebo_wind_field' filename='libgazebo_wind_field.so'>
+    <!--plugin name='gazebo_wind_field' filename='libgazebo_wind_field.so'>
       <windPubTopic>/wind_field</windPubTopic>
       <frameId>"18"</frameId>
       <linkName>rigid_wing::main_wing</linkName>
@@ -136,6 +178,11 @@
       <windGustVelocityMean>2</windGustVelocityMean>
       <windGustVelocityVariance>0.1</windGustVelocityVariance>
       <windGustAzimuth>3.55</windGustAzimuth>
-    </plugin>
+    </plugin-->
+  <joint name="fixed_to_origin" type="ball">
+	  <parent>ground_plane</parent>
+	  <child>rigid_wing::main_wing</child>
+	  <pose>0 0 0 0 0 0</pose>  
+  </joint>
   </model>
 </sdf>

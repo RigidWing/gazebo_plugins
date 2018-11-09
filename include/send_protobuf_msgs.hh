@@ -12,7 +12,9 @@
 #include <gazebo/gazebo_client.hh>
 //#include "liftdrag_plugin/liftdrag_plugin.h"
 
-double argv_double;
+double argv1_double;
+double argv2_double;
+double argv3_double;
 
 namespace gazebo{
 
