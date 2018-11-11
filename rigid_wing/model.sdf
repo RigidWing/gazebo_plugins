@@ -106,27 +106,7 @@
 				</vertical_velocity>
 			</altimeter>
 		</sensor>
-		<sensor type="force_torque" name="main_force_torque">
-			<always_on>true</always_on>	
-			<topic>/force_torque_data</topic>
-			<visualize>true</visualize>
-			<update_rate>100</update_rate>
-			<frame name="force_torque_frame">
-				<pose frame="force_torque_frame">0 0 0 0 0 0</pose>				
-			</frame>
-			<force_torque>
-				<frame >child</frame>
-				<measure_direction>child_to_parent</measure_direction>
-			</force_torque>
-		</sensor>
-        <!--sensor name="tether_force_torque" type="force_torque">
-			<always_on>true</always_on>
-			<update_rate>100</update_rate>
-			<force_torque>
-			  <frame>child</frame>
-			  <measure_direction>child_to_parent</measure_direction>
-			</force_torque>
-        </sensor-->
+		<!-- force sensor is in the joint -->
 		<sensor type="magnetometer" name="main_magnetometer">
 			<always_on>true</always_on>	
 			<topic>/magnetometer_data</topic>
@@ -180,9 +160,30 @@
       <windGustAzimuth>3.55</windGustAzimuth>
     </plugin-->
   <joint name="fixed_to_origin" type="ball">
-	  <parent>ground_plane</parent>
+	  <parent>world</parent>
 	  <child>rigid_wing::main_wing</child>
 	  <pose>0 0 0 0 0 0</pose>  
+	  	<sensor type="force_torque" name="main_force_torque">
+			<always_on>true</always_on>	
+			<topic>/force_torque_data</topic>
+			<visualize>true</visualize>
+			<update_rate>100</update_rate>
+			<frame name="force_torque_frame">
+				<pose frame="force_torque_frame">0 0 0 0 0 0</pose>				
+			</frame>
+			<force_torque>
+				<frame >child</frame>
+				<measure_direction>child_to_parent</measure_direction>
+			</force_torque>
+		</sensor>
+        <!--sensor name="tether_force_torque" type="force_torque">
+			<always_on>true</always_on>
+			<update_rate>100</update_rate>
+			<force_torque>
+			  <frame>child</frame>
+			  <measure_direction>child_to_parent</measure_direction>
+			</force_torque>
+        </sensor-->
   </joint>
   </model>
 </sdf>

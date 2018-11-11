@@ -213,7 +213,15 @@ void LiftDragPlugin::OnUpdate()
   ignition::math::Vector3d velI = vel;
   // FTERO (jonas) & KITEPOWER (Xander)
   // start ---
-  ignition::math::Vector3d constantWind(this->vel_wind*cos(this->azimuth_wind),this->vel_wind*sin(this->azimuth_wind),0);
+
+  // if (testMsgCallbackUsed == 1){
+  //
+  //   std::cout << "The value for vel_wind_x is " << this->vel_wind_x << std::endl;
+  //   ignition::math::Vector3d constantWind(this->vel_wind_x,this->vel_wind_y,this->vel_wind_z);
+  // }
+  // else{
+    ignition::math::Vector3d constantWind(this->vel_wind*cos(this->azimuth_wind),this->vel_wind*sin(this->azimuth_wind),0);
+  // }
   vel += constantWind;
   // end   ---
   velI.Normalize();
@@ -234,6 +242,8 @@ void LiftDragPlugin::OnUpdate()
 #endif
 
   // rotate forward and upward vectors into inertial frame
+
+  std::cout << "The Pose is " << pose << std::endl;
   ignition::math::Vector3d forwardI = pose.Rot().RotateVector(this->forward);
 
   ignition::math::Vector3d upwardI;
@@ -427,6 +437,8 @@ void LiftDragPlugin::OnUpdate()
 
   // force and torque about cg in inertial frame
   ignition::math::Vector3d force = lift + drag;
+
+  std::cout << "The force is " << force << std::endl;
   // + moment.Cross(momentArm);
 
   ignition::math::Vector3d torque = moment;
@@ -496,10 +508,30 @@ void LiftDragPlugin::WindFieldCallback(WindFieldPtr &wind_field){
 
 // Callback of the SubscriberPtr to the test_msg Topic
 void LiftDragPlugin::TestMsgCallback(TestMsgPtr &test_msg){
+
+  testMsgCallbackUsed = 1;
   printf("Inside the TestMsgCallback function \n");
-	//vel_wind = test_msg->x();
+	vel_wind = sqrt(pow(test_msg->x(),2) + pow(test_msg->y(),2) + pow(test_msg->z(),2));
+
+  if( (test_msg->x() == 0) && (test_msg->y() == 0)){
+    printf("Both x and y are zero\n");
+    std::cout << "The azimuth angle is undefined" << std::endl;
+    std::cout << "but there is some registered value for azimuth which is " << azimuth_wind << std::endl;
+  }
+  else{
+    azimuth_wind = atan2 (test_msg->y(),-1*test_msg->x());// let x point in the direciton of north
+    std::cout << "The azimuth angle is " << azimuth_wind << std::endl;
+  }
+
   std::cout << "The test message x velocity is " << test_msg->x() << std::endl;
   std::cout << "The test message y velocity is " << test_msg->y() << std::endl;
   std::cout << "The test message z velocity is " << test_msg->z() << std::endl;
+  std::cout << "The wind velocity is " << vel_wind << std::endl;
+
+  vel_wind_x = test_msg->x();
+  vel_wind_y = test_msg->y();
+  vel_wind_z = test_msg->z();
+
+
 
 }

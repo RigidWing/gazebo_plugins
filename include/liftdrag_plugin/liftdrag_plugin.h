@@ -33,6 +33,8 @@
 
 #include "send_protobuf_msgs.hh"
 
+#include <math.h>
+
 static const std::string kDefaultWindFieldSubTopic = "/wind_field";
 
 
@@ -167,10 +169,17 @@ namespace gazebo
     protected:
 	  double azimuth_wind;	// [rad/s]
 	  double vel_wind;	// [m/s]
+    double vel_wind_x;	// [m/s]
+    double vel_wind_y;	// [m/s]
+    double vel_wind_z;	// [m/s]
 
     // KITEPOWER
     /// \brief set to true to use constant Coefficient of Drag
     protected: bool useConstantDragCoefficient;
+
+    protected: bool testMsgCallbackUsed;
+
+  protected: ignition::math::Vector3d constantWind;
   };
 }
 #endif

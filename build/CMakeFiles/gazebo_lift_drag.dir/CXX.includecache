@@ -37,6 +37,8 @@ WindField.pb.h
 ../include/liftdrag_plugin/WindField.pb.h
 send_protobuf_msgs.hh
 ../include/liftdrag_plugin/send_protobuf_msgs.hh
+math.h
+-
 
 ../include/send_protobuf_msgs.hh
 stdlib.h

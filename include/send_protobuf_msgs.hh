@@ -42,13 +42,13 @@ namespace gazebo{
   double new_velocity;
   // void parse_wind_field_msg(WindFieldPtr &wind_field_msg_ptr);
 
-  void parse_wind_field_msg(WindFieldPtr &wind_field_msg_ptr)
-  {
-    common::Time::MSleep(100);
-    printf("Inside the parse_wind_field_msg function \n");
-    new_velocity = wind_field_msg_ptr->velocity();
-    std::cout << "The new velocity is: " << new_velocity << std::endl;
-  }
+  // void parse_wind_field_msg(WindFieldPtr &wind_field_msg_ptr)
+  // {
+  //   common::Time::MSleep(100);
+  //   printf("Inside the parse_wind_field_msg function \n");
+  //   new_velocity = wind_field_msg_ptr->velocity();
+  //   std::cout << "The new velocity is: " << new_velocity << std::endl;
+  // }
 
 
 
