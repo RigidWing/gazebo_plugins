@@ -23,9 +23,6 @@ int main(int _argc, char **_argv) { //int main(int argc, char * const argv[]) {
   node_handle_ = transport::NodePtr(new transport::Node());
   node_handle_->Init(namespace_);
 
-  // Is namespace_ ever specified somewhere?
-  std::cout << "Namespace is " << namespace_ << std::endl;
-
   // // EXPERIMENTAL Maybe a new node handle is needed for subscribing. One for subscription and one for publishing.
   // second_node_handle_ = transport::NodePtr(new transport::Node());
   // second_node_handle_->Init(namespace_);
@@ -46,14 +43,19 @@ int main(int _argc, char **_argv) { //int main(int argc, char * const argv[]) {
         // Convert from ‘char* const’ to ‘double’ using atof
         argv1_double = atof(_argv[1]);
         argv2_double = atof(_argv[2]);
-        argv3_double = atof(_argv[3]);
+
+        //argv3_double = atof(_argv[3]);
+
         // //wind_field_msgs::msgs::WindField wind_msg;
         // wind_msg.set_velocity(argv_double);
         // commandline_wind_pub_->Publish(wind_msg);
 
-        test_msg.set_x(argv1_double);
-        test_msg.set_y(argv2_double);
-        test_msg.set_z(argv3_double);
+        test_msg.set_x(argv1_double); // the wind velocity
+        test_msg.set_y(argv2_double); // the azimuth
+        test_msg.set_z(0.00);
+
+        //test_msg.set_z(argv3_double);
+
         // Misusing the Vector3d
         test_pub_->Publish(test_msg);
 

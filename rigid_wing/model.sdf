@@ -142,7 +142,7 @@
       <cp>0.8</cp>
       <forward>1 0 0</forward>
       <upward>0 0 1</upward>
-      <area>2.00</area>
+      <area>4.00</area>
       <air_density>1.225</air_density>
       <link_name>rigid_wing::main_wing</link_name>
     </plugin>
@@ -150,16 +150,16 @@
       <windPubTopic>/wind_field</windPubTopic>
       <frameId>"18"</frameId>
       <linkName>rigid_wing::main_wing</linkName>
-      <windVelocityMean>10.00</windVelocityMean>
-      <windVelocityVariance>5.00</windVelocityVariance>
-      <windAzimuth>0.5</windAzimuth>
+      <windVelocityMean>5.00</windVelocityMean>
+      <windVelocityVariance>0.00</windVelocityVariance>
+      <windAzimuth>0.00</windAzimuth>
       <windGustStart>5</windGustStart>
       <windGustDuration>30</windGustDuration>
-      <windGustVelocityMean>2</windGustVelocityMean>
-      <windGustVelocityVariance>0.1</windGustVelocityVariance>
-      <windGustAzimuth>3.55</windGustAzimuth>
+      <windGustVelocityMean>0.00</windGustVelocityMean>
+      <windGustVelocityVariance>0.00</windGustVelocityVariance>
+      <windGustAzimuth>0.00</windGustAzimuth>
     </plugin-->
-  <joint name="fixed_to_origin" type="ball">
+  <joint name="fixed_to_origin" type="fixed">
 	  <parent>world</parent>
 	  <child>rigid_wing::main_wing</child>
 	  <pose>0 0 0 0 0 0</pose>  
@@ -168,9 +168,9 @@
 			<topic>/force_torque_data</topic>
 			<visualize>true</visualize>
 			<update_rate>100</update_rate>
-			<frame name="force_torque_frame">
+			<!--frame name="force_torque_frame">
 				<pose frame="force_torque_frame">0 0 0 0 0 0</pose>				
-			</frame>
+			</frame-->
 			<force_torque>
 				<frame >child</frame>
 				<measure_direction>child_to_parent</measure_direction>

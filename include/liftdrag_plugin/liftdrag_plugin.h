@@ -105,6 +105,10 @@ namespace gazebo
     /// At 20 °C and 101.325 kPa, dry air has a density of 1.2041 kg/m3.
     protected: double rho;
 
+    protected: double chord_length;
+
+    protected: ignition::math::Vector3d tmp_vector; 
+
     /// \brief if the shape is aerodynamically radially symmetric about
     /// the forward direction. Defaults to false for wing shapes.
     /// If set to true, the upward direction is determined by the

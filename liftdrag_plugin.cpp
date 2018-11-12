@@ -243,7 +243,7 @@ void LiftDragPlugin::OnUpdate()
 
   // rotate forward and upward vectors into inertial frame
 
-  std::cout << "The Pose is " << pose << std::endl;
+  // std::cout << "The Pose is " << pose << std::endl;
   ignition::math::Vector3d forwardI = pose.Rot().RotateVector(this->forward);
 
   ignition::math::Vector3d upwardI;
@@ -418,7 +418,7 @@ void LiftDragPlugin::OnUpdate()
 
   /// \TODO: implement cm
   /// for now, reset cm to zero, as cm needs testing
-  cm = 0.0;
+  //cm = 0.0;
 
   // compute moment (torque) at cp
   ignition::math::Vector3d moment = cm * q * this->area * momentDirection;
@@ -438,11 +438,18 @@ void LiftDragPlugin::OnUpdate()
   // force and torque about cg in inertial frame
   ignition::math::Vector3d force = lift + drag;
 
+
+  // Moment coefficient about the C.O.G using the lift and drag forces.
+  // cm = ;
+
   std::cout << "The force is " << force << std::endl;
   // + moment.Cross(momentArm);
-
-  ignition::math::Vector3d torque = moment;
+  tmp_vector = momentArm.Cross(force);
+  ignition::math::Vector3d torque = moment;  //THIS IS THE LINE!! CHANGING THE EXPRESSION: TORQUE = MOMENT TO TORQUE = TMP_VECTOR
   // - lift.Cross(momentArm) - drag.Cross(momentArm);
+  std::cout << "The tmp_vector is " << tmp_vector << std::endl;
+  std::cout << "The torque is " << torque << std::endl;
+  std::cout << "The moment arm is " << momentArm << std::endl;
 
   // debug
   //
@@ -450,7 +457,7 @@ void LiftDragPlugin::OnUpdate()
   //      this->link->GetName() == "wing_2") &&
   //     (vel.Length() > 50.0 &&
   //      vel.Length() < 50.0))
-  if (0)
+  if (1)
   {
     gzdbg << "=============================\n";
     gzdbg << "sensor: [" << this->GetHandle() << "]\n";
@@ -510,27 +517,33 @@ void LiftDragPlugin::WindFieldCallback(WindFieldPtr &wind_field){
 void LiftDragPlugin::TestMsgCallback(TestMsgPtr &test_msg){
 
   testMsgCallbackUsed = 1;
+
   printf("Inside the TestMsgCallback function \n");
-	vel_wind = sqrt(pow(test_msg->x(),2) + pow(test_msg->y(),2) + pow(test_msg->z(),2));
+	// vel_wind = sqrt(pow(test_msg->x(),2) + pow(test_msg->y(),2) + pow(test_msg->z(),2));
+  //
+  // if( (test_msg->x() == 0) && (test_msg->y() == 0)){
+  //   printf("Both x and y are zero\n");
+  //   std::cout << "The azimuth angle is undefined" << std::endl;
+  //   std::cout << "but there is some registered value for azimuth which is " << azimuth_wind << std::endl;
+  // }
+  // else{
+  //   azimuth_wind = atan2 (test_msg->y(),-1*test_msg->x());// let x point in the direciton of north
+  //   std::cout << "The azimuth angle is " << azimuth_wind << std::endl;
+  // }
+  //
+  // std::cout << "The test message x velocity is " << test_msg->x() << std::endl;
+  // std::cout << "The test message y velocity is " << test_msg->y() << std::endl;
+  // std::cout << "The test message z velocity is " << test_msg->z() << std::endl;
+  // std::cout << "The wind velocity is " << vel_wind << std::endl;
+  //
+  // vel_wind_x = test_msg->x();
+  // vel_wind_y = test_msg->y();
+  // vel_wind_z = test_msg->z();
 
-  if( (test_msg->x() == 0) && (test_msg->y() == 0)){
-    printf("Both x and y are zero\n");
-    std::cout << "The azimuth angle is undefined" << std::endl;
-    std::cout << "but there is some registered value for azimuth which is " << azimuth_wind << std::endl;
-  }
-  else{
-    azimuth_wind = atan2 (test_msg->y(),-1*test_msg->x());// let x point in the direciton of north
-    std::cout << "The azimuth angle is " << azimuth_wind << std::endl;
-  }
-
-  std::cout << "The test message x velocity is " << test_msg->x() << std::endl;
-  std::cout << "The test message y velocity is " << test_msg->y() << std::endl;
-  std::cout << "The test message z velocity is " << test_msg->z() << std::endl;
-  std::cout << "The wind velocity is " << vel_wind << std::endl;
-
-  vel_wind_x = test_msg->x();
-  vel_wind_y = test_msg->y();
-  vel_wind_z = test_msg->z();
+  vel_wind = test_msg->x();
+  azimuth_wind = test_msg->y();
+  std::cout << "The velocity magnitude is " << test_msg->x() << std::endl;
+  std::cout << "The azimuth direction is " << test_msg->y() << std::endl;
 
 
 
