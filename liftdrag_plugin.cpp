@@ -207,6 +207,8 @@ void LiftDragPlugin::OnUpdate()
   // get linear velocity at cp in inertial frame
 #if GAZEBO_MAJOR_VERSION >= 9
   ignition::math::Vector3d vel = this->link->WorldLinearVel(this->cp);
+  std::cout << "this->cp " << this->cp << std::endl;
+  std::cout << "WorldLinearVel(this->cp) " << this->link->WorldLinearVel(this->cp) << std::endl;
 #else
   ignition::math::Vector3d vel = ignitionFromGazeboMath(this->link->GetWorldLinearVel(this->cp));
 #endif
@@ -214,18 +216,10 @@ void LiftDragPlugin::OnUpdate()
   // FTERO (jonas) & KITEPOWER (Xander)
   // start ---
 
-  // if (testMsgCallbackUsed == 1){
-  //
-  //   std::cout << "The value for vel_wind_x is " << this->vel_wind_x << std::endl;
-  //   ignition::math::Vector3d constantWind(this->vel_wind_x,this->vel_wind_y,this->vel_wind_z);
-  // }
-  // else{
-    ignition::math::Vector3d constantWind(this->vel_wind*cos(this->azimuth_wind),this->vel_wind*sin(this->azimuth_wind),0);
-  // }
+  ignition::math::Vector3d constantWind(this->vel_wind*cos(this->azimuth_wind),this->vel_wind*sin(this->azimuth_wind),0);
   vel += constantWind;
   // end   ---
   velI.Normalize();
-
   // smoothing
   // double e = 0.8;
   // this->velSmooth = e*vel + (1.0 - e)*velSmooth;
@@ -242,9 +236,8 @@ void LiftDragPlugin::OnUpdate()
 #endif
 
   // rotate forward and upward vectors into inertial frame
-
-  // std::cout << "The Pose is " << pose << std::endl;
   ignition::math::Vector3d forwardI = pose.Rot().RotateVector(this->forward);
+
 
   ignition::math::Vector3d upwardI;
   if (this->radialSymmetry)
@@ -269,7 +262,7 @@ void LiftDragPlugin::OnUpdate()
       spanwiseI.Dot(velI), minRatio, maxRatio);
 
   // get cos from trig identity
-  double cosSweepAngle = 1.0 - sinSweepAngle * sinSweepAngle;
+  double cosSweepAngle = sqrt(1.0 - sinSweepAngle * sinSweepAngle); //iso sqrt
   this->sweep = asin(sinSweepAngle);
 
   // truncate sweep to within +/-90 deg
@@ -416,9 +409,6 @@ void LiftDragPlugin::OnUpdate()
   else
     cm = this->cma * this->alpha * cosSweepAngle;
 
-  /// \TODO: implement cm
-  /// for now, reset cm to zero, as cm needs testing
-  //cm = 0.0;
 
   // compute moment (torque) at cp
   ignition::math::Vector3d moment = cm * q * this->area * momentDirection;
@@ -439,9 +429,6 @@ void LiftDragPlugin::OnUpdate()
   ignition::math::Vector3d force = lift + drag;
 
 
-  // Moment coefficient about the C.O.G using the lift and drag forces.
-  // cm = ;
-
   std::cout << "The force is " << force << std::endl;
   // + moment.Cross(momentArm);
   tmp_vector = momentArm.Cross(force);
@@ -451,12 +438,7 @@ void LiftDragPlugin::OnUpdate()
   std::cout << "The torque is " << torque << std::endl;
   std::cout << "The moment arm is " << momentArm << std::endl;
 
-  // debug
-  //
-  // if ((this->link->GetName() == "wing_1" ||
-  //      this->link->GetName() == "wing_2") &&
-  //     (vel.Length() > 50.0 &&
-  //      vel.Length() < 50.0))
+
   if (1)
   {
     gzdbg << "=============================\n";
@@ -489,17 +471,6 @@ void LiftDragPlugin::OnUpdate()
   this->cp.Correct();
   torque.Correct();
 
-  // apply forces at cg (with torques for position shift)
-  // KITEPOWER (Xander)
-  // DEBUGGING PURPOSES
-  //static int ii = 0;
-  //std::string linkname = "left_wing";
-  //if(ii++%10==0 && !linkname.compare(0,9,this->GetHandle()) ){
-  //  printf("Force: %f %f %f\r\n", force[0], force[1], force[2]);
-  //  printf("Wind vel: %f\r\n", this->vel_wind);
-  //  printf("Wind azi: %f\r\n", this->azimuth_wind);
-  //  printf("Const wind vector: %f %f %f\r\n", constantWind[0], constantWind[1], constantWind[2]);
-  //}
   this->link->AddForceAtRelativePosition(force, this->cp);
   this->link->AddTorque(torque);
 }
@@ -510,41 +481,16 @@ void LiftDragPlugin::WindFieldCallback(WindFieldPtr &wind_field){
 	vel_wind = wind_field->velocity();
 	azimuth_wind = wind_field->azimuth();
   std::cout << "The wind velocity is " << vel_wind << std::endl;
-
 }
 
 // Callback of the SubscriberPtr to the test_msg Topic
 void LiftDragPlugin::TestMsgCallback(TestMsgPtr &test_msg){
 
   testMsgCallbackUsed = 1;
-
   printf("Inside the TestMsgCallback function \n");
-	// vel_wind = sqrt(pow(test_msg->x(),2) + pow(test_msg->y(),2) + pow(test_msg->z(),2));
-  //
-  // if( (test_msg->x() == 0) && (test_msg->y() == 0)){
-  //   printf("Both x and y are zero\n");
-  //   std::cout << "The azimuth angle is undefined" << std::endl;
-  //   std::cout << "but there is some registered value for azimuth which is " << azimuth_wind << std::endl;
-  // }
-  // else{
-  //   azimuth_wind = atan2 (test_msg->y(),-1*test_msg->x());// let x point in the direciton of north
-  //   std::cout << "The azimuth angle is " << azimuth_wind << std::endl;
-  // }
-  //
-  // std::cout << "The test message x velocity is " << test_msg->x() << std::endl;
-  // std::cout << "The test message y velocity is " << test_msg->y() << std::endl;
-  // std::cout << "The test message z velocity is " << test_msg->z() << std::endl;
-  // std::cout << "The wind velocity is " << vel_wind << std::endl;
-  //
-  // vel_wind_x = test_msg->x();
-  // vel_wind_y = test_msg->y();
-  // vel_wind_z = test_msg->z();
-
   vel_wind = test_msg->x();
   azimuth_wind = test_msg->y();
   std::cout << "The velocity magnitude is " << test_msg->x() << std::endl;
   std::cout << "The azimuth direction is " << test_msg->y() << std::endl;
-
-
 
 }
