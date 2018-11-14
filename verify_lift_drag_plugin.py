@@ -42,6 +42,8 @@ initial_vel_inertial = [0,0,0]
 # Hardcoded inside the C++ file
 minRatio = -1.0
 maxRatio = 1.0
+useConstantDragCoefficient = True
+cdaStall = 1.0
 
 
 '''The Functions'''
@@ -226,15 +228,43 @@ def get_cl(alpha,cla = cla, claStall = claStall, alphaStall = alphaStall,  cosSw
     print "Cl is: ", cl, "for alpha: ", alpha
     return cl
 
+# Calculate Cd
+
+def get_cd(alpha,cda = cda, cdaStall = cdaStall, alphaStall = alphaStall,  cosSweepAngle = cosSweepAngle):
+    if alpha > alphaStall:
+        if useConstantDragCoefficient is False:
+            cd = cda * alphaStall + cdaStall * (alpha - alphaStall) * cosSweepAngle
+        else:
+            cd = (cda + cdaStall) * cosSweepAngle
+
+    elif alpha < -alphaStall:
+        if useConstantDragCoefficient is False:
+            cd = -1 * cda * alphaStall + claStall * (alpha + alphaStall) * cosSweepAngle
+
+            print "cda", cda, "alphaStall", alphaStall, "cdaStall", cdaStall, "alpha", alpha,  "cosSweepAngle", cosSweepAngle
+        else:
+            cd = (-1*cda + cdaStall) * cosSweepAngle
+    else:
+        if useConstantDragCoefficient is False:
+            cd = cda * alpha * cosSweepAngle
+        else:
+            cd =  cda * cosSweepAngle # but if constant drag coefficient, shouldnt cda be zero?
+
+    cd = np.abs(cd)
+
+    print "Cd is: ", cd, "for alpha: ", alpha
+    return cd
+
 # Get the lift
 cl = get_cl(alpha)
+cd = get_cd(alpha)
 lift = cl * q * area * liftI
 
 print "lift is: ", lift
 
 ## Make the plot
 
-list_of_alpha = np.arange(0, 2*alphaStall, 0.05)
+list_of_alpha = np.arange(0, 2*alphaStall, 0.01)
 
 # hl, = plt.plot([], [])
 #
@@ -254,8 +284,31 @@ for angle in list_of_alpha:
     alpha_values.append(angle)
     cl_values.append(cl_iter)
 
-plt.plot(alpha_values, cl_values)
+plt.figure()
+plt.title("Plot of Cl vs Alpha")
+plt.scatter(alpha_values, cl_values)
+plt.axvline(x=alphaStall)
 plt.show()
+
+
+alpha_values = []
+cd_values = []
+for angle in list_of_alpha:
+    cd_iter = get_cd(angle)
+    # new_data = [angle, cl_iter]
+    # update_line(hl, new_data)
+
+    cd_iter = cd_iter[0][0]
+    alpha_values.append(angle)
+    cd_values.append(cd_iter)
+
+plt.figure()
+plt.title("Plot of Cd vs Alpha")
+plt.scatter(alpha_values, cd_values)
+plt.axvline(x=alphaStall)
+plt.show()
+
+print cd
 
 
 

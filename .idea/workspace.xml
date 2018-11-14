@@ -2,10 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="40fe1283-56c8-49de-aec4-09a8fe293421" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o" afterPath="$PROJECT_DIR$/build/CMakeFiles/gazebo_lift_drag.dir/liftdrag_plugin.cpp.o" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build/libgazebo_lift_drag.so" afterPath="$PROJECT_DIR$/build/libgazebo_lift_drag.so" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/liftdrag_plugin.cpp" afterPath="$PROJECT_DIR$/liftdrag_plugin.cpp" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/verify_lift_drag_plugin.py" afterPath="$PROJECT_DIR$/verify_lift_drag_plugin.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,8 +20,8 @@
       <file leaf-file-name="verify_lift_drag_plugin.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/verify_lift_drag_plugin.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="27" column="49" lean-forward="true" selection-start-line="27" selection-start-column="49" selection-end-line="27" selection-end-column="49" />
+            <state relative-caret-position="180">
+              <caret line="24" column="42" lean-forward="false" selection-start-line="24" selection-start-column="42" selection-end-line="24" selection-end-column="42" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
               </folding>
@@ -287,8 +283,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/verify_lift_drag_plugin.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="27" column="49" lean-forward="true" selection-start-line="27" selection-start-column="49" selection-end-line="27" selection-end-column="49" />
+        <state relative-caret-position="180">
+          <caret line="24" column="42" lean-forward="false" selection-start-line="24" selection-start-column="42" selection-end-line="24" selection-end-column="42" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
