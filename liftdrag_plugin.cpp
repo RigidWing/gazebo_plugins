@@ -279,7 +279,7 @@ void LiftDragPlugin::OnUpdate()
   //
   // so,
   // removing spanwise velocity from vel
-  ignition::math::Vector3d velInLDPlane = vel - vel.Dot(spanwiseI)*velI;
+  ignition::math::Vector3d velInLDPlane = vel - vel.Dot(spanwiseI)*velI; //why velI
 
   // get direction of drag
   ignition::math::Vector3d dragDirection = -velInLDPlane;
@@ -298,7 +298,6 @@ void LiftDragPlugin::OnUpdate()
   // given upwardI and liftI are both unit vectors, we can drop the denominator
   //   cos(theta) = a.Dot(b)
   double cosAlpha = ignition::math::clamp(liftI.Dot(upwardI), minRatio, maxRatio);
-
   // Is alpha positive or negative? Test:
   // forwardI points toward zero alpha
   // if forwardI is in the same direction as lift, alpha is positive.
@@ -351,8 +350,9 @@ void LiftDragPlugin::OnUpdate()
   }
 
   // compute lift force at cp
+  std::cout << "Cl is " << cl << std::endl;
   ignition::math::Vector3d lift = cl * q * this->area * liftI;
-
+  std::cout << "the lift is " << lift << std::endl;
   // compute cd at cp, check for stall, correct for sweep
   // KITEPOWER: if useConstantDragCoefficient is true, computes the drag
   // coefficient based on the cda and cda_stall only without considering
