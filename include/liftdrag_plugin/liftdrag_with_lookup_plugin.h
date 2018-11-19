@@ -38,7 +38,6 @@
 #include <list>
 #include <vector>
 #include <ignition/math/Vector3.hh>
-#include "parse_file.hh"
 
 #include "send_protobuf_msgs.hh"
 
