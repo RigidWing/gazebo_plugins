@@ -52,7 +52,7 @@ int main(int _argc, char **_argv) { //int main(int argc, char * const argv[]) {
 
         test_msg.set_x(argv1_double); // the wind velocity
         test_msg.set_y(argv2_double); // the azimuth
-        test_msg.set_z(0.00);
+        test_msg.set_z(argv3_double);
 
         //test_msg.set_z(argv3_double);
 
