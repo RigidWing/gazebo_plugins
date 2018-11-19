@@ -265,21 +265,29 @@ void LiftDragWithLookupPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sd
     this->useConstantDragCoefficient = _sdf->Get<bool>("useConstantDragCoefficient");
   }
 
+  // ISABELLE
+
+  if (_sdf->HasElement("link_world_velocity"))
+  {
+    this->groundspeed_world = _sdf->Get<ignition::math::Vector3d>("link_world_velocity");
+  }
+
   //getSdfParam<std::string>(_sdf, "windFieldSubTopic", wind_field_sub_topic_, wind_field_sub_topic_);
   //wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>("~/" + this->model->GetName() + wind_field_sub_topic_, &LiftDragWithLookupPlugin::WindFieldCallback, this);
   wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>(wind_field_sub_topic_, &LiftDragWithLookupPlugin::WindFieldCallback, this);
   // An Additional SubscriberPtr To Subscribe to the test_msg Topic
   test_msg_sub_ = node_handle_->Subscribe<msgs::Vector3d>("/test_topic",&LiftDragWithLookupPlugin::TestMsgCallback, this);
-
-
 }
 
 /////////////////////////////////////////////////
 void LiftDragWithLookupPlugin::OnUpdate()
 {
-
   // printf("Inside the OnUpdate function \n");
   GZ_ASSERT(this->link, "Link was NULL");
+
+  // ISABELLE hack the world velocity
+this->model->GetLink("rigid_wing::main_wing")->SetLinearVel({groundspeed_world.X(), groundspeed_world.Y(), groundspeed_world.Z()});
+
   // get linear velocity at cp in inertial frame
 #if GAZEBO_MAJOR_VERSION >= 9
   ignition::math::Vector3d vel = this->link->WorldLinearVel(this->cp);
@@ -287,6 +295,7 @@ void LiftDragWithLookupPlugin::OnUpdate()
   ignition::math::Vector3d vel = ignitionFromGazeboMath(this->link->GetWorldLinearVel(this->cp));
 #endif
   ignition::math::Vector3d velI = vel;
+
   // FTERO (jonas) & KITEPOWER (Xander)
   // start ---
 
@@ -343,7 +352,6 @@ void LiftDragWithLookupPlugin::OnUpdate()
   // get cos from trig identity
   double cosSweepAngle = sqrt(1.0 - sinSweepAngle * sinSweepAngle); //iso sqrt
   this->sweep = asin(sinSweepAngle);
-
   // truncate sweep to within +/-90 deg
   while (fabs(this->sweep) > 0.5 * M_PI)
     this->sweep = this->sweep > 0 ? this->sweep - M_PI
@@ -551,6 +559,7 @@ ignition::math::Vector3d torque = moment;  //THIS IS THE LINE!! CHANGING THE EXP
           << "] vel: [" << vel << "]\n";
     gzdbg << "LD plane spd: [" << velInLDPlane.Length()
           << "] vel : [" << velInLDPlane << "]\n";
+    gzdbg << "VelI :" << velI << "\n";
     gzdbg << "forward (inertial): " << forwardI << "\n";
     gzdbg << "upward (inertial): " << upwardI << "\n";
     gzdbg << "lift dir (inertial): " << liftI << "\n";
@@ -626,12 +635,10 @@ float LiftDragWithLookupPlugin::binarySearch(vector<double> arr, double x, int l
         if (arr[mid] > x){
 
             if (arr[mid - 1] < x){
-              cout << "inside this case 1 " << endl;
               additional_ratio = (x - arr[mid - 1])/(arr[mid] - arr[mid - 1]);
               return (mid - 1) +  additional_ratio;
             }
             else{
-              cout << "inside this case 2" << endl;
               return binarySearch(arr, x, l, mid-1);
             }
         }
@@ -644,7 +651,6 @@ float LiftDragWithLookupPlugin::binarySearch(vector<double> arr, double x, int l
               return mid + additional_ratio;
             }
             else{
-              cout << "inside this case 4" << endl;
               return binarySearch(arr, x, mid+1, r);
             }
         }
