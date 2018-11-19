@@ -43,8 +43,7 @@ int main(int _argc, char **_argv) { //int main(int argc, char * const argv[]) {
         // Convert from ‘char* const’ to ‘double’ using atof
         argv1_double = atof(_argv[1]);
         argv2_double = atof(_argv[2]);
-
-        //argv3_double = atof(_argv[3]);
+        argv3_double = atof(_argv[3]);
 
         // //wind_field_msgs::msgs::WindField wind_msg;
         // wind_msg.set_velocity(argv_double);
