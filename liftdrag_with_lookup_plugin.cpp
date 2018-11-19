@@ -513,9 +513,9 @@ else{
     // GZ_ASSERT((int)binarySearchResult != -1, "Angle of attack is out of range");
     ignition::math::Vector3d vector_cl_cd_cm = retrieve_values(binarySearchResult);
 
-    cl = vector_cl_cd_cm[0];
-    cd = vector_cl_cd_cm[1];
-    cm = vector_cl_cd_cm[2];
+    cl = vector_cl_cd_cm[0] * cosSweepAngle;
+    cd = vector_cl_cd_cm[1] * cosSweepAngle;
+    cm = vector_cl_cd_cm[2] * cosSweepAngle;
 }
 // compute lift force at cp
 std::cout << "Cl is " << cl << std::endl;
