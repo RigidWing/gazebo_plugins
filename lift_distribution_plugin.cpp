@@ -36,7 +36,80 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
 
   // Get the wind velocity
   test_msg_sub_ = node_handle_->Subscribe<msgs::Vector3d>("/test_topic",&LiftDragWithLookupPlugin::TestMsgCallback, this);
+  //////////////////////////////////////////////////////////////////////////////
+  //(KITEPOWER)
+  if (_sdf->HasElement("airfoilDatafilePath")){
+    printf("INSIDE THE AIRFOIL RETRIEVAL PORTION \n");
+    compute_values = 0;
+    airfoilDatafilePath = _sdf->Get<std::string>("airfoilDatafilePath");
+    cout << typeid(airfoilDatafilePath).name() << endl;
 
+    // TODO ISABELLE GET THE FILEPATH
+
+    ifstream inFile;
+    inFile.open("/home/isabelle/gazebo_plugins/e423_data.txt", ios::in | ios::binary); // has to be the full path to the file
+    // TODO: change all the print lines to gzdbg lines.
+
+
+    // PARSE THE AIRFOIL DATA FILE
+    while (inFile)
+    {   counter++;
+        inFile.getline(oneline, MAXLINE);
+        // cout << "the counter is " << counter << endl;
+        line = oneline;
+        // Starting from line 13, the data begins
+        if (counter >= 13 && counter < 300){
+          // cout << "cd is: " << line.substr(20,7) << endl;
+
+          alpha_str = line.substr(0,8);
+          // cout << "Alpha is: " << alpha_str << endl;
+          alpha = atof(alpha_str.c_str());
+          // cout << "Alpha is: " << alpha << endl;
+
+          cl_str = line.substr(11,6);
+          cl = atof(cl_str.c_str());
+          // cout << "Cl is: " << cl << endl;
+
+          cd_str = line.substr(20,7);
+          cd = atof(cd_str.c_str());
+          // cout << "Cd is: " << cd << endl;
+
+          cdp_str = line.substr(30,7);
+          cdp = atof(cdp_str.c_str());
+          // cout << "Cdp is: " << cdp << endl;
+
+          cm_str = line.substr(39,7);
+          cm = atof(cm_str.c_str());
+          // cout << "Cm is: " << cm << endl;
+
+          top_xtr_str = line.substr(49,6);
+          top_xtr = atof(top_xtr_str.c_str());
+          // cout << "top_xtr is: " << top_xtr << endl;
+
+          bot_xtr_str = line.substr(58,6);
+          bot_xtr = atof(bot_xtr_str.c_str());
+          // cout << "bot_xtr is: " << bot_xtr << endl;
+
+          top_itr_str = line.substr(66,7);
+          top_itr = atof(top_itr_str.c_str());
+          // cout << "top_itr is: " << top_itr << endl;
+
+          bot_itr_str = line.substr(74,8);
+          bot_itr = atof(bot_itr_str.c_str());
+          // cout << "bot_itr is: " << bot_itr << endl;
+
+          // APPEND THE VALUES OBTAINED FROM THE FILE TO VECTORS
+
+          alpha_vec.push_back(alpha);
+          cl_vec.push_back(cl);
+          cd_vec.push_back(cd);
+          cm_vec.push_back(cm);
+        }
+    }
+
+    // CLOSE THE FILE
+
+    inFile.close();
 
 }
 
@@ -105,7 +178,8 @@ double LiftDistributionPlugin::get_induced_AoA(double spanwise_yn){
 
 //Step4: Get the effective angle of attack
 //Step4a: Get local ground speed (Kinematics)
-get_local_airspeed_components(){
+// get_local_airspeed_components(){
+std::vector<double> LiftDistributionPlugin::get_geometric_AoA_vector(){
 
   ignition::math::Vector3d local_airspeed_components[this->N_segments];
   // get the Pose so then the direction of the axis of symmetry is known
@@ -144,12 +218,12 @@ get_local_airspeed_components(){
 
   // get the GetCoG
 
-  return local_airspeed_components;
-}
+  // return local_airspeed_components;
+
 
 //Step4b: Get the local angle of attack Obtain the section angle of attack based on
 
-std::vector<double> LiftDistributionPlugin::get_local_geometric_AoA_values(ignition::math::Vector3d local_airspeed_components[this->N_segments]){
+// std::vector<double> LiftDistributionPlugin::get_geometric_AoA_vector(ignition::math::Vector3d local_airspeed_components[this->N_segments]){
 
   // The process for obtaining the AoA
   // Taken from the liftDrag plugin
@@ -221,12 +295,28 @@ std::vector<double> LiftDistributionPlugin::get_induced_AoA_vector(){
   return induced_AoA_vector;
 }
 
-//Step4c: Get the difference
-
-std::vector<double> effective_AoA_vector = get_induced_AoA_vector();
 
 
-//Step5: Obtain the local cl
+std::vector<double> get_local_cl_vector(std::vector<double> AoA_vector){
+  std::vector<double> local_cl_vector;
+  for (o == 0; o <= N_segments; ++o){
+
+    double current_angle = AoA_vector[o];
+    float binarySearchResult = binarySearch(alpha_vec,current_angle * 180.0 / M_PI,0, (int)(alpha_vec.size()-1));
+    // GZ_ASSERT((int)binarySearchResult != -1, "Angle of attack is out of range");
+
+    cout << "the binary search result " << binarySearchResult << endl;
+    ignition::math::Vector3d vector_cl_cd_cm = retrieve_values(binarySearchResult);
+
+    cl = vector_cl_cd_cm[0] * cosSweepAngle;
+    cd = vector_cl_cd_cm[1] * cosSweepAngle;
+    cm = vector_cl_cd_cm[2] * cosSweepAngle;
+
+    local_cl_vector[o] = cl;
+  }
+
+  return local_cl_vector;
+}
 //Step6: Get the new Gamma values:
 //Step7: Update Gamma
 // Iterate with Step3 then with Step4c, Step5, Step6 and Step7.
@@ -254,3 +344,79 @@ void LiftDistributionPlugin::TestMsgCallback(TestMsgPtr &test_msg){
   std::cout << "The azimuth direction is " << test_msg->y() << std::endl;
 
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+// A recursive binary search function. It returns
+// location of x in given array arr[l..r] is present,
+// otherwise -1
+float LiftDistributionPlugin::binarySearch(vector<double> arr, double x, int l, int r)
+{
+   cout << "x is " << x << endl;
+   if (r >= l)
+   {
+        int mid = l + (r - l)/2;
+        cout << "mid is " << mid << endl;
+        // If the element is present at the middle
+        // itself
+        if (arr[mid] == x)
+            return mid;
+
+        // If element is smaller than mid, then
+        // it can only be present in left subarray
+        if (arr[mid] > x){
+
+            if (arr[mid - 1] < x){
+              additional_ratio = (x - arr[mid - 1])/(arr[mid] - arr[mid - 1]);
+              return (mid - 1) +  additional_ratio;
+            }
+            else{
+              return binarySearch(arr, x, l, mid-1);
+            }
+        }
+         // Else the element can only be present
+         // in right subarray
+        else {
+            if (arr[mid + 1] > x){
+              cout << "inside this case 3" << endl;
+              additional_ratio = (x - arr[mid])/(arr[mid + 1] - arr[mid]);
+              return mid + additional_ratio;
+            }
+            else{
+              return binarySearch(arr, x, mid+1, r);
+            }
+        }
+   }
+
+   // We reach here when element is not
+   // present in array
+   return -1;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+// will probably need to use the ignition::math library
+ignition::math::Vector3d LiftDistributionPlugin::retrieve_values(float float_index){
+    // int ten_times_float = (int)(float_index * 10);
+    // int index_as_int = (int)float_index;
+    additional_ratio = float_index - floor(float_index);
+    cl_retrieved = cl_vec[floor(float_index)] + additional_ratio * (cl_vec[floor(float_index) + 1] - cl_vec[floor(float_index)]);
+    cd_retrieved = cd_vec[floor(float_index)] + additional_ratio * (cd_vec[floor(float_index) + 1] - cd_vec[floor(float_index)]);
+    cm_retrieved = cm_vec[floor(float_index)] + additional_ratio * (cm_vec[floor(float_index) + 1] - cm_vec[floor(float_index)]);
+
+    ignition::math::Vector3d resultant_vector = ignition::math::Vector3d(cl_retrieved,cd_retrieved,cm_retrieved);
+    return resultant_vector;
+}
+/////////////////////////////??????//////////////////////////////////////////////////////////////////////////////////////////////////
+// After all the functions:
+
+//Step4c: Get the difference
+
+std::vector<double> effective_AoA_vector = get_geometric_AoA_vector() -  get_induced_AoA_vector();
+
+
+//Step5: Obtain the local cl
+
+std::vector<double> local_cl_vector = get_local_cl_vector(effective_AoA_vector);
+
+//Step6:
+this->circulation_vector = 0.5 * this->chord * std::transform( local_airspeed_components.begin()+1, local_airspeed_components.end(),local_cl_vector.begin()+1, local_cl_vector.begin(),std::multiplies<int>() ); 
