@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <string>
+#include <iostream>
 #include "common.h"
 #include "gazebo/common/Assert.hh"
 #include "gazebo/physics/physics.hh"
@@ -58,7 +59,7 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
   //(KITEPOWER)
   if (_sdf->HasElement("airfoilDatafilePath")){
     airfoilDatafilePath = _sdf->Get<std::string>("airfoilDatafilePath");
-    cout << typeid(airfoilDatafilePath).name() << endl;
+    // cout << typeid(airfoilDatafilePath).name() << endl;
 
     // TODO ISABELLE GET THE FILEPATH
 
@@ -145,33 +146,31 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
   if(_sdf->HasElement("span"))
     this->span = _sdf->Get<double>("span");
 
-  // if (_sdf->HasElement("area"))
-  //   this->area = _sdf->Get<double>("area");
-  //
-  // if (_sdf->HasElement("air_density"))
-  //   this->rho = _sdf->Get<double>("air_density");
 
-  ////////////////////////////////////////////////////////////////////////////
-  // Get the Initial Circulation
-  gzdbg << "Initializing the circulation vector" << "\n";
-  for ( int i = 0; i <= this->N_segments; i = i + 1){
-    this->theta = M_PI/(this->N_segments) * i;
-    if (i == 0 | i == this->N_segments)
-    {
-      this->circulation_element = 0.0;
-    }
-    else{
-      this->circulation_element = this->Gamma0 * sin(this->theta);
-    }
-    this->circulation_vector.push_back(circulation_element);
-  }
+  // ////////////////////////////////////////////////////////////////////////////
+  // // Get the Initial Circulation
+  // // gzdbg << "Initializing the circulation vector" << "\n";
+  // for ( int i = 0; i <= this->N_segments; i = i + 1){
+  //   this->theta = M_PI/(this->N_segments) * i;
+  //   if (i == 0 | i == this->N_segments)
+  //   {
+  //     this->circulation_element = 0.0;
+  //   }
+  //   else{
+  //     this->circulation_element = this->Gamma0 * sin(this->theta);
+  //   }
+  //   this->circulation_vector.push_back(circulation_element);
+  //
+  //   // gzdbg << "The initial circulation vector " << this->circulation_element << "\n";
+  // }
+
+
   //////////////////////
   if (_sdf->HasElement("link_name"))
   {
-    printf("there is a link_name element \n");
     sdf::ElementPtr elem = _sdf->GetElement("link_name");
 
-    std::cout << elem << std::endl;
+    // std::cout << elem << std::endl;
     // GZ_ASSERT(elem, "Element link_name doesn't exist!");
     std::string linkName = elem->Get<std::string>();
     this->link = this->model->GetLink(linkName);
@@ -185,7 +184,6 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
     }
     else
     {
-      printf("updating \n");
       this->updateConnection = event::Events::ConnectWorldUpdateBegin(
           boost::bind(&LiftDistributionPlugin::OnUpdate, this));
     }
@@ -198,8 +196,23 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
 ///////////////////////////////////////////////
 void LiftDistributionPlugin::OnUpdate()
 {
-  gzdbg << "Inside the OnUpdate function" << "\n";
-  // printf("Inside the OnUpdate function \n");
+
+  ////////////////////////////////////////////////////////////////////////////
+  // Get the Initial Circulation
+  // gzdbg << "Initializing the circulation vector" << "\n";
+  for ( int i = 0; i <= this->N_segments; i = i + 1){
+    this->theta = M_PI/(this->N_segments) * i;
+    if (i == 0 | i == this->N_segments)
+    {
+      this->circulation_element = 0.0;
+    }
+    else{
+      this->circulation_element = this->Gamma0 * sin(this->theta);
+    }
+    this->circulation_vector.push_back(circulation_element);
+
+    // gzdbg << "The initial circulation vector " << this->circulation_element << "\n";
+  }
 
 
   GZ_ASSERT(this->link, "Link was NULL");
@@ -210,9 +223,10 @@ void LiftDistributionPlugin::OnUpdate()
   #endif
     velI = vel;
 
-  gzdbg << "Obtained the world velocity" << "\n";
+  // gzdbg << "Obtained the world velocity" << "\n";
   for (int i_iteration = 0; i_iteration <= this->N_iterations; ++i_iteration){
     // Get the circulation derivative
+    gzdbg << "Iteration number: " << i_iteration << "\n";
     for (int j = 0; j <= this->N_segments; ++j){
         double tmp_variable_derivative_val;
         if (j == 0){
@@ -223,29 +237,73 @@ void LiftDistributionPlugin::OnUpdate()
           tmp_variable_derivative_val = (this->circulation_vector[j] - this->circulation_vector[j - 1]) * this->N_segments/(this->span);
         }
         else {
-          tmp_variable_derivative_val = (this->circulation_vector[j + 1] - this->circulation_vector[j - 1]) * 2 * this->N_segments/(this->span);
+          tmp_variable_derivative_val = (this->circulation_vector[j + 1] - this->circulation_vector[j - 1]) * 0.5 * this->N_segments/(this->span);
         }
         this->derivative_circulation_vector.push_back(tmp_variable_derivative_val);
+        // gzdbg << "The derivative element of the circulation vector " << tmp_variable_derivative_val << "\n";
     }
+
+    gzdbg << "The initial circulation " << "\n";
+
+    std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
+
 
     //Step4c: Get the effective angle of attack
     std::vector<double> effective_AoA_vector = get_effective_AoA_vector();//get_geometric_AoA_vector() -  get_induced_AoA_vector();
 
-    //Obtain the local cl
-    this->local_cl_vector = get_local_cl_vector(effective_AoA_vector);
 
+    //Obtain the local cl
+
+    this->local_cl_vector = get_local_cl_vector(effective_AoA_vector);
+    // gzdbg << "Obtained the cl vector " << "\n";
     //Get the new circulation vecctor :
-    std::vector<float> elementwise_product_cl_V;
-    std::transform( this->local_airspeed_components.begin(), this->local_airspeed_components.end(),local_cl_vector.begin(), elementwise_product_cl_V.begin(),std::multiplies<float>() );
-    std::transform(elementwise_product_cl_V.begin(), elementwise_product_cl_V.end(), this->circulation_vector_new.begin(), std::bind1st(std::multiplies<float>(), 0.5 * this->chord));//0.5 * this->chord * elementwise_product_cl_V;
+    std::vector<double> elementwise_product_cl_V;
+    elementwise_product_cl_V = local_cl_vector;
+    std::transform( this->local_airspeed_components.begin(), this->local_airspeed_components.end(),local_cl_vector.begin(), elementwise_product_cl_V.begin(),std::multiplies<float>());
+    this->circulation_vector_new = local_cl_vector; // initialize the vector to the required size otherwise transform wont work
+
+
+    std::transform(elementwise_product_cl_V.begin(), elementwise_product_cl_V.end(), this->circulation_vector_new.begin(), std::bind1st(std::multiplies<double>(), 0.5 * this->chord));//0.5 * this->chord * elementwise_product_cl_V;
+    // std::copy(elementwise_product_cl_V.begin(), elementwise_product_cl_V.end(), std::ostream_iterator<double>(std::cout, " "));
 
     // Update the circulation vector :
-    std::vector<float> circulation_diff_vector;
-    std::set_difference(this->circulation_vector_new.begin(), this->circulation_vector_new.end(), this->circulation_vector.begin(), this->circulation_vector.end(), std::inserter(circulation_diff_vector, circulation_diff_vector.begin()));
-    std::vector<float> circulation_increment_vector;
+    std::vector<double> circulation_diff_vector;
+    circulation_diff_vector = local_cl_vector; // just to initialize its size
+    gzdbg << "Size of circulation_diff_vector " << circulation_diff_vector.size() << "\n";
+    std::transform(this->circulation_vector_new.begin(), this->circulation_vector_new.end(), this->circulation_vector.begin(), circulation_diff_vector.begin(), std::minus<float>());
+    std::vector<double> circulation_increment_vector;
+    // circulation_increment_vector.reserve(circulation_diff_vector.size());
+    circulation_increment_vector = local_cl_vector;
     std::transform(circulation_diff_vector.begin(), circulation_diff_vector.end(), circulation_increment_vector.begin(), std::bind1st(std::multiplies<float>(), this->D));//0.5 * this->chord * elementwise_product_cl_V;
+
     std::transform(this->circulation_vector.begin(), this->circulation_vector.end(), circulation_increment_vector.begin(), this->circulation_vector.begin(), std::plus<float>());
+
+    gzdbg << "Size of effective_AoA_vector " << effective_AoA_vector.size() << "\n";
+    gzdbg << "Size of this->local_airspeed_components " << this->local_airspeed_components.size() << "\n";
+    gzdbg << "Size of local_cl_vector " << local_cl_vector.size() << "\n";
+    gzdbg << "Size of elementwise_product_cl_V " << elementwise_product_cl_V.size() << "\n";
+    gzdbg << "Size of this->local_airspeed_components " << this->local_airspeed_components.size() << "\n";
+    gzdbg << "Size of this->circulation_vector_new " << this->circulation_vector_new.size() << "\n";
+    gzdbg << "Size of circulation_diff_vector " << circulation_diff_vector.size() << "\n";
+    gzdbg << "Size of circulation_increment_vector " << circulation_increment_vector.size() << "\n";
+    gzdbg << "Size of this->circulation_vector_new " << this->circulation_vector_new.size() << "\n";
+
+    std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
+
+    // std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
+
+    // effective_AoA_vector.clear();
+    this->local_cl_vector.clear();
+    elementwise_product_cl_V.clear();
+    this->local_airspeed_components.clear();
+    this->circulation_vector_new.clear();
+    circulation_diff_vector.clear();
+    circulation_increment_vector.clear();
+
   }
+
+   this->circulation_vector.clear();
+
 }
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
@@ -255,62 +313,73 @@ void LiftDistributionPlugin::OnUpdate()
 double LiftDistributionPlugin::get_induced_AoA(double spanwise_yn){
   // Get the vector of the derivative of the circulation with respect to the span.
   // implement sampson's integration method
+
+  // reset the sum to zero
   double sum_components = 0.0;
-  gzdbg << "The sum " << sum_components << "\n";
+  // reset the initial location to -b/2
   double current_y = -1 * this->span / 2;
-  double derivative_value;
+
+  double component;
   int k_singularity;
-  std::cout << "N_segments " << N_segments << std::endl;
-  std::vector<double> derivative_values;
+  // std::cout << "N_segments " << N_segments << std::endl;
+  std::vector<double> components;
   for (this->k = 0; this->k <= this->N_segments; this->k++){
 
-    std::cout << "k is " << this->k << std::endl;
+    // std::cout << "k is " << this->k << std::endl;
 
     if (this->k == 0){
-      derivative_value = (this->derivative_circulation_vector[this->k]) * (this->span / this->N_segments) / (3 * (spanwise_yn - current_y));
+      component = (this->derivative_circulation_vector[this->k]) * (this->span / this->N_segments) / (3 * (spanwise_yn - current_y));
     }
     else if (this->k % 2 == 0){
-      derivative_value = 2 * (this->derivative_circulation_vector[this->k]) * (this->span / this->N_segments) / (3 * (spanwise_yn - current_y));
+      // gzdbg << "In case b " << "\n";
+      component = 2 * (this->derivative_circulation_vector[this->k]) * (this->span / this->N_segments) / (3 * (spanwise_yn - current_y));
     }
     else {
-      derivative_value = 4 * (this->derivative_circulation_vector[this->k]) * (this->span / this->N_segments) / (3 * (spanwise_yn - current_y));
+      // gzdbg << "In case c " << "\n";
+      component = 4 * (this->derivative_circulation_vector[this->k]) * (this->span / this->N_segments) / (3 * (spanwise_yn - current_y));
     }
 
     if (fabs(spanwise_yn - current_y) < 0.0001){
       int k_singularity = k;
+      // append something so that we are not left with one less entry
+      components.push_back(0.0);
     }
     else{
-      derivative_values.push_back(derivative_value);
+      components.push_back(component);
     }
 
+    // gzdbg << "The current derivative circulation vector " << this->derivative_circulation_vector[this->k] << "\n";
+    // gzdbg << "The component " << component << "\n";
+    // gzdbg << "The current y is " << current_y << "\n";
+    // gzdbg << "The spanwise_yn " << spanwise_yn << "\n";
+
     current_y += this->span/N_segments;
-    gzdbg << "The iteration in calculation of induced AoA " << this->k << "\n";
-
-
   }
+
   //  Sum the components in the deribat
   for (int s = 0; s <= this->N_segments; s++){
     if (s == k_singularity){
       if (k_singularity == 0)
       {
-        sum_components+= 0.5*derivative_values[s+1];
+        sum_components+= 0.5*components[s+1];
       }
       else if (k_singularity == this->N_segments)
       {
-        sum_components+= 0.5*derivative_values[s-1];
+        sum_components+= 0.5*components[s-1];
       }
       else{
-        sum_components+= 0.5*(derivative_values[s-1] + derivative_values[s+1]);
+        sum_components+= 0.5*(components[s-1] + components[s+1]);
       }
     }
     else{
-      sum_components += derivative_values[s];
+      sum_components += components[s];
     }
+    // gzdbg << "The sum " << sum_components << "\n";
   }
 
-  gzdbg << "The sum " << sum_components << "\n";
-  gzdbg << "The denominator is " << 4 * M_PI * vel.Length() << "\n";
-  double induced_AoA = (1/(4 * M_PI * 5.0)) * sum_components; //
+
+  // gzdbg << "The denominator is " << 4 * M_PI * 5.0 << "\n";
+  double induced_AoA = (1/(4 * M_PI * 5.0)) * sum_components; //double induced_AoA = (1/(4 * M_PI * vel.Length())) * sum_components;
   return induced_AoA;
 }
 
@@ -320,7 +389,7 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
   // ignition::math::Vector3d local_airspeed_components[this->N_segments];
 
   ignition::math::Vector3d constantWind(5.0,0.0,0.0); // this->V_N_wind,this->V_E_wind,-1 * this->V_D_wind
-  gzdbg << "The constant wind is: " << constantWind << "\n";
+  // gzdbg << "The constant wind is: " << constantWind << "\n";
   #if GAZEBO_MAJOR_VERSION >= 9
     ignition::math::Pose3d pose = this->link->WorldPose();
   #else
@@ -330,7 +399,7 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
   // rotate forward and upward vectors into inertial frame
   ignition::math::Vector3d forwardI = pose.Rot().RotateVector(this->forward);
 
-  gzdbg << "The forwardI vector is: " << forwardI << "\n";
+  // gzdbg << "The forwardI vector is: " << forwardI << "\n";
 
   ignition::math::Vector3d upwardI;
   if (this->radialSymmetry)
@@ -345,13 +414,13 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
     upwardI = pose.Rot().RotateVector(this->upward);
   }
 
-  gzdbg << "The upwardI vector is: " << upwardI << "\n";
+  // gzdbg << "The upwardI vector is: " << upwardI << "\n";
   // spanwiseI: a vector normal to lift-drag-plane described in inertial frame
   ignition::math::Vector3d spanwiseI = forwardI.Cross(upwardI).Normalize();
   const double minRatio = -1.0;
   const double maxRatio = 1.0;
 
-  gzdbg << "SpanwiseI vector is: " << spanwiseI << "\n";
+  // gzdbg << "SpanwiseI vector is: " << spanwiseI << "\n";
 
   // check sweep (angle between velI and lift-drag-plane)
   double sinSweepAngle = ignition::math::clamp(
@@ -364,22 +433,22 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
   // get the velocity at different spanwise locations
   double current_y = -1 * this->span / 2;
 
-  gzdbg << "Current_y " << current_y << "\n";
+  // gzdbg << "Current_y " << current_y << "\n";
 
   this->current_wing_location.Set(this->cp.X(), this->current_y,this->cp.Z()); // ATT the x and z values might have to be changed
 
   for (int l = 0; l <= this->N_segments; ++l){
+    // gzdbg << "Get the induced AoA for the " << l << "-th segment" << "\n";
     #if GAZEBO_MAJOR_VERSION >= 9
       ignition::math::Vector3d groundspeed_component = this->link->WorldLinearVel(this->current_wing_location); // arg has to be a vector
     #else
       ignition::math::Vector3d groundspeed_component = ignitionFromGazeboMath(this->link->GetWorldLinearVel(this->current_wing_location));
     #endif
 
-    gzdbg << "groundspeed_component " << groundspeed_component << "\n";
+    // gzdbg << "groundspeed_component " << groundspeed_component << "\n";
     ignition::math::Vector3d local_airspeed_component = groundspeed_component + constantWind; // will this work?
-    gzdbg << "here now " << local_airspeed_component.Length() << "\n";
     this->local_airspeed_components.push_back(local_airspeed_component.Length());
-    gzdbg << "Local airspeed component: " << local_airspeed_component << "\n";
+    // gzdbg << "Local airspeed component: " << local_airspeed_component << "\n";
     //////////////////////////
     // step1: Get velInLDPlane
     ignition::math::Vector3d vel = local_airspeed_component;
@@ -388,11 +457,11 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
     ignition::math::Vector3d liftI = spanwiseI.Cross(velInLDPlane);
     liftI.Normalize();
 
-    gzdbg << "LiftI " << liftI << "\n";
+    // gzdbg << "LiftI " << liftI << "\n";
     // step3: get cosAlpha
     double cosAlpha = ignition::math::clamp(liftI.Dot(upwardI), -1.0, 1.0);
 
-    gzdbg << "cosAlpha " << cosAlpha << "\n";
+    // gzdbg << "cosAlpha " << cosAlpha << "\n";
     double current_geometric_alpha;
 
 
@@ -405,15 +474,14 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
       current_geometric_alpha = -1 * acos(cosAlpha);
     // step5: normalize to within +/-90 deg
 
-    gzdbg << "Current geometric alpha " << current_geometric_alpha << "\n";
+    // gzdbg << "Current geometric alpha " << current_geometric_alpha << "\n";
     while (fabs(current_geometric_alpha) > 0.5 * M_PI)
       current_geometric_alpha = current_geometric_alpha > 0 ? current_geometric_alpha - M_PI
                                     : current_geometric_alpha + M_PI;
 
-    gzdbg << "Current geometric alpha " << current_geometric_alpha << "\n";
+    // gzdbg << "Current geometric alpha " << current_geometric_alpha << "\n";
     // // step6: Append to the vector
     // local_geometric_AoA_values.push_back(current_geometric_alpha);
-    gzdbg << "Induced AoA " << get_induced_AoA(current_y) << "\n";
     // step6: append to the vector
     double effective_alpha = current_geometric_alpha - get_induced_AoA(current_y);
     effective_AoA_vector.push_back(effective_alpha);
@@ -421,7 +489,9 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
     current_y += this->span/N_segments;
 
   }
+  // gzdbg << "This should be the end of it" << "\n";
   return effective_AoA_vector;
+
 }
 
 // std::vector<double> LiftDistributionPlugin::get_induced_AoA_vector(){
@@ -436,22 +506,23 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
 // }
 
 std::vector<double> LiftDistributionPlugin::get_local_cl_vector(std::vector<double> AoA_vector){
-
+  // this->local_cl_vector.erase(this->local_cl_vector.begin(), this->local_cl_vector.begin() + this->local_cl_vector.size());
   for (int o = 0; o <= N_segments; ++o){
-
     double current_angle = AoA_vector[o];
-    gzdbg << "The current angle " << current_angle << "\n";
+    // gzdbg << "The current angle " << current_angle << "\n";
     float binarySearchResult = binarySearch(alpha_vec,current_angle * 180.0 / M_PI,0, (int)(alpha_vec.size()-1));
     // GZ_ASSERT((int)binarySearchResult != -1, "Angle of attack is out of range");
 
-    cout << "the binary search result " << binarySearchResult << endl;
+    // gzdbg << "the binary search result " << binarySearchResult << "\n";
     ignition::math::Vector3d vector_cl_cd_cm = retrieve_values(binarySearchResult);
-
+    // gzdbg << "The vector_cl_cd_cm value " << vector_cl_cd_cm << "\n";
     cl = vector_cl_cd_cm[0] * this->cosSweepAngle;
     cd = vector_cl_cd_cm[1] * this->cosSweepAngle;
     cm = vector_cl_cd_cm[2] * this->cosSweepAngle;
+    // gzdbg << "The cl value " << cl << "\n";
+    local_cl_vector.push_back(cl);
 
-    local_cl_vector[o] = cl;
+
   }
 
   return this->local_cl_vector;
@@ -459,7 +530,7 @@ std::vector<double> LiftDistributionPlugin::get_local_cl_vector(std::vector<doub
 
 // Callback of the SubscriberPtr to the test_msg Topic
 void LiftDistributionPlugin::TestMsgCallback(TestMsgPtr &test_msg){
-  printf("Inside the TestMsgCallback function \n");
+  // printf("Inside the TestMsgCallback function \n");
   vel_wind = test_msg->x();
   azimuth_wind = test_msg->y();
   eta_wind = test_msg->z();
@@ -468,17 +539,17 @@ void LiftDistributionPlugin::TestMsgCallback(TestMsgPtr &test_msg){
   V_E_wind = vel_wind * sin(azimuth_wind) * cos(eta_wind + M_PI);
   V_D_wind = vel_wind * sin(eta_wind + M_PI);
 
-  std::cout << "The velocity magnitude is " << test_msg->x() << std::endl;
-  std::cout << "The azimuth direction is " << test_msg->y() << std::endl;
+  // std::cout << "The velocity magnitude is " << test_msg->x() << std::endl;
+  // std::cout << "The azimuth direction is " << test_msg->y() << std::endl;
 }
 
 float LiftDistributionPlugin::binarySearch(vector<double> arr, double x, int l, int r)
 {
-   cout << "x is " << x << endl;
+   // cout << "x is " << x << endl;
    if (r >= l)
    {
         int mid = l + (r - l)/2;
-        cout << "mid is " << mid << endl;
+        // cout << "mid is " << mid << endl;
         // If the element is present at the middle
         // itself
         if (arr[mid] == x)
@@ -498,7 +569,7 @@ float LiftDistributionPlugin::binarySearch(vector<double> arr, double x, int l, 
          // in right subarray
         else {
             if (arr[mid + 1] > x){
-              cout << "inside this case 3" << endl;
+              // cout << "inside this case 3" << endl;
               additional_ratio = (x - arr[mid])/(arr[mid + 1] - arr[mid]);
               return mid + additional_ratio;
             }
