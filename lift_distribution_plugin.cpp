@@ -60,7 +60,8 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
   if (_sdf->HasElement("airfoilDatafilePath")){
     airfoilDatafilePath = _sdf->Get<std::string>("airfoilDatafilePath");
     // cout << typeid(airfoilDatafilePath).name() << endl;
-
+  if (_sdf->HasElement("air_density"))
+    this->rho = _sdf->Get<double>("air_density");
     // TODO ISABELLE GET THE FILEPATH
 
     ifstream inFile;
@@ -226,7 +227,7 @@ void LiftDistributionPlugin::OnUpdate()
   // gzdbg << "Obtained the world velocity" << "\n";
   for (int i_iteration = 0; i_iteration <= this->N_iterations; ++i_iteration){
     // Get the circulation derivative
-    gzdbg << "Iteration number: " << i_iteration << "\n";
+    // gzdbg << "Iteration number: " << i_iteration << "\n";
     for (int j = 0; j <= this->N_segments; ++j){
         double tmp_variable_derivative_val;
         if (j == 0){
@@ -243,7 +244,7 @@ void LiftDistributionPlugin::OnUpdate()
         // gzdbg << "The derivative element of the circulation vector " << tmp_variable_derivative_val << "\n";
     }
 
-    gzdbg << "The initial circulation " << "\n";
+    // gzdbg << "The initial circulation " << "\n";
 
     std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
 
@@ -269,7 +270,6 @@ void LiftDistributionPlugin::OnUpdate()
     // Update the circulation vector :
     std::vector<double> circulation_diff_vector;
     circulation_diff_vector = local_cl_vector; // just to initialize its size
-    gzdbg << "Size of circulation_diff_vector " << circulation_diff_vector.size() << "\n";
     std::transform(this->circulation_vector_new.begin(), this->circulation_vector_new.end(), this->circulation_vector.begin(), circulation_diff_vector.begin(), std::minus<float>());
     std::vector<double> circulation_increment_vector;
     // circulation_increment_vector.reserve(circulation_diff_vector.size());
@@ -278,19 +278,19 @@ void LiftDistributionPlugin::OnUpdate()
 
     std::transform(this->circulation_vector.begin(), this->circulation_vector.end(), circulation_increment_vector.begin(), this->circulation_vector.begin(), std::plus<float>());
 
-    gzdbg << "Size of effective_AoA_vector " << effective_AoA_vector.size() << "\n";
-    gzdbg << "Size of this->local_airspeed_components " << this->local_airspeed_components.size() << "\n";
-    gzdbg << "Size of local_cl_vector " << local_cl_vector.size() << "\n";
-    gzdbg << "Size of elementwise_product_cl_V " << elementwise_product_cl_V.size() << "\n";
-    gzdbg << "Size of this->local_airspeed_components " << this->local_airspeed_components.size() << "\n";
-    gzdbg << "Size of this->circulation_vector_new " << this->circulation_vector_new.size() << "\n";
-    gzdbg << "Size of circulation_diff_vector " << circulation_diff_vector.size() << "\n";
-    gzdbg << "Size of circulation_increment_vector " << circulation_increment_vector.size() << "\n";
-    gzdbg << "Size of this->circulation_vector_new " << this->circulation_vector_new.size() << "\n";
+    if (0){
+      gzdbg << "Size of effective_AoA_vector " << effective_AoA_vector.size() << "\n";
+      gzdbg << "Size of this->local_airspeed_components " << this->local_airspeed_components.size() << "\n";
+      gzdbg << "Size of local_cl_vector " << local_cl_vector.size() << "\n";
+      gzdbg << "Size of elementwise_product_cl_V " << elementwise_product_cl_V.size() << "\n";
+      gzdbg << "Size of this->local_airspeed_components " << this->local_airspeed_components.size() << "\n";
+      gzdbg << "Size of this->circulation_vector_new " << this->circulation_vector_new.size() << "\n";
+      gzdbg << "Size of circulation_diff_vector " << circulation_diff_vector.size() << "\n";
+      gzdbg << "Size of circulation_increment_vector " << circulation_increment_vector.size() << "\n";
+      gzdbg << "Size of this->circulation_vector_new " << this->circulation_vector_new.size() << "\n";
+    }
 
     std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
-
-    // std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
 
     // effective_AoA_vector.clear();
     this->local_cl_vector.clear();
@@ -301,6 +301,26 @@ void LiftDistributionPlugin::OnUpdate()
     circulation_increment_vector.clear();
 
   }
+
+   // Update the lift sum_components
+   double L_prime_magnitude; // the small lift component at a spanwise location
+   ignition::math::Vector3d L_prime_vector;
+   double current_spanwise_y = -1 * this->span / 2; // Terrible variable names also redundant TODO ISABELLE
+   ignition::math::Vector3d current_spanwise_location(this->cp.X(),current_spanwise_y,0);
+   for ( int q = 0; q <= this->N_segments; q = q + 1){
+     gzdbg << "Segment " << q << "\n";
+     L_prime_magnitude = this->rho * local_airspeed_components[q] * this->circulation_vector[q];
+     L_prime_vector = liftI_arr[q] * L_prime_magnitude;
+     gzdbg << "This lift array " << this->liftI_arr[q] << "\n";
+     gzdbg << "The lift component magnitude " << L_prime_magnitude << "\n";
+     gzdbg << "The lift component vector " << L_prime_vector << "\n";
+
+     this->link->AddForceAtRelativePosition(L_prime_vector, current_spanwise_location); // note that those two have to be vectors.
+     current_spanwise_y += this->span/this->N_segments;
+     // Update the spanwise location
+     current_spanwise_location.Y(current_spanwise_y);
+
+   }
 
    this->circulation_vector.clear();
 
@@ -353,8 +373,9 @@ double LiftDistributionPlugin::get_induced_AoA(double spanwise_yn){
     // gzdbg << "The current y is " << current_y << "\n";
     // gzdbg << "The spanwise_yn " << spanwise_yn << "\n";
 
-    current_y += this->span/N_segments;
+    current_y += this->span/this->N_segments;
   }
+
 
   //  Sum the components in the deribat
   for (int s = 0; s <= this->N_segments; s++){
@@ -379,7 +400,9 @@ double LiftDistributionPlugin::get_induced_AoA(double spanwise_yn){
 
 
   // gzdbg << "The denominator is " << 4 * M_PI * 5.0 << "\n";
-  double induced_AoA = (1/(4 * M_PI * 5.0)) * sum_components; //double induced_AoA = (1/(4 * M_PI * vel.Length())) * sum_components;
+  double vel_length = std::accumulate(local_airspeed_components.begin(), local_airspeed_components.end(), 0)/local_airspeed_components.size();
+  // gzdbg << "The velocity is " << vel_length << "\n";
+  double induced_AoA = (1/(4 * M_PI * vel_length)) * sum_components; //double induced_AoA = (1/(4 * M_PI * vel.Length())) * sum_components;
   return induced_AoA;
 }
 
@@ -388,7 +411,8 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
 
   // ignition::math::Vector3d local_airspeed_components[this->N_segments];
 
-  ignition::math::Vector3d constantWind(5.0,0.0,0.0); // this->V_N_wind,this->V_E_wind,-1 * this->V_D_wind
+  ignition::math::Vector3d constantWind(this->V_N_wind,this->V_E_wind,-1 * this->V_D_wind); //
+  // gzdbg << "Constant wind " << constantWind << "\n";
   // gzdbg << "The constant wind is: " << constantWind << "\n";
   #if GAZEBO_MAJOR_VERSION >= 9
     ignition::math::Pose3d pose = this->link->WorldPose();
@@ -437,6 +461,7 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
 
   this->current_wing_location.Set(this->cp.X(), this->current_y,this->cp.Z()); // ATT the x and z values might have to be changed
 
+
   for (int l = 0; l <= this->N_segments; ++l){
     // gzdbg << "Get the induced AoA for the " << l << "-th segment" << "\n";
     #if GAZEBO_MAJOR_VERSION >= 9
@@ -446,16 +471,24 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
     #endif
 
     // gzdbg << "groundspeed_component " << groundspeed_component << "\n";
-    ignition::math::Vector3d local_airspeed_component = groundspeed_component + constantWind; // will this work?
+    ignition::math::Vector3d local_airspeed_component = groundspeed_component - constantWind; // TODO DEBUG THIS GROUNDSPEED - WINDSPEED = AIRSPEED BUT FOR SOME REASON IN PREVIOUS DOC IT WAS PLUS?!
     this->local_airspeed_components.push_back(local_airspeed_component.Length());
+    gzdbg << "The local airspeed component " << local_airspeed_component.Length() << "\n";
     // gzdbg << "Local airspeed component: " << local_airspeed_component << "\n";
     //////////////////////////
     // step1: Get velInLDPlane
     ignition::math::Vector3d vel = local_airspeed_component;
+    gzdbg << "Vel " << vel << "\n";
+    gzdbg << "SpanwiseI" << spanwiseI << "\n";
     ignition::math::Vector3d velInLDPlane = vel - vel.Dot(spanwiseI)*spanwiseI; //why velI? (Isabelle) changed velI to spanwiseI
     // step2: get direction of lift
+    gzdbg << "velInLDPlane" << velInLDPlane << "\n";
     ignition::math::Vector3d liftI = spanwiseI.Cross(velInLDPlane);
     liftI.Normalize();
+
+    gzdbg << "liftI " << liftI << "\n";
+    // Append to the array of LiftI vectors
+    this->liftI_arr[l] = liftI;
 
     // gzdbg << "LiftI " << liftI << "\n";
     // step3: get cosAlpha
@@ -483,7 +516,10 @@ std::vector<double> LiftDistributionPlugin::get_effective_AoA_vector(){
     // // step6: Append to the vector
     // local_geometric_AoA_values.push_back(current_geometric_alpha);
     // step6: append to the vector
+
+    // gzdbg << "Vel 2 " << vel << "\n";
     double effective_alpha = current_geometric_alpha - get_induced_AoA(current_y);
+    // gzdbg << "Vel 4 " << vel << "\n";
     effective_AoA_vector.push_back(effective_alpha);
     //////////////////////////
     current_y += this->span/N_segments;
@@ -531,6 +567,7 @@ std::vector<double> LiftDistributionPlugin::get_local_cl_vector(std::vector<doub
 // Callback of the SubscriberPtr to the test_msg Topic
 void LiftDistributionPlugin::TestMsgCallback(TestMsgPtr &test_msg){
   // printf("Inside the TestMsgCallback function \n");
+  // gzdbg << "Inside the Message Callback " << "\n";
   vel_wind = test_msg->x();
   azimuth_wind = test_msg->y();
   eta_wind = test_msg->z();
