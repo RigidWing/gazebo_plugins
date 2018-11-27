@@ -62,7 +62,7 @@ target_link_libraries(gazebo_wind_field ${GAZEBO_LIBRARIES})
 target_link_libraries(gazebo_wind_field ${PROTOBUF_LIBRARY})
 
 ##################################################################################
-add_library(gazebo_lift_drag SHARED liftdrag_plugin.cpp ${PROTO_SRCS}) 
+add_library(gazebo_lift_drag SHARED liftdrag_plugin.cpp ${PROTO_SRCS})
 target_include_directories(
     gazebo_lift_drag
     PRIVATE ${CMAKE_SOURCE_DIR}/msgs
@@ -73,7 +73,18 @@ target_link_libraries(gazebo_lift_drag ${GAZEBO_LIBRARIES})
 target_link_libraries(gazebo_lift_drag ${PROTOBUF_LIBRARY})
 
 ##################################################################################
-add_library(gazebo_lift_drag_with_lookup SHARED liftdrag_with_lookup_plugin.cpp ${PROTO_SRCS}) 
+add_library(gazebo_lift_distribution_plugin SHARED lift_distribution_plugin.cpp ${PROTO_SRCS})
+target_include_directories(
+    gazebo_lift_distribution_plugin
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+    )
+
+target_link_libraries(gazebo_lift_distribution_plugin ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_lift_distribution_plugin	 ${PROTOBUF_LIBRARY})
+
+##################################################################################
+add_library(gazebo_lift_drag_with_lookup SHARED liftdrag_with_lookup_plugin.cpp ${PROTO_SRCS})
 target_include_directories(
     gazebo_lift_drag_with_lookup
     PRIVATE ${CMAKE_SOURCE_DIR}/msgs
@@ -83,6 +94,33 @@ target_include_directories(
 target_link_libraries(gazebo_lift_drag_with_lookup ${GAZEBO_LIBRARIES})
 target_link_libraries(gazebo_lift_drag_with_lookup	 ${PROTOBUF_LIBRARY})
 
+##################################################################################
+add_library(gazebo_visualize_vector_plugin SHARED visualize_vector_plugin.cpp ${PROTO_SRCS})
+target_include_directories(
+    gazebo_visualize_vector_plugin
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+    )
+
+target_link_libraries(gazebo_visualize_vector_plugin ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_visualize_vector_plugin	 ${PROTOBUF_LIBRARY})
+##################################################################################
+#set (headers
+#  qt.h
+#  qt_test.h)
+
+#add_definitions(${Qt5Core_DEFINITIONS})
+
+
+#add_library(gazebo_gui_plugin SHARED CessnaGUIPlugin.cc)
+#target_include_directories(
+#    gazebo_gui_plugin
+#    PRIVATE ${CMAKE_BINARY_DIR}
+#    ${Qt5Core_INCLUDE_DIRS}
+#    )
+
+#target_link_libraries(gazebo_gui_plugin ${GAZEBO_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES} gzqtpropertybrowser)
+#target_link_libraries(gazebo_gui_plugin	 ${PROTOBUF_LIBRARY})
 
 
 ##################################################################################
@@ -98,11 +136,3 @@ target_link_libraries(send_commandline_protobuf ${GAZEBO_LIBRARIES})
 target_link_libraries(send_commandline_protobuf ${PROTOBUF_LIBRARY})
 
 ##################################################################################
-
-add_executable(parse_airfoil_datafile parse_file.cc)
-
-
-
-
-
-
