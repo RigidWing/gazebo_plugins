@@ -104,6 +104,18 @@ target_include_directories(
 
 target_link_libraries(gazebo_visualize_vector_plugin ${GAZEBO_LIBRARIES})
 target_link_libraries(gazebo_visualize_vector_plugin	 ${PROTOBUF_LIBRARY})
+
+##################################################################################
+add_library(gazebo_control_plugin SHARED control_plugin.cpp ${PROTO_SRCS})
+target_include_directories(
+    gazebo_control_plugin
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+    )
+
+target_link_libraries(gazebo_visualize_vector_plugin ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_visualize_vector_plugin	 ${PROTOBUF_LIBRARY})
+
 ##################################################################################
 #set (headers
 #  qt.h
