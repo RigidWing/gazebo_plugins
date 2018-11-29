@@ -115,7 +115,11 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/gazebo_wind_field.dir/DependInfo.cmake"
-  "CMakeFiles/gazebo_lift_drag.dir/DependInfo.cmake"
   "CMakeFiles/send_commandline_protobuf.dir/DependInfo.cmake"
+  "CMakeFiles/gazebo_control_plugin.dir/DependInfo.cmake"
+  "CMakeFiles/gazebo_visualize_vector_plugin.dir/DependInfo.cmake"
+  "CMakeFiles/gazebo_lift_drag_with_lookup.dir/DependInfo.cmake"
+  "CMakeFiles/gazebo_wind_field.dir/DependInfo.cmake"
+  "CMakeFiles/gazebo_lift_distribution_plugin.dir/DependInfo.cmake"
+  "CMakeFiles/gazebo_lift_drag.dir/DependInfo.cmake"
   )

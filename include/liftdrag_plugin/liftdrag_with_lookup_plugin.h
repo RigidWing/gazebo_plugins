@@ -153,6 +153,9 @@ namespace gazebo
     /// \brief angle of attack
     protected: double alpha;
 
+    // (ISabelle) this will be the input to the model that computes the aerodynamic coefficients. It will be equal to alpha + alpha0 as complying with the plugin.
+    protected: double alpha_shifted;
+
     /// \brief center of pressure in link local coordinates
     protected: ignition::math::Vector3d cp;
 

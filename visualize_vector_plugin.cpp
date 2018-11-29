@@ -26,6 +26,12 @@ namespace gazebo
     // Load the plugin
     void VisualizeVectorPlugin::Load( VisualPtr _parent, sdf::ElementPtr _sdf )
     {
+      if (!_parent || !_sdf)
+      {
+        gzerr << "No visual or SDF element specified. Plugin won't load. \n";
+        return;
+      }
+
       this->visual_ = _parent;
 
       this->visual_namespace_ = "visual/";
@@ -44,26 +50,25 @@ namespace gazebo
       this->node_handle_ = transport::NodePtr(new transport::Node());
       this->node_handle_->Init(this->visual_namespace_);
 
-      force_sub_ = node_handle_->Subscribe<msgs::Vector3d>("/vector_component",&VisualizeVectorPlugin::VectorMsgCallback, this);
-
+      force_sub_ = node_handle_->Subscribe<msgs::Vector3d>("/visual/vector_component",&VisualizeVectorPlugin::VisualizeForceOnLink, this);
+      gzdbg << "The namespace of force_sub_ is " << this->node_handle_->GetTopicNamespace() << "\n";
       // Listen to the update event. This event is broadcast every
       // simulation iteration.
       this->update_connection_ = event::Events::ConnectRender(
           boost::bind(&VisualizeVectorPlugin::UpdateChild, this));
+
+      gzdbg<<"Done Loading Plugin! \n";
     }
 
     //////////////////////////////////////////////////////////////////////////////////
     // Update the visualizer
     void VisualizeVectorPlugin::UpdateChild()
     {
+      gzdbg << "Inside Update" << "\n";
       // ros::spinOnce();
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////
-    // VisualizeForceOnLink
-    void VisualizeVectorPlugin::VisualizeForceOnLink(PointConstPtr &force_msg)
-    {
+      // TODO ISABELLE how do I render the object?
       this->line = this->visual_->CreateDynamicLine(RENDERING_LINE_STRIP);
+      // this->line->Init(RENDERING_POINT_LIST);
 
       // //TODO: Get the current link position
       // link_pose = CurrentLinkPose();
@@ -71,29 +76,60 @@ namespace gazebo
       // endpoint = CalculateEndpointOfForceVector(link_pose, force_msg);
 
       // Add two points to a connecting line strip from link_pose to endpoint
-      this->line->AddPoint(
-        ignition::math::Vector3d(
-          1.0,
-          2.0,
-          3.0
-          // link_pose.position.x,
-          // link_pose.position.y,
-          // link_pose.position.z
-          )
-        );
-      this->line->AddPoint(ignition::math::Vector3d(1.5,2.5,3.5)); //endpoint.x, endpoint.y, endpoint.z
+      this->line->AddPoint(ignition::math::Vector3d(0.0, 0.0, 2.0));
+
+      gzdbg << "the initial point " << ignition::math::Vector3d(0.0, 0.0, 2.0) << "\n";
+      this->line->AddPoint(ignition::math::Vector3d(1.0,1.0,2.0)); //endpoint.x, endpoint.y, endpoint.z
       // set the Material of the line, in this case to purple
-      this->line->setMaterial("Gazebo/Purple");
+      this->line->setMaterial("Gazebo/Blue");
       this->line->setVisibilityFlags(GZ_VISIBILITY_GUI);
       this->visual_->SetVisible(true);
+      // this->line->Clear();
     }
 
-    // Callback of the SubscriberPtr to the test_msg Topic
-    void VisualizeVectorPlugin::VectorMsgCallback(PointConstPtr &vector_msg){
-      vector_x = vector_msg->x();
-      vector_y = vector_msg->y();
-      vector_z = vector_msg->z();
+    //////////////////////////////////////////////////////////////////////////////////
+    // VisualizeForceOnLink
+    void VisualizeVectorPlugin::VisualizeForceOnLink(PointConstPtr &force_msg)
+    {
+
+      // gzdbg << "Inside the VectorMsgCallback" << "\n";
+      vector_x = force_msg->x();
+      vector_y = force_msg->y();
+      vector_z = force_msg->z();
+
+      // this->line = this->visual_->CreateDynamicLine(RENDERING_LINE_STRIP);
+      // // this->line->Init(RENDERING_POINT_LIST);
+      //
+      // // //TODO: Get the current link position
+      // // link_pose = CurrentLinkPose();
+      // // //TODO: Get the current end position
+      // // endpoint = CalculateEndpointOfForceVector(link_pose, force_msg);
+      //
+      // // Add two points to a connecting line strip from link_pose to endpoint
+      // this->line->AddPoint(
+      //   ignition::math::Vector3d(
+      //     0.0,
+      //     0.0,
+      //     0.0
+      //     // link_pose.position.x,
+      //     // link_pose.position.y,
+      //     // link_pose.position.z
+      //     )
+      //   );
+      // this->line->AddPoint(ignition::math::Vector3d(1.0,1.0,1.0)); //endpoint.x, endpoint.y, endpoint.z
+      // // set the Material of the line, in this case to purple
+      // this->line->setMaterial("Gazebo/Purple");
+      // this->line->setVisibilityFlags(GZ_VISIBILITY_GUI);
+      // this->visual_->SetVisible(true);
     }
+
+    // // Callback of the SubscriberPtr to the test_msg Topic
+    // void VisualizeVectorPlugin::VectorMsgCallback(PointConstPtr &vector_msg){
+    //   gzdbg << "Inside the VectorMsgCallback" << "\n";
+    //   vector_x = vector_msg->x();
+    //   vector_y = vector_msg->y();
+    //   vector_z = vector_msg->z();
+    // }
 
 
     // Register this plugin within the simulator

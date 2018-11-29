@@ -143,6 +143,6 @@ void ControlPlugin::OnUpdate()
 void ControlPlugin::GetControlTargets(ControlTargetMsgPtr &control_targets_msg)
 {
   // todo ISABELLE: make general
-  this->elevator_pos_target = control_targets_msg->x();
-  this->rudder_pos_target = control_targets_msg->y();
+  this->elevator_pos_target = 0.1;//control_targets_msg->x();
+  this->rudder_pos_target = 0.2;//control_targets_msg->y();
 }

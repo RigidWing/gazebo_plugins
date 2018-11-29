@@ -1,6 +1,14 @@
 <?xml version="1.0" ?>
 <sdf version='1.6'>
   <world name='default'>
+    <gui>
+      <!-- A plugin for controlling the Cessna with the keyboard -->
+      <!--plugin name="cessna_keyboard" filename="libCessnaGUIPlugin.so"/-->
+
+      <camera name="user_camera">
+        <pose>-16 0 4 0 0 0</pose>
+      </camera>
+    </gui>
     <light name='sun' type='directional'>
       <cast_shadows>1</cast_shadows>
       <pose frame=''>0 0 10 0 -0 0</pose>
@@ -14,6 +22,8 @@
       </attenuation>
       <direction>-0.5 0.1 -0.9</direction>
     </light>
+
+    <!--Models -->
     <model name='ground_plane'>
       <static>1</static>
       <link name='link'>
@@ -60,6 +70,13 @@
         <kinematic>0</kinematic>
       </link>
     </model>
+    <model name='rigid_wing'>
+	    <include>
+			<uri>model://rigid_wing/</uri>
+    	</include>
+    </model>
+	<!-- End Models -->
+
     <gravity>0 0 -9.8</gravity>
     <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
     <atmosphere type='adiabatic'/>
@@ -80,6 +97,8 @@
       <elevation>0</elevation>
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
+
+	<!-- State Begins Here -->
     <state world_name='default'>
       <sim_time>305 580000000</sim_time>
       <real_time>310 96813084</real_time>
@@ -90,28 +109,21 @@
         <scale>1 1 1</scale>
         <link name='link'>
           <pose frame=''>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
+          <velocity>0 0 0 0 -0 0</velocity> 
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-      <!--model name='rigid_wing'>
-        <pose frame=''>-0.05186 -0.149748 -0.075 0 -0 3e-06</pose>
-        <scale>1 1 1</scale>
+      <model name='rigid_wing'>
         <link name='main_wing'>
-          <pose frame=''>-0.05186 -0.149748 0.025 0 -0 3e-06</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0.10452 0.002497 0.675198 3.13879 -1.04587 -3.14146</acceleration>
-          <wrench>0.10452 0.002497 0.675198 0 -0 0</wrench>
+          <velocity>0 0 0 0 -0 0</velocity> <!-- (Isabelle) Setting the velocity from here does not seem to work -->
         </link>
-      </model-->
+      </model>
+
       <light name='sun'>
         <pose frame=''>0 0 10 0 -0 0</pose>
       </light>
-    </state>
-    <include>
-	<uri>model://rigid_wing/</uri>
-    </include>     
+    </state>     
     <gui fullscreen='0'>
       <camera name='user_camera'>
         <pose frame=''>5 -5 2 0 0.275643 2.35619</pose>
@@ -119,6 +131,5 @@
         <projection_type>perspective</projection_type>
       </camera>
     </gui>
-      <!--plugin name="hello_world" filename="libhello_world.so"/-->
   </world>
 </sdf>

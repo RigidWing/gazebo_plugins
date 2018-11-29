@@ -40,7 +40,11 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
   node_handle_ = transport::NodePtr(new transport::Node());
   node_handle_->Init(namespace_);
 
+  second_node_handle_ = transport::NodePtr(new transport::Node());
+  second_node_handle_->Init("visual/");
+
   // Get the wind velocity
+  force_pub_ = second_node_handle_->Advertise<msgs::Vector3d>("/visual/vector_component", 50);
   test_msg_sub_ = node_handle_->Subscribe<msgs::Vector3d>("/test_topic",&LiftDistributionPlugin::TestMsgCallback, this);
 
   this->world = this->model->GetWorld();
@@ -304,20 +308,30 @@ void LiftDistributionPlugin::OnUpdate()
      L_prime_magnitude = this->rho * local_airspeed_components[q] * this->circulation_vector[q] * (this->span/this->N_segments);
      L_prime_vector = liftI_arr[q] * L_prime_magnitude;
 
-     if (1){
+     if (0){
        gzdbg << "Segment " << q << "\n";
        gzdbg << "This lift array " << this->liftI_arr[q] << "\n";
        gzdbg << "The lift component magnitude " << L_prime_magnitude << "\n";
        gzdbg << "The lift component vector " << L_prime_vector << "\n";
    }
+     // Add for force/Moment bookkeeping:
      this->link->AddForceAtRelativePosition(L_prime_vector, current_spanwise_location); // note that those two have to be vectors.
+     // publish something onto the visualize topic - anything for now, and then to be adjusted
+     msgs::Vector3d force_msg;
+     force_msg.set_x(1.0);
+     force_msg.set_y(4.0);
+     force_msg.set_z(5.0);
+     force_pub_->Publish(force_msg);
+
+
+
      current_spanwise_y += this->span/this->N_segments;
      // Update the spanwise location
      current_spanwise_location.Y(current_spanwise_y);
 
    }
 
-   std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
+   // std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
 
    this->circulation_vector.clear();
 

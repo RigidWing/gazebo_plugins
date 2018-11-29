@@ -364,7 +364,11 @@ this->model->GetLink("rigid_wing::main_wing")->SetLinearVel({groundspeed_world.X
   //
   // so,
   // removing spanwise velocity from vel
-  ignition::math::Vector3d velInLDPlane = vel - vel.Dot(spanwiseI)*velI; //why velI
+  ignition::math::Vector3d velInLDPlane = vel - vel.Dot(spanwiseI)*spanwiseI; //why velI? (Isabelle) changed velI to spanwiseI
+
+  // (ISABELLE)
+
+  // ignition::math::Vector3d velInPlaneAxisOfSymmetry = vel - vel.Dot()*spa
 
   // get direction of drag
   ignition::math::Vector3d dragDirection = -velInLDPlane;
@@ -387,11 +391,14 @@ this->model->GetLink("rigid_wing::main_wing")->SetLinearVel({groundspeed_world.X
   // forwardI points toward zero alpha
   // if forwardI is in the same direction as lift, alpha is positive.
   // liftI is in the same direction as forwardI?
-  if (liftI.Dot(forwardI) >= 0.0)
-    this->alpha = acos(cosAlpha); // this->alpha0 + acos(cosAlpha);  TODO ISABELLE, SEE IF THE ADDITION OF a0 is necessary?
+  if (liftI.Dot(forwardI) >= 0.0) // changed forwardI to upwardI
+    // then alpha will be positive
+    this->alpha = acos(cosAlpha); // this->alpha0 + acos(cosAlpha);  TODO ISABELLE, SEE IF THE ADDITION OF a0 is necessary? This is for the shift in the curve as made in the plugin
   else
-    this->alpha = -1 * acos(cosAlpha); //this->alpha0 - acos(cosAlpha);
+    // alpha is negative
+    this->alpha = -1 * acos(cosAlpha); //this->alpha0 - acos(cosAlpha); also added the abs there!to get the acute andle between then
 
+  cout << "cosAlpha is: " << cosAlpha << endl;
   // normalize to within +/-90 deg
   while (fabs(this->alpha) > 0.5 * M_PI)
     this->alpha = this->alpha > 0 ? this->alpha - M_PI
@@ -410,27 +417,31 @@ if (compute_values == 1){
 
     // double cl;
     printf("INSIDE THE COMPUTE VALUES PORTION \n");
-    if (this->alpha > this->alphaStall)
+
+    // (ISABELLE) Add Alpha0 as required by the plugin.
+
+    this->alpha_shifted = this->alpha + this->alpha0;
+
+    if (this->alpha_shifted > this->alphaStall)
     {
-      cl = (this->cla * (this->alphaStall - this->alpha0) +
-            this->claStall * (this->alpha - this->alphaStall))
-           * cosSweepAngle; // NOTE (ISABELLE) MADE ADJUSTMENT HERE, SUBTRACTED ALPHA0
+      cl = (this->cla * this->alphaStall +
+            this->claStall * (this->alpha_shifted - this->alphaStall))
+           * cosSweepAngle;
       // make sure cl is still great than 0
       cl = std::max(0.0, cl);
-      cout  << "1 the cl value " << cl << endl;
     }
-    else if (this->alpha < -this->alphaStall) // TODO (ISABELLE) CHECK THIS
+    else if (this->alpha_shifted < -this->alphaStall)
     {
       cl = (-this->cla * this->alphaStall +
-            this->claStall * (this->alpha + this->alphaStall))
+            this->claStall * (this->alpha_shifted + this->alphaStall))
            * cosSweepAngle;
       // make sure cl is still less than 0
       cl = std::min(0.0, cl);
-      cout  << "2 the cl value " << cl << endl;
     }
     else
-      cl = this->cla * (this->alpha - this->alpha0) * cosSweepAngle; // NOTE (ISABELLE) MADE ADJUSTMENT HERE, SUBTRACTED ALPHA0
-      cout << this->alpha << endl;
+      cl = this->cla * this->alpha_shifted * cosSweepAngle;
+
+      cout << "Alpha shifted " << this->alpha_shifted << endl;
       cout << this->alpha0 << endl;
       cout  << "3 the cl value " << cl << endl;
 
@@ -457,29 +468,29 @@ if (compute_values == 1){
 
     // double cd;
 
-    if (this->alpha > this->alphaStall)
+    if (this->alpha_shifted > this->alphaStall)
     { // KITEPOWER
       if (!this->useConstantDragCoefficient)
-        cd = (this->cda * (this->alphaStall - this->alpha0) +
-              this->cdaStall * (this->alpha - this->alphaStall))
-             * cosSweepAngle; // NOTE (ISABELLE) MADE ADJUSTMENT HERE, SUBTRACTED ALPHA0
+        cd = (this->cda * this->alphaStall +
+              this->cdaStall * (this->alpha_shifted - this->alphaStall))
+             * cosSweepAngle;
       else
-        cd = (this->cda + this->cdaStall) * cosSweepAngle; // TODO (ISABELLE), WHAT IS THIS?
+        cd = (this->cda + this->cdaStall) * cosSweepAngle;
     }
-    else if (this->alpha < -this->alphaStall)
+    else if (this->alpha_shifted < -this->alphaStall)
     { // KITEPOWER
       if (!this->useConstantDragCoefficient)
         cd = (-this->cda * this->alphaStall +
-              this->cdaStall * (this->alpha + this->alphaStall))
+              this->cdaStall * (this->alpha_shifted + this->alphaStall))
              * cosSweepAngle;
       else
         cd = (-this->cda + this->cdaStall) * cosSweepAngle;
     }
     else // KITEPOWER
       if (!this->useConstantDragCoefficient)
-        cd = (this->cda * (this->alpha - this->alpha0)) * cosSweepAngle; // NOTE (ISABELLE) MADE ADJUSTMENT HERE, SUBTRACTED ALPHA0
+        cd = (this->cda * this->alpha_shifted) * cosSweepAngle;
       else
-        cd = this->cda * cosSweepAngle; // TODO (ISABELLE), WHAT IS THIS?
+        cd = this->cda * cosSweepAngle;
 
     // make sure drag is positive
     cd = fabs(cd);
@@ -489,33 +500,43 @@ if (compute_values == 1){
 
     // double cm;
 
-    if (this->alpha > this->alphaStall)
+    if (this->alpha_shifted > this->alphaStall)
     {
-      cm = (this->cma * (this->alphaStall - this->alpha0) +
-            this->cmaStall * (this->alpha - this->alphaStall))
-           * cosSweepAngle; // NOTE (ISABELLE) MADE ADJUSTMENT HERE, SUBTRACTED ALPHA0
+      cm = (this->cma * this->alphaStall +
+            this->cmaStall * (this->alpha_shifted - this->alphaStall))
+           * cosSweepAngle;
       // make sure cm is still great than 0
       cm = std::max(0.0, cm);
     }
-    else if (this->alpha < -this->alphaStall)
+    else if (this->alpha_shifted < -this->alphaStall)
     {
       cm = (-this->cma * this->alphaStall +
-            this->cmaStall * (this->alpha + this->alphaStall))
+            this->cmaStall * (this->alpha_shifted + this->alphaStall))
            * cosSweepAngle;
       // make sure cm is still less than 0
       cm = std::min(0.0, cm);
     }
-    else
-      cm = this->cma * (this->alpha - this->alpha0) * cosSweepAngle; // NOTE (ISABELLE) MADE ADJUSTMENT HERE, SUBTRACTED ALPHA0
+    else{
+      cm = this->cma * this->alpha_shifted * cosSweepAngle;
+    }
     }
 else{
-    float binarySearchResult = binarySearch(alpha_vec,alpha,0, (int)(alpha_vec.size()-1));
+
+    // (Isabelle) Lookup
+    cout << "Check alpha here: " << this->alpha << endl;
+
+
+    float binarySearchResult = binarySearch(alpha_vec,this->alpha * 180.0 / M_PI,0, (int)(alpha_vec.size()-1));
     // GZ_ASSERT((int)binarySearchResult != -1, "Angle of attack is out of range");
+
+    cout << "the binary search result " << binarySearchResult << endl;
     ignition::math::Vector3d vector_cl_cd_cm = retrieve_values(binarySearchResult);
 
     cl = vector_cl_cd_cm[0] * cosSweepAngle;
     cd = vector_cl_cd_cm[1] * cosSweepAngle;
     cm = vector_cl_cd_cm[2] * cosSweepAngle;
+
+    gzdbg << "Cl is " << cl << "\n";
 }
 // compute lift force at cp
 std::cout << "Cl is " << cl << std::endl;
@@ -558,14 +579,16 @@ ignition::math::Vector3d torque = moment;  //THIS IS THE LINE!! CHANGING THE EXP
     gzdbg << "spd: [" << vel.Length()
           << "] vel: [" << vel << "]\n";
     gzdbg << "LD plane spd: [" << velInLDPlane.Length()
-          << "] vel : [" << velInLDPlane << "]\n";
+          << "] velInLDPlane : [" << velInLDPlane << "]\n";
     gzdbg << "VelI :" << velI << "\n";
+    gzdbg << "upward " << this->upward << "\n";
     gzdbg << "forward (inertial): " << forwardI << "\n";
     gzdbg << "upward (inertial): " << upwardI << "\n";
     gzdbg << "lift dir (inertial): " << liftI << "\n";
     gzdbg << "Span direction (normal to LD plane): " << spanwiseI << "\n";
     gzdbg << "sweep: " << this->sweep << "\n";
     gzdbg << "alpha: " << this->alpha << "\n";
+    gzdbg << "alpha shifted: " << this->alpha_shifted << "\n";
     gzdbg << "lift: " << lift << "\n";
     gzdbg << "drag: " << drag << " cd: "
           << cd << " cda: " << this->cda << "\n";
@@ -576,6 +599,9 @@ ignition::math::Vector3d torque = moment;  //THIS IS THE LINE!! CHANGING THE EXP
     gzdbg << "wind: " << constantWind << "\n";
     gzdbg << "airfoilDatafilePath: " << airfoilDatafilePath << "\n";
     gzdbg << "Computing values? " << compute_values << "\n";
+    gzdbg << "Wind azimuth is " << azimuth_wind << "\n";
+    gzdbg << "Wind eta is " << eta_wind << "\n";
+
   }
 
   // Correct for nan or inf
@@ -603,7 +629,6 @@ void LiftDragWithLookupPlugin::TestMsgCallback(TestMsgPtr &test_msg){
   vel_wind = test_msg->x();
   azimuth_wind = test_msg->y();
   eta_wind = test_msg->z();
-
   // In north east down coordinates VERIFY
   V_N_wind = vel_wind * cos(azimuth_wind) * cos(eta_wind + M_PI);
   V_E_wind = vel_wind * sin(azimuth_wind) * cos(eta_wind + M_PI);
@@ -621,6 +646,7 @@ void LiftDragWithLookupPlugin::TestMsgCallback(TestMsgPtr &test_msg){
 // otherwise -1
 float LiftDragWithLookupPlugin::binarySearch(vector<double> arr, double x, int l, int r)
 {
+   cout << "x is " << x << endl;
    if (r >= l)
    {
         int mid = l + (r - l)/2;

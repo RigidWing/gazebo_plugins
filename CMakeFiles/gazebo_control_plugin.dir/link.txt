@@ -1,0 +1,1 @@
+/usr/lib/ccache/c++  -fPIC  -std=c++11  -shared -Wl,-soname,libgazebo_control_plugin.so -o libgazebo_control_plugin.so CMakeFiles/gazebo_control_plugin.dir/control_plugin.cpp.o CMakeFiles/gazebo_control_plugin.dir/WindField.pb.cc.o CMakeFiles/gazebo_control_plugin.dir/time.pb.cc.o CMakeFiles/gazebo_control_plugin.dir/vector3d.pb.cc.o  -L/usr/lib/x86_64-linux-gnu/gazebo-9/plugins 

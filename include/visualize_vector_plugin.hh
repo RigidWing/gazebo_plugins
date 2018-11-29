@@ -6,6 +6,7 @@
 #include "gazebo/msgs/MessageTypes.hh"
 
 #include <algorithm>
+#include <iostream>
 #include <string>
 #include <iostream>
 #include "common.h"
