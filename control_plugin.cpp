@@ -7,7 +7,6 @@ GZ_REGISTER_MODEL_PLUGIN(ControlPlugin)
 ////////////////////////////////////////////////////////////////////////////////
 ControlPlugin::ControlPlugin()
 {
-
   // Initialize the PID parameters
   this->elevator_pid.Init(50.0, 0.1, 1, 0.0, 0.0, 20.0, -20.0);
   this->rudder_pid.Init(50.0, 0.1, 1, 0.0, 0.0, 20.0, -20.0);
@@ -26,7 +25,6 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
   GZ_ASSERT(_model, "ControlPlugin _model pointer is NULL");
   GZ_ASSERT(_sdf, "ControlPlugin _sdf pointer is NULL");
   this->model = _model;
-
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
   // Obtain the SDF Parameters
@@ -36,51 +34,34 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
   // Overload the Rudder PID parameters if available
   if (_sdf->HasElement("rudder_p_gain"))
   {
-    // for (auto &pid : this->RudderPID)
       this->rudder_pid.SetPGain(_sdf->Get<double>("rudder_p_gain"));
   }
 
   if (_sdf->HasElement("rudder_i_gain"))
   {
-    // for (auto &pid : this->RudderPID)
       this->rudder_pid.SetIGain(_sdf->Get<double>("rudder_i_gain"));
   }
 
   if (_sdf->HasElement("rudder_d_gain"))
   {
-    // for (auto &pid : this->RudderPID)
       this->rudder_pid.SetDGain(_sdf->Get<double>("rudder_d_gain"));
   }
 
   // Overload the Elevator PID parameters if available
   if (_sdf->HasElement("elevator_p_gain"))
   {
-    // for (auto &pid : this->RudderPID)
       this->elevator_pid.SetPGain(_sdf->Get<double>("elevator_p_gain"));
   }
 
   if (_sdf->HasElement("elevator_i_gain"))
   {
-    // for (auto &pid : this->RudderPID)
       this->elevator_pid.SetIGain(_sdf->Get<double>("elevator_i_gain"));
   }
 
   if (_sdf->HasElement("elevator_d_gain"))
   {
-    // for (auto &pid : this->RudderPID)
       this->elevator_pid.SetDGain(_sdf->Get<double>("elevator_d_gain"));
   }
-
-  // // Get the Joints
-  // if (_sdf->HasElement("elevator_joint"){
-  //   this->elevator_joint = _sdf->Get<std::string>("elevator_joint");
-  // }
-  //
-  // if (_sdf->HasElement("rudder_joint"){
-  //   this->elevator_joint = _sdf->Get<std::string>("rudder_joint");
-  // }
-
-
 
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
@@ -88,8 +69,6 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
   this->lastControllerUpdateTime = this->model->GetWorld()->SimTime();
-
-
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
   // Listen to the Uodate event
@@ -128,7 +107,6 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
   this->state_pub_ = this->node->Advertise<msgs::Vector3d>("/visual/vector_component", 50);
   // TO DO ISABELLE TO SUBSCRIBE TO OBTAIN THE CONTROL TARGETS
   this->control_target_sub_ = this->node->Subscribe("/control_targets",&ControlPlugin::GetControlTargets, this);
-
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
@@ -137,8 +115,6 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
 ////////////////////////////////////////////////////////////////////////////////
 void ControlPlugin::OnUpdate()
 {
-
-
   common::Time current_time = this->model->GetWorld()->SimTime();
 
   if (current_time > this->lastControllerUpdateTime){
@@ -161,7 +137,6 @@ void ControlPlugin::OnUpdate()
   }
   // Update the time to the current time
   this->lastControllerUpdateTime = current_time;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
