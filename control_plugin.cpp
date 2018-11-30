@@ -76,25 +76,20 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
   //////////////////////////////////////////////////////////////////////////////
 
   // TODO ISABELLE: CHECK IF THE CONDITIONAL ON THE LINK-NAME HERE IS NEEDED
-  if (_sdf->HasElement("link_name"))
+  if (_sdf->HasElement("elevator_joint_name"))
   {
-    sdf::ElementPtr elem = _sdf->GetElement("link_name");
-
-    // GZ_ASSERT(elem, "Element link_name doesn't exist!");
-    std::string linkName = elem->Get<std::string>();
-    this->link = this->model->GetLink(linkName);
-    //GZ_ASSERT(this->link, "Link was NULL");
-
-    if (!this->link)
-    {
-      gzerr << "Link with name[" << linkName << "] not found. \n";
-    }
-    else
-    {
-      this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-          boost::bind(&ControlPlugin::OnUpdate, this));
-    }
+    std::string elevatorJointtName = _sdf->Get<std::string>("elevator_joint_name");
+    this->elevator_joint = this->model->GetJoint(elevatorJointtName);
   }
+
+  if (_sdf->HasElement("rudder_joint_name"))
+  {
+    std::string rudderJointtName = _sdf->Get<std::string>("rudder_joint_name");
+    this->rudder_joint = this->model->GetJoint(rudderJointtName);
+  }
+
+  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+      boost::bind(&ControlPlugin::OnUpdate, this));
 
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
@@ -118,7 +113,8 @@ void ControlPlugin::OnUpdate()
   common::Time current_time = this->model->GetWorld()->SimTime();
 
   if (current_time > this->lastControllerUpdateTime){
-
+    this->elevator_pos_target = 0.1;
+    this->rudder_pos_target = 0.05;
     // Get the dt
     double _dt = (current_time - this->lastControllerUpdateTime).Double();
     // Obtain the current position of the control surfaces
@@ -133,6 +129,20 @@ void ControlPlugin::OnUpdate()
     // Apply the force on the control surface joint
     this->elevator_joint->SetForce(0, elevator_force);
     this->rudder_joint->SetForce(0, rudder_force);
+
+
+    if (1)
+    {
+      gzdbg << "The elevator position " << elevator_pos << "\n";
+      gzdbg << "The rudder position " << rudder_pos << "\n";
+      gzdbg << "The elevator target position " << this->elevator_pos_target << "\n";
+      gzdbg << "The rudder target position " << this->rudder_pos_target << "\n";
+      gzdbg << "The error in elevator pos " << elevator_pos_error << "\n";
+      gzdbg << "The error in rudder pos " << rudder_pos_error << "\n";
+      gzdbg << "The elevator force is: " << elevator_force << "\n";
+      gzdbg << "The rudder force is: " << rudder_force << "\n";
+      gzdbg << "elevator Force : " << this->elevator_joint->GetForce(0) << std::endl;
+    }
 
   }
   // Update the time to the current time
