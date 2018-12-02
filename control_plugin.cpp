@@ -9,7 +9,7 @@ ControlPlugin::ControlPlugin()
 {
   // Initialize the PID parameters
   this->elevator_pid.Init(50.0, 0.1, 1, 0.0, 0.0, 20.0, -20.0);
-  this->rudder_pid.Init(50.0, 0.1, 1, 0.0, 0.0, 20.0, -20.0);
+  // this->rudder_pid.Init(50.0, 0.1, 1, 0.0, 0.0, 20.0, -20.0);
 
 }
 
@@ -25,42 +25,43 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
   GZ_ASSERT(_model, "ControlPlugin _model pointer is NULL");
   GZ_ASSERT(_sdf, "ControlPlugin _sdf pointer is NULL");
   this->model = _model;
+  EXPECT_TRUE(model != NULL);
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
   // Obtain the SDF Parameters
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
 
-  // Overload the Rudder PID parameters if available
-  if (_sdf->HasElement("rudder_p_gain"))
-  {
-      this->rudder_pid.SetPGain(_sdf->Get<double>("rudder_p_gain"));
-  }
-
-  if (_sdf->HasElement("rudder_i_gain"))
-  {
-      this->rudder_pid.SetIGain(_sdf->Get<double>("rudder_i_gain"));
-  }
-
-  if (_sdf->HasElement("rudder_d_gain"))
-  {
-      this->rudder_pid.SetDGain(_sdf->Get<double>("rudder_d_gain"));
-  }
+  // // Overload the Rudder PID parameters if available
+  // if (_sdf->HasElement("rudder_p_gain"))
+  // {
+  //     this->rudder_p_gain = _sdf->Get<double>("rudder_p_gain");
+  // }
+  //
+  // if (_sdf->HasElement("rudder_i_gain"))
+  // {
+  //     this->rudder_i_gain = _sdf->Get<double>("rudder_i_gain");
+  // }
+  //
+  // if (_sdf->HasElement("rudder_d_gain"))
+  // {
+  //     this->rudder_d_gain = _sdf->Get<double>("rudder_d_gain");
+  // }
 
   // Overload the Elevator PID parameters if available
   if (_sdf->HasElement("elevator_p_gain"))
   {
-      this->elevator_pid.SetPGain(_sdf->Get<double>("elevator_p_gain"));
+      this->elevator_p_gain = _sdf->Get<double>("elevator_p_gain");
   }
 
   if (_sdf->HasElement("elevator_i_gain"))
   {
-      this->elevator_pid.SetIGain(_sdf->Get<double>("elevator_i_gain"));
+      this->elevator_i_gain = _sdf->Get<double>("elevator_i_gain");
   }
 
   if (_sdf->HasElement("elevator_d_gain"))
   {
-      this->elevator_pid.SetDGain(_sdf->Get<double>("elevator_d_gain"));
+      this->elevator_d_gain = _sdf->Get<double>("elevator_d_gain");
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -69,28 +70,6 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
   this->lastControllerUpdateTime = this->model->GetWorld()->SimTime();
-  //////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////
-  // Listen to the Uodate event
-  //////////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////
-
-  // TODO ISABELLE: CHECK IF THE CONDITIONAL ON THE LINK-NAME HERE IS NEEDED
-  if (_sdf->HasElement("elevator_joint_name"))
-  {
-    std::string elevatorJointtName = _sdf->Get<std::string>("elevator_joint_name");
-    this->elevator_joint = this->model->GetJoint(elevatorJointtName);
-  }
-
-  if (_sdf->HasElement("rudder_joint_name"))
-  {
-    std::string rudderJointtName = _sdf->Get<std::string>("rudder_joint_name");
-    this->rudder_joint = this->model->GetJoint(rudderJointtName);
-  }
-
-  this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-      boost::bind(&ControlPlugin::OnUpdate, this));
-
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
   // Initialize Transport
@@ -104,55 +83,135 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
   this->control_target_sub_ = this->node->Subscribe("/control_targets",&ControlPlugin::GetControlTargets, this);
   //////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
+  // Listen to the Uodate event
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 
+
+  // TODO ISABELLE: CHECK IF THE CONDITIONAL ON THE LINK-NAME HERE IS NEEDED
+  if (_sdf->HasElement("elevator_joint_name"))
+  {
+    this->elevatorJointController.reset(new physics::JointController(this->model));
+
+    // Get the full name of the joint
+    this->elevatorJointName = _sdf->Get<std::string>("elevator_joint_name");
+    this->elevatorJointNameFull = this->model->GetJoint(elevatorJointName)->GetScopedName();
+    // get the needed jointptr from the Model (takes as input The name of the joint, specified in the world file)
+    this->elevator_joint = this->model->GetJoint(this->elevatorJointNameFull); // was elevatorJointName
+    EXPECT_TRUE(this->elevator_joint != NULL);
+    // use AddJoint which takes as input a JointPtr
+    this->elevatorJointController->AddJoint(this->elevator_joint);
+
+    // set the position targets
+    this->elevator_pos_target = -2.7;
+    // this->rudder_pos_target = -3.2;
+    this->elevatorJointController->SetPositionTarget(this->elevatorJointNameFull, this->elevator_pos_target); // TODO ISABELLE needs to be moved away
+
+    // Set the position PID controller (inouts: name of joint + common pid)
+    this->elevatorJointController->SetPositionPID(this->elevatorJointNameFull, common::PID(this->elevator_p_gain,this->elevator_i_gain,this->elevator_d_gain));
+
+
+  }
+
+  // if (_sdf->HasElement("rudder_joint_name"))
+  // {
+  //   this->rudderJointController.reset(new physics::JointController(this->model));
+  //   this->rudderJointName = _sdf->Get<std::string>("rudder_joint_name");
+  //   this->rudderJointNameFull = this->model->GetJoint(rudderJointName)->GetScopedName();
+  //   this->rudderJointController->AddJoint(model->GetJoint(this->rudderJointNameFull));
+  //   this->rudderJointController->SetPositionPID(rudderJointNameFull, common::PID(this->rudder_p_gain,this->rudder_i_gain,this->rudder_d_gain));
+  //   // needed later on for debugging purposes
+  //   this->rudder_joint = this->model->GetJoint(rudderJointName);
+  // }
+  if (_sdf->HasElement("link_name"))
+  {
+    sdf::ElementPtr elem = _sdf->GetElement("link_name");
+
+    // std::cout << elem << std::endl;
+    // GZ_ASSERT(elem, "Element link_name doesn't exist!");
+    std::string linkName = elem->Get<std::string>();
+    this->link = this->model->GetLink(linkName);
+    //GZ_ASSERT(this->link, "Link was NULL");
+
+
+    if (!this->link)
+    {
+      gzerr << "Link with name[" << linkName << "] not found. "
+        << "The LiftDragWithLookupPlugin will not generate forces\n";
+    }
+    else
+    {
+      this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+      boost::bind(&ControlPlugin::OnUpdate, this));
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
+  // to be removed
+  this->list_joint_ptrs = this->elevatorJointController->GetJoints();
+
+
+  //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void ControlPlugin::OnUpdate()
 {
-  common::Time current_time = this->model->GetWorld()->SimTime();
 
-  if (current_time > this->lastControllerUpdateTime){
-    this->elevator_pos_target = 0.1;
-    this->rudder_pos_target = 0.05;
-    // Get the dt
-    double _dt = (current_time - this->lastControllerUpdateTime).Double();
-    // Obtain the current position of the control surfaces
-    double elevator_pos = this->elevator_joint->Position(0); // why position(0)? axis
-    double rudder_pos = this->rudder_joint->Position(0);
-    // Compute the error in the position of the control surfaces
-    double elevator_pos_error = this->elevator_pos_target - elevator_pos;
-    double rudder_pos_error = this->rudder_pos_target - rudder_pos;
-    // Use the PID control to calculate the control force
-    double elevator_force = this->elevator_pid.Update(elevator_pos_error, _dt);
-    double rudder_force = this->rudder_pid.Update(rudder_pos_error, _dt);
-    // Apply the force on the control surface joint
-    this->elevator_joint->SetForce(0, elevator_force);
-    this->rudder_joint->SetForce(0, rudder_force);
+    gzdbg << "NON SCOPED " << this->elevatorJointName << "\n";
+    gzdbg << "SCOPED " << this->model->GetJoint(elevatorJointName)->GetScopedName() << "\n";
 
+    for(auto elem : this->list_joint_ptrs)
+    {
+       gzdbg << elem.first << " " << elem.second << "\n";
+
+       physics::JointPtr elevator_joint_ptr = elem.second;
+
+       gzdbg << "Position " << elevator_joint_ptr->Position() << "\n";
+    }
+
+    // this->link->SetAngularVel({1, 0, 0});
+    gzdbg << this->elevator_joint << "\n";
+    gzdbg << "BEFORE UPDATE this->elevator_joint->Position(0)" << this->elevator_joint->Position(0) << "\n";
+    this->elevatorJointController->Update();
+    // this->rudderJointController->SetPositionTarget(this->rudderJointName, this->rudder_pos_target);
+    // this->rudderJointController->Update();
 
     if (1)
     {
-      gzdbg << "The elevator position " << elevator_pos << "\n";
-      gzdbg << "The rudder position " << rudder_pos << "\n";
-      gzdbg << "The elevator target position " << this->elevator_pos_target << "\n";
-      gzdbg << "The rudder target position " << this->rudder_pos_target << "\n";
-      gzdbg << "The error in elevator pos " << elevator_pos_error << "\n";
-      gzdbg << "The error in rudder pos " << rudder_pos_error << "\n";
-      gzdbg << "The elevator force is: " << elevator_force << "\n";
-      gzdbg << "The rudder force is: " << rudder_force << "\n";
-      gzdbg << "elevator Force : " << this->elevator_joint->GetForce(0) << std::endl;
+      // gzdbg << "The elevator target position is " << this->elevator_pos_target << "\n";
+      // gzdbg << "The rudder target position " << this->rudder_pos_target << "\n";
+
+      // gzdbg << " JUST AFTER UPDATE: this->elevator_joint->Position(0)" << this->elevator_joint->Position(0) << "\n";
+      // gzdbg << " JUST AFTER UPDATE: this->rudder_joint->Position(0)" << this->rudder_joint->Position(0) << "\n";
+      gzdbg << "elevator Force : " << this->elevator_joint->GetForce(0) << "\n";
+
+      for(auto elem : this->list_joint_ptrs)
+      {
+         gzdbg << elem.first << " " << elem.second << "\n";
+
+         physics::JointPtr elevator_joint_ptr = elem.second;
+         gzdbg << "get the force " << elevator_joint_ptr->GetForce(0) << "\n";
+
+
+      }
+      // gzdbg << "rudder Force : " << this->rudder_joint->GetForce(0) << std::endl;
     }
 
-  }
-  // Update the time to the current time
-  this->lastControllerUpdateTime = current_time;
+    // this->elevatorJointController->SetJointPosition(this->elevatorJointNameFull, this->elevator_pos_target);
+    gzdbg << " AFTER UPDATE: this->elevator_joint->Position(0)" << this->elevator_joint->Position(0) << "\n";
+
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 void ControlPlugin::GetControlTargets(ControlTargetMsgPtr &control_targets_msg)
 {
   // todo ISABELLE: make general
-  this->elevator_pos_target = 0.1;//control_targets_msg->x();
-  this->rudder_pos_target = 0.2;//control_targets_msg->y();
+  // this->elevator_pos_target = 0.1;//control_targets_msg->x();
+  // this->rudder_pos_target = 0.2;//control_targets_msg->y();
 }

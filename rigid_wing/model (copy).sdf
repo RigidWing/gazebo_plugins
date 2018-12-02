@@ -1,12 +1,8 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
   <model name='rigid_wing'>
-
-    <!-- MAIN WING -->
-
     <link name='main_wing'>
       <pose frame=''>0 0 0 0 -0 0</pose>
-
       <inertial>
         <pose frame=''>0 0.5 1.5 -1.57172 0.001593 3.14148</pose>
         <mass>1.4</mass>
@@ -19,12 +15,10 @@
           <izz>0.15</izz>
         </inertia>
       </inertial>
-
       <gravity>1</gravity>
       <velocity_decay/>
       <self_collide>0</self_collide>
-
-      <!--sensor name='main_altimeter' type='altimeter'>
+      <sensor name='main_altimeter' type='altimeter'>
         <always_on>1</always_on>
         <topic>/altimeter_data</topic>
         <visualize>1</visualize>
@@ -41,8 +35,7 @@
           </vertical_velocity>
         </altimeter>
       </sensor>
-
-      <!--sensor name='main_magnetometer' type='magnetometer'>
+      <sensor name='main_magnetometer' type='magnetometer'>
         <always_on>1</always_on>
         <topic>/magnetometer_data</topic>
         <visualize>1</visualize>
@@ -61,11 +54,9 @@
             <noise type='none'/>
           </z>
         </magnetometer>
-      </sensor-->
-
+      </sensor>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
-
       <visual name='base_link_wing_visual'>
         <!--plugin name='visualize_vector_plugin' filename='libgazebo_visualize_vector_plugin.so'/-->
         <pose frame=''>0 0.5 1.5 -1.57172 0.001593 3.14148</pose>
@@ -86,64 +77,6 @@
         <transparency>0</transparency>
         <cast_shadows>1</cast_shadows>
       </visual>
-
-      <collision name='base_link_wing_collision'>
-        <laser_retro>0</laser_retro>
-        <max_contacts>10</max_contacts>
-        <pose frame=''>0 0.5 1.5 -1.57172 0.001593 3.14148</pose>
-        <geometry>
-          <mesh>
-            <scale>0.004 0.004 0.004</scale>
-            <uri>model://rigid_wing/meshes/rudder.dae</uri>
-          </mesh>
-        </geometry>
-        <surface>
-          <friction>
-            <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
-              <fdir1>0 0 0</fdir1>
-              <slip1>0</slip1>
-              <slip2>0</slip2>
-            </ode>
-            <torsional>
-              <coefficient>1</coefficient>
-              <patch_radius>0</patch_radius>
-              <surface_radius>0</surface_radius>
-              <use_patch_radius>1</use_patch_radius>
-              <ode>
-                <slip>0</slip>
-              </ode>
-            </torsional>
-          </friction>
-          <bounce>
-            <restitution_coefficient>0</restitution_coefficient>
-            <threshold>1e+06</threshold>
-          </bounce>
-          <contact>
-            <collide_without_contact>0</collide_without_contact>
-            <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
-            <collide_bitmask>00</collide_bitmask>
-            <ode>
-              <soft_cfm>0</soft_cfm>
-              <soft_erp>0.2</soft_erp>
-              <kp>1e+13</kp>
-              <kd>1</kd>
-              <max_vel>10</max_vel>
-              <min_depth>0.01</min_depth>
-            </ode>
-            <bullet>
-              <split_impulse>1</split_impulse>
-              <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
-              <soft_cfm>0</soft_cfm>
-              <soft_erp>0.2</soft_erp>
-              <kp>1e+13</kp>
-              <kd>1</kd>
-            </bullet>
-          </contact>
-        </surface>
-      </collision>
-
       <visual name='base_link_core_visual'>
         <pose frame=''>-0.5 0 1.475 0 1.57 0</pose>
         <geometry>
@@ -168,16 +101,14 @@
         <transparency>0</transparency>
         <cast_shadows>1</cast_shadows>
       </visual>
-
-      <collision name='base_link_core_collision'>
+      <collision name='base_link_collision_mounts'>
         <laser_retro>0</laser_retro>
         <max_contacts>10</max_contacts>
         <pose frame=''>-0.5 0 1.475 0 1.57 0</pose>
         <geometry>
-          <cylinder>
-            <radius>0.01</radius>
-            <length>0.7</length>
-          </cylinder>
+          <box>
+            <size>0.7 1 0.2</size>
+          </box>
         </geometry>
         <surface>
           <friction>
@@ -225,16 +156,66 @@
           </contact>
         </surface>
       </collision>
-
+      <collision name='base_link_collision_wing'>
+        <laser_retro>0</laser_retro>
+        <max_contacts>10</max_contacts>
+        <pose frame=''>0 0.5 1.5 -1.57172 0.001593 3.14148</pose>
+        <geometry>
+          <box>
+            <size>0.05 1 0.25</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0</slip1>
+              <slip2>0</slip2>
+            </ode>
+            <torsional>
+              <coefficient>1</coefficient>
+              <patch_radius>0</patch_radius>
+              <surface_radius>0</surface_radius>
+              <use_patch_radius>1</use_patch_radius>
+              <ode>
+                <slip>0</slip>
+              </ode>
+            </torsional>
+          </friction>
+          <bounce>
+            <restitution_coefficient>0</restitution_coefficient>
+            <threshold>1e+06</threshold>
+          </bounce>
+          <contact>
+            <collide_without_contact>0</collide_without_contact>
+            <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
+            <collide_bitmask>00</collide_bitmask>
+            <ode>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+13</kp>
+              <kd>1</kd>
+              <max_vel>10</max_vel>
+              <min_depth>0.01</min_depth>
+            </ode>
+            <bullet>
+              <split_impulse>1</split_impulse>
+              <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
+              <soft_cfm>0</soft_cfm>
+              <soft_erp>0.2</soft_erp>
+              <kp>1e+13</kp>
+              <kd>1</kd>
+            </bullet>
+          </contact>
+        </surface>
+      </collision>
     </link>
-
-    <!-- ELEVATOR -->
-
     <link name='elevator'>
       <pose frame=''>-0.843084 0 1.475 1.57 0 3.14</pose>
-
       <inertial>
-        <mass>0.001</mass>
+        <mass>0.1</mass>
         <inertia>
           <ixx>1e-06</ixx>
           <ixy>0</ixy>
@@ -245,12 +226,10 @@
         </inertia>
         <pose frame=''>-0.843084 0 1.475 1.57 0 3.14</pose>
       </inertial>
-
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
       <gravity>1</gravity>
-
       <visual name='elevator_visual'>
         <pose frame=''>-0.843084 0 1.475 1.57 0 3.14</pose>
         <geometry>
@@ -275,17 +254,15 @@
         <transparency>0</transparency>
         <cast_shadows>1</cast_shadows>
       </visual>
-
       <collision name="elevator_collision">
-	      <pose frame=''>-0.843084 0 1.475 1.57 0 3.14</pose>
-          <geometry>
-           <mesh>
+	<pose frame=''>-0.843084 0 1.475 1.57 0 3.14</pose>
+        <geometry>
+          <mesh>
             <scale>0.001 0.001 0.0005</scale>
             <uri>model://rigid_wing/meshes/elevator.dae</uri>
-           </mesh>
-         </geometry>
-     </collision>
-
+          </mesh>
+        </geometry>	
+      </collision>
     </link>
     <!--link name='rudder'>
       <pose frame=''>-0.835 0 1.475 0 -0 3.14</pose>
@@ -386,15 +363,15 @@
     <plugin name='gazebo_control' filename='libgazebo_control_plugin.so'>
     <elevator_joint_name>elevator_joint</elevator_joint_name>
     <rudder_joint_name>rudder_joint</rudder_joint_name>
-    <link_name>elevator</link_name>
-    <elevator_p_gain>10</elevator_p_gain>
+    <link_name>rigid_wing::elevator</link_name>
+    <elevator_p_gain>10000</elevator_p_gain>
     <elevator_i_gain>0.1</elevator_i_gain>
     <elevator_d_gain>1</elevator_d_gain>
-    <rudder_p_gain>10</rudder_p_gain>
+    <rudder_p_gain>10000</rudder_p_gain>
     <rudder_i_gain>0.1</rudder_i_gain>
     <rudder_d_gain>1</rudder_d_gain>
-  </plugin>
-
+    </plugin>
+	
     <!--plugin name='gazebo_lift_distribution' filename='libgazebo_lift_distribution_plugin.so'>
       <radial_symmetry/>
       <a0>0.20944</a0>

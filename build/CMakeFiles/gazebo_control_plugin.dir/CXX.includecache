@@ -37,6 +37,8 @@ gazebo/physics/physics.hh
 -
 gazebo/common/common.hh
 -
+gtest/gtest.h
+-
 
 /home/isabelle/gazebo_plugins/build/WindField.pb.cc
 WindField.pb.h

@@ -4,6 +4,7 @@
     <gui>
       <!-- A plugin for controlling the Cessna with the keyboard -->
       <!--plugin name="cessna_keyboard" filename="libCessnaGUIPlugin.so"/-->
+
       <camera name="user_camera">
         <pose>-16 0 4 0 0 0</pose>
       </camera>
@@ -69,7 +70,6 @@
         <kinematic>0</kinematic>
       </link>
     </model>
-
     <model name='rigid_wing'>
 	    <include>
 			<uri>model://rigid_wing/</uri>
@@ -109,17 +109,21 @@
         <scale>1 1 1</scale>
         <link name='link'>
           <pose frame=''>0 0 0 0 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
+          <velocity>0 0 0 0 -0 0</velocity> 
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
         </link>
       </model>
-
+      <model name='rigid_wing'>
+        <link name='main_wing'>
+          <velocity>0 0 0 0 -0 0</velocity> <!-- (Isabelle) Setting the velocity from here does not seem to work -->
+        </link>
+      </model>
 
       <light name='sun'>
         <pose frame=''>0 0 10 0 -0 0</pose>
       </light>
-    </state>
+    </state>     
     <gui fullscreen='0'>
       <camera name='user_camera'>
         <pose frame=''>5 -5 2 0 0.275643 2.35619</pose>
