@@ -208,7 +208,7 @@
       <gravity>1</gravity>
 
       <visual name='elevator_visual'>
-        <pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose> <!-- -0.843084 0 1.475 1.57 0 3.14 -->
+        <pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.0005</scale>
@@ -244,8 +244,9 @@
 
    </link>
 
-    <!--link name='rudder'>
-      <pose frame=''>-0.835 0 1.475 0 -0 3.14</pose>
+   <!-- -0.835 0 1.475 0 -0 3.14 -->
+    <link name='rudder'>
+
       <inertial>
         <mass>0.1</mass>
         <inertia>
@@ -256,13 +257,15 @@
           <iyz>0</iyz>
           <izz>1e-06</izz>
         </inertia>
-        <pose frame=''>0 0 0 0 -0 0</pose>
+        <pose frame=''>-0.834 0.005 1.475 0 -0 3.14159265359</pose>
       </inertial>
+
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
+
       <visual name='rudder_visual'>
-        <pose frame=''>-0.835 0 1.475 0 -0 3.14</pose>
+        <pose frame=''>-0.834 0.005 1.475 0 -0 3.14159265359</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -280,7 +283,18 @@
         <transparency>0</transparency>
         <cast_shadows>1</cast_shadows>
       </visual>
-    </link-->
+
+      <collision name='rudder_collision'>
+        <pose frame=''>-0.834 0.005 1.475 0 -0 3.14159265359</pose>
+          <geometry>
+           <mesh>
+            <scale>0.001 0.001 0.001</scale>
+            <uri>model://rigid_wing/meshes/rudder.dae</uri>
+           </mesh>
+         </geometry>
+     </collision>
+
+   </link>
 
     <joint name='elevator_joint' type='revolute'>
       <parent>main_wing</parent>
@@ -306,39 +320,29 @@
       </physics>
     </joint>
 
-    <!--joint name='rudder_joint' type='revolute'>
-      <parent>rigid_wing::main_wing</parent>
-      <child>rigid_wing::rudder</child>
-      <pose frame=''>-0.843 0 1.475 0 -0 0</pose>
+    <joint name='rudder_joint' type='revolute'>
+      <parent>main_wing</parent>
+      <child>rudder</child>
+      <pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose>
       <axis>
-        <xyz>0 0 1</xyz>
+        <xyz>0 1 0</xyz>
         <use_parent_model_frame>0</use_parent_model_frame>
         <limit>
-          <lower>-0.53</lower>
-          <upper>0.53</upper>
+          <lower>-6.981</lower>
+          <upper>6.981</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
         <dynamics>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-          <damping>0</damping>
-          <friction>0</friction>
+          <damping>1.000</damping>
         </dynamics>
       </axis>
       <physics>
         <ode>
-          <limit>
-            <cfm>0</cfm>
-            <erp>0.2</erp>
-          </limit>
-          <suspension>
-            <cfm>0</cfm>
-            <erp>0.2</erp>
-          </suspension>
+          <implicit_spring_damper>1</implicit_spring_damper>
         </ode>
       </physics>
-    </joint-->
+    </joint>
 
     <!--static>0</static>
     <allow_auto_disable>1</allow_auto_disable-->
@@ -350,8 +354,8 @@
     <elevator_p_gain>1</elevator_p_gain>
     <elevator_i_gain>0.01</elevator_i_gain>
     <elevator_d_gain>0</elevator_d_gain>
-    <rudder_p_gain>10</rudder_p_gain>
-    <rudder_i_gain>0.1</rudder_i_gain>
+    <rudder_p_gain>1</rudder_p_gain>
+    <rudder_i_gain>0.01</rudder_i_gain>
     <rudder_d_gain>1</rudder_d_gain>
   </plugin>
 
