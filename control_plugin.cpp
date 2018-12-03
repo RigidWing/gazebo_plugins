@@ -105,7 +105,7 @@ void ControlPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf){
     this->elevatorJointController->AddJoint(this->elevator_joint);
 
     // set the position targets
-    this->elevator_pos_target = -2.7;
+    this->elevator_pos_target = 0.3;
     // this->rudder_pos_target = -3.2;
     this->elevatorJointController->SetPositionTarget(this->elevatorJointNameFull, this->elevator_pos_target); // TODO ISABELLE needs to be moved away
 
