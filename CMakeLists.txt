@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 #project(gazebo_wind_field)
 find_package(gazebo REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package (Qt5Widgets REQUIRED)
+find_package (Qt5Core REQUIRED)
+
 
 ###############################
 ##### Protobuf messages #######
@@ -30,7 +33,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ##############################################
 ########## Include and link directories ######
 ##############################################
-include_directories(${GAZEBO_INCLUDE_DIRS})
+include_directories(${GAZEBO_INCLUDE_DIRS} ${Qt5Core_INCLUDE_DIRS})
 include_directories(${CMAKE_BINARY_DIR})
 
 # The following include directory points to the directory that contains the latest gazebo source code obtained from bitbucket
@@ -42,7 +45,7 @@ include_directories(${CMAKE_BINARY_DIR})
 ########################
 ### Link Directories ###
 ########################
-link_directories(${GAZEBO_LIBRARY_DIRS})
+link_directories(${GAZEBO_LIBRARY_DIRS} ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES})
 #list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 include_directories(include)
 
@@ -113,8 +116,18 @@ target_include_directories(
     PRIVATE ${CMAKE_BINARY_DIR}
     )
 
-target_link_libraries(gazebo_visualize_vector_plugin ${GAZEBO_LIBRARIES})
-target_link_libraries(gazebo_visualize_vector_plugin	 ${PROTOBUF_LIBRARY})
+target_link_libraries(gazebo_control_plugin ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_control_plugin	 ${PROTOBUF_LIBRARY})
+
+##################################################################################
+add_library(gazebo_control_input_plugin SHARED control_input_plugin.cpp ${PROTO_SRCS})
+target_include_directories(
+    gazebo_control_input_plugin
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+    )
+
+target_link_libraries(gazebo_control_input_plugin ${GAZEBO_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${PROTOBUF_LIBRARY})
 
 ##################################################################################
 #set (headers
