@@ -32,6 +32,15 @@ LiftDistributionPlugin::~LiftDistributionPlugin()
 /////////////////////////////////////////////////
 void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
 {
+
+  // Open a file for logging
+  std::freopen("output.txt","w", stdout);
+
+  std::cout << "Start of the Logfile \n" << std::endl;
+  //LOG
+  std::cout << "=========================================================================================" << std::endl;
+  std::cout << "INPUTS" << std::endl;
+
   GZ_ASSERT(_model, "LiftDistributionPlugin _model pointer is NULL");
   GZ_ASSERT(_sdf, "LiftDistributionPlugin _sdf pointer is NULL");
   this->model = _model;
@@ -63,7 +72,7 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
   //(KITEPOWER)
   if (_sdf->HasElement("airfoilDatafilePath")){
     airfoilDatafilePath = _sdf->Get<std::string>("airfoilDatafilePath");
-    // cout << typeid(airfoilDatafilePath).name() << endl;
+
   if (_sdf->HasElement("air_density"))
     this->rho = _sdf->Get<double>("air_density");
 
@@ -84,48 +93,47 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
     while (inFile)
     {   counter++;
         inFile.getline(oneline, MAXLINE);
-        // cout << "the counter is " << counter << endl;
+
         line = oneline;
         // Starting from line 13, the data begins
         if (counter >= 13 && counter < 300){
-          // cout << "cd is: " << line.substr(20,7) << endl;
+
 
           alpha_str = line.substr(0,8);
-          // cout << "Alpha is: " << alpha_str << endl;
+
           alpha = atof(alpha_str.c_str());
-          // cout << "Alpha is: " << alpha << endl;
+
 
           cl_str = line.substr(11,6);
           cl = atof(cl_str.c_str());
-          // cout << "Cl is: " << cl << endl;
+
 
           cd_str = line.substr(20,7);
           cd = atof(cd_str.c_str());
-          // cout << "Cd is: " << cd << endl;
+
 
           cdp_str = line.substr(30,7);
           cdp = atof(cdp_str.c_str());
-          // cout << "Cdp is: " << cdp << endl;
+
 
           cm_str = line.substr(39,7);
           cm = atof(cm_str.c_str());
-          // cout << "Cm is: " << cm << endl;
+
 
           top_xtr_str = line.substr(49,6);
           top_xtr = atof(top_xtr_str.c_str());
-          // cout << "top_xtr is: " << top_xtr << endl;
+
 
           bot_xtr_str = line.substr(58,6);
           bot_xtr = atof(bot_xtr_str.c_str());
-          // cout << "bot_xtr is: " << bot_xtr << endl;
+
 
           top_itr_str = line.substr(66,7);
           top_itr = atof(top_itr_str.c_str());
-          // cout << "top_itr is: " << top_itr << endl;
 
           bot_itr_str = line.substr(74,8);
           bot_itr = atof(bot_itr_str.c_str());
-          // cout << "bot_itr is: " << bot_itr << endl;
+
 
           // APPEND THE VALUES OBTAINED FROM THE FILE TO VECTORS
 
@@ -150,15 +158,25 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
     this->forward = _sdf->Get<ignition::math::Vector3d>("forward");
   this->forward.Normalize();
 
+  //LOG
+  std::cout << "Forward: " << this->forward << std::endl;
+
   // blade upward (+lift) direction in link frame
   if (_sdf->HasElement("upward"))
     this->upward = _sdf->Get<ignition::math::Vector3d>("upward");
   this->upward.Normalize();
-  gzdbg << "upward " << this->upward << "\n";
+
+  //LOG
+  std::cout << "Upward: " << this->upward << std::endl;
+
+
   if(_sdf->HasElement("span"))
     this->span = _sdf->Get<double>("span");
-  // ISABELLE
 
+  //LOG
+  std::cout << "Span: " << this->span << std::endl;
+
+  // ISABELLE
   if (_sdf->HasElement("link_world_velocity"))
   {
     this->groundspeed_world = _sdf->Get<ignition::math::Vector3d>("link_world_velocity");
@@ -199,7 +217,13 @@ void LiftDistributionPlugin::OnUpdate()
 
   ////////////////////////////////////////////////////////////////////////////
   // Get the Initial Circulation
-  // gzdbg << "Initializing the circulation vector" << "\n";
+
+  //LOG
+  std::cout << "=========================================================================================" << std::endl;
+  std::cout << "NEW UPDATE" << std::endl;
+  std::cout << "N_segments: " << this->N_segments << std::endl;
+
+  std::cout << "***Initial circulation vector***" << std::endl;
   for ( int i = 0; i <= this->N_segments; i = i + 1){
     this->theta = M_PI/(this->N_segments) * i;
     if (i == 0 | i == this->N_segments)
@@ -211,9 +235,16 @@ void LiftDistributionPlugin::OnUpdate()
     }
     this->circulation_vector.push_back(circulation_element);
 
-    // gzdbg << "The initial circulation vector " << this->circulation_element << "\n";
-  }
+    //LOG
+    // std::cout << "Segment " << i << " circulation: " << this->circulation_element << "\n";
+    if (i==this->N_segments){
+      std::cout << this->circulation_element << "\n";
+    }
+    else{
+      std::cout << this->circulation_element << ",";
+    }
 
+  }
 
   GZ_ASSERT(this->link, "Link was NULL");
   #if GAZEBO_MAJOR_VERSION >= 9
@@ -231,7 +262,6 @@ void LiftDistributionPlugin::OnUpdate()
         double tmp_variable_derivative_val;
         if (j == 0){
           tmp_variable_derivative_val = (this->circulation_vector[j + 1] - this->circulation_vector[j]) * this->N_segments/(this->span);
-
         }
         else if (j == N_segments){
           tmp_variable_derivative_val = (this->circulation_vector[j] - this->circulation_vector[j - 1]) * this->N_segments/(this->span);
@@ -240,7 +270,6 @@ void LiftDistributionPlugin::OnUpdate()
           tmp_variable_derivative_val = (this->circulation_vector[j + 1] - this->circulation_vector[j - 1]) * 0.5 * this->N_segments/(this->span);
         }
         this->derivative_circulation_vector.push_back(tmp_variable_derivative_val);
-        // gzdbg << "The derivative element of the circulation vector " << tmp_variable_derivative_val << "\n";
     }
 
     // std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
@@ -286,7 +315,8 @@ void LiftDistributionPlugin::OnUpdate()
       gzdbg << "Size of this->circulation_vector_new " << this->circulation_vector_new.size() << "\n";
     }
 
-    // std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
+    std::cout << "\n***" << "ITERATION " << i_iteration << " Updated Circulation Vector***" << std::endl;
+    std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, ","));
 
     // effective_AoA_vector.clear();
     this->local_cl_vector.clear();
@@ -303,6 +333,11 @@ void LiftDistributionPlugin::OnUpdate()
    ignition::math::Vector3d L_prime_vector;
    double current_spanwise_y = -1 * this->span / 2; // Terrible variable names also redundant TODO ISABELLE
    ignition::math::Vector3d current_spanwise_location(this->cp.X(),current_spanwise_y,0);
+
+   //LOG
+   std::cout << "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+   std::cout << "LIFT" << std::endl;
+
    for ( int q = 0; q <= this->N_segments; q = q + 1){
 
      L_prime_magnitude = this->rho * local_airspeed_components[q] * this->circulation_vector[q] * (this->span/this->N_segments);
@@ -314,6 +349,9 @@ void LiftDistributionPlugin::OnUpdate()
        gzdbg << "The lift component magnitude " << L_prime_magnitude << "\n";
        gzdbg << "The lift component vector " << L_prime_vector << "\n";
    }
+     //LOG
+     std::cout << "Segment " << q << " - lift magnitude " << L_prime_magnitude << "\n";
+
      // Add for force/Moment bookkeeping:
      this->link->AddForceAtRelativePosition(L_prime_vector, current_spanwise_location); // note that those two have to be vectors.
      // publish something onto the visualize topic - anything for now, and then to be adjusted
@@ -323,13 +361,15 @@ void LiftDistributionPlugin::OnUpdate()
      force_msg.set_z(5.0);
      force_pub_->Publish(force_msg);
 
-
-
      current_spanwise_y += this->span/this->N_segments;
      // Update the spanwise location
      current_spanwise_location.Y(current_spanwise_y);
 
    }
+
+
+
+
 
    // std::copy(this->circulation_vector.begin(), this->circulation_vector.end(), std::ostream_iterator<double>(std::cout, " "));
 
