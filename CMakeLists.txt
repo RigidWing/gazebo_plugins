@@ -120,6 +120,17 @@ target_link_libraries(gazebo_control_plugin ${GAZEBO_LIBRARIES})
 target_link_libraries(gazebo_control_plugin	 ${PROTOBUF_LIBRARY})
 
 ##################################################################################
+add_library(gazebo_verify_liftdrag_plugin SHARED verify_liftdrag_plugin.cpp ${PROTO_SRCS})
+target_include_directories(
+    gazebo_verify_liftdrag_plugin
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+    )
+
+target_link_libraries(gazebo_verify_liftdrag_plugin ${GAZEBO_LIBRARIES})
+target_link_libraries(gazebo_verify_liftdrag_plugin	 ${PROTOBUF_LIBRARY})
+
+##################################################################################
 add_library(gazebo_control_input_plugin SHARED control_input_plugin.cpp ${PROTO_SRCS})
 target_include_directories(
     gazebo_control_input_plugin
