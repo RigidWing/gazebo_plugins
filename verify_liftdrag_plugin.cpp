@@ -113,6 +113,7 @@ void VerifyLiftdragPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
 
   // Initialize the control variable
   this->control_variable = this->start;
+  this->test_number = 0;
 
   // Create the file needed for logging
   std::freopen("verify_liftdrag.txt","w", stdout);
@@ -163,13 +164,9 @@ void VerifyLiftdragPlugin::OnUpdate()
   if (this->wind_condition_iterator == 2){
     this->control_variable = this->control_variable + this->step;
 
-    if (this->control_variable > this->end)
-    {
-      this->control_variable = this->start;
-    }
-
     // Log
     std::cout << "Iterator: " << this->wind_condition_iterator << std::endl;
+    std::cout << "Test: " << this->test_number << std::endl;
     std::cout << "Magnitude: " << this->spawn_args[0] << std::endl;
     std::cout << "Azimuth: " << this->spawn_args[1] << std::endl;
     std::cout << "Elevation: " << this->spawn_args[2] << std::endl;
@@ -178,6 +175,13 @@ void VerifyLiftdragPlugin::OnUpdate()
     std::cout << "Force z: " << this->force_Z << std::endl;
 
     this->wind_condition_iterator = 0;
+    this->test_number++;
+
+    if (this->control_variable > this->end)
+    {
+      this->control_variable = this->start;
+      this->test_number = 0;
+    }
   }
   else
   {
@@ -204,7 +208,7 @@ void VerifyLiftdragPlugin::OnUpdate()
 //   this->force_Y = this->force_msg.y();
 //   this->force_Z = this->force_msg.z();
 //
-//   this->wind_force_status_iterator = 1;
+//   this->test_number = 1;
 //
 //   // // Log
 //   // std::cout << "Iterator: " << this->wind_condition_iterator << std::endl;
