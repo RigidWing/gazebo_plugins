@@ -20,55 +20,55 @@
 
 using namespace gazebo;
 
-class GAZEBO_VISIBLE ControlPlugin : public ModelPlugin
+class GAZEBO_VISIBLE WaypointFollowingControlPlugin : public ModelPlugin
 {
   /// \brief Constructor.
-  public: ControlPlugin();
+  public: WaypointFollowingControlPlugin();
   /// \brief Destructor.
-  public: ~ControlPlugin();
+  public: ~WaypointFollowingControlPlugin();
 
   // The Ptrs to the joints of the control surfaces
-  private: physics::JointPtr elevator_joint;
   private: physics::JointPtr rudder_joint;
-
-private: std::map<std::string, physics::JointPtr> list_joint_ptrs;
+  private: physics::JointPtr propeller_joint;
 
   // The ptrs to the PID control for the control surfaces
-  private: common::PID elevator_pid;
   private: common::PID rudder_pid;
-  // Control targets
-  protected: double elevator_pos_target;
-  protected: double rudder_pos_target;
+  private: common::PID propeller_pid;
 
   // the gains
-  double rudder_p_gain;
-  double rudder_i_gain;
-  double rudder_d_gain;
-  double elevator_p_gain;
-  double elevator_i_gain;
-  double elevator_d_gain;
+  private: double rudder_p_gain;
+  private: double rudder_i_gain;
+  private: double rudder_d_gain;
+  private: double propeller_p_gain;
+  private: double propeller_i_gain;
+  private: double propeller_d_gain;
 
-  double elevator_pos;
-  double rudder_pos;
+  // names of the joints
+  private: std::string rudderJointName;
+  private: std::string rudderJointNameFull;
+  private: std::string propellerJointName;
+  private: std::string propellerJointNameFull;
 
-  double elevator_pos_error;
-  double rudder_pos_error;
-
-  std::string elevatorJointName;
-  std::string rudderJointName;
-
-  std::string elevatorJointNameFull;
-  std::string rudderJointNameFull;
-
-  protected: physics::JointControllerPtr elevatorJointController;
   protected: physics::JointControllerPtr rudderJointController;
 
 
   // Transport-related variable pointers and variable
+  // An Additional SubscriberPtr To Subscribe to the test_msg Topic
   private: transport::NodePtr node;
-  private: transport::PublisherPtr state_pub_;
-  private: transport::SubscriberPtr control_target_sub_;
-  typedef const boost::shared_ptr<const msgs::Vector3d> ControlTargetMsgPtr;
+  private: transport::SubscriberPtr test_msg_sub_;
+  typedef const boost::shared_ptr<const msgs::Vector3d> TestMsgPtr;
+  void TestMsgCallback(TestMsgPtr &test_msg);
+
+  // Wind variables
+  protected: double azimuth_wind;	// [rad/s]
+  protected: double vel_wind;	// [m/s]
+  protected: double V_N_wind;
+  protected: double V_E_wind;
+  protected: double V_D_wind;
+  protected: double eta_wind;
+
+  //
+  protected: ignition::math::Vector3d cp;
 
   // Model ptr
   private: physics::ModelPtr model;
@@ -77,17 +77,39 @@ private: std::map<std::string, physics::JointPtr> list_joint_ptrs;
 
   // Time
   private: common::Time lastControllerUpdateTime;
+  private: common::Time currentTime;
+  private: double _dt;
+
   // Connection
   protected: event::ConnectionPtr updateConnection;
-
   protected: sdf::ElementPtr sdf;
-
   protected: physics::WorldPtr world;
 
+  // Waypoints
+  public: ignition::math::Vector3d waypointOne;
+  public: ignition::math::Vector3d waypointTwo;
+  public: ignition::math::Vector3d waypointThree;
+  public: ignition::math::Vector3d waypointFour;
+
+  // the constant forwardSpeed
+  public: double forwardSpeed;
+
+  // state machine for the waypoints tracking 1,2,3,4 for each waypoint
+  public: int followed_waypoint_number;
+  public: bool reached_waypoint;
+  public: bool rotation_direction; // 0 for clockwise, 1 for counterclockwise
+  public: double heading_error;
+  public: double speed_error;
+  public: double force_to_apply_rudder;
+  public: double force_to_apply_to_propeller;
+  public: double threshold;
   // Functions
   public: virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
   private: void OnUpdate();
-  private: void GetControlTargets(ControlTargetMsgPtr &control_targets_msg);
+
+
+
+
 
 };
 
