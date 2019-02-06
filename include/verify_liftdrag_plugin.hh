@@ -43,7 +43,7 @@ namespace gazebo
   public:
     int type_of_test;
     int wind_condition_iterator;
-    int wind_force_status_iterator;
+    int test_number;
 
     double start;
     double end;

@@ -60,8 +60,10 @@ void VerifyLiftdragPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
   {
     std::cout << "Elevation test" << std::endl;
     this->start = _sdf->Get<double>("start_elevation");
+
     this->end = _sdf->Get<double>("end_elevation");
     this->step = _sdf->Get<double>("step_elevation");
+    gzdbg << "Over here " << "\n";
 
     this->second_spawn_arg = _sdf->Get<double>("azimuth");
     this->third_spawn_arg = _sdf->Get<double>("magnitude");
@@ -108,6 +110,10 @@ void VerifyLiftdragPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
   //////////////////////////////////////////////////////////////////////////////
   //update connection ////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////
+  // Create the file needed for logging
+  std::freopen("verify_liftdrag.txt","w", stdout);
+
+
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(
       boost::bind(&VerifyLiftdragPlugin::OnUpdate, this));
 
@@ -115,15 +121,17 @@ void VerifyLiftdragPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
   this->control_variable = this->start;
   this->test_number = 0;
 
-  // Create the file needed for logging
-  std::freopen("verify_liftdrag.txt","w", stdout);
+
 
 }
 
 void VerifyLiftdragPlugin::OnUpdate()
 {
+  gzdbg << "On update inside \n";
 
-  std::cout << "Onupdate \n";
+  std::cout << "Time " << common::Time::GetWallTimeAsISOString() << std::endl;
+
+  std::cout << "OnUpdate of Verify Lift Drag Plugin \n";
   std::cout << "The control variable: " << this->control_variable << std::endl;
 
   std::cout << "Change of control variable iterator" << std::endl;
@@ -136,7 +144,7 @@ void VerifyLiftdragPlugin::OnUpdate()
   else if(this->type_of_test == 1) // elevation test
   {
     this->spawn_args[0] = std::to_string(this->third_spawn_arg); //magnitude
-    this->spawn_args[1] = std::to_string(this->second_spawn_arg); //azimuth
+    this->spawn_args[1] = std::to_string(this->second_spawn_arg); //azimuthf
     this->spawn_args[2] = std::to_string(this->control_variable);//elevation
   }
   else // magnitude test
@@ -152,9 +160,6 @@ void VerifyLiftdragPlugin::OnUpdate()
   system(ss.c_str());
 
   this->jointWrench = this->joint->GetForceTorque(0u);
-
-
-  // ignition::math::Vector3d force_body1 = this->jointWrench.body1Force();
   this->force_X = this->jointWrench.body1Force.X();
   this->force_Y = this->jointWrench.body1Force.Y();
   this->force_Z = this->jointWrench.body1Force.Z();
@@ -173,6 +178,7 @@ void VerifyLiftdragPlugin::OnUpdate()
     std::cout << "Force x: " << this->force_X << std::endl;
     std::cout << "Force y: " << this->force_Y << std::endl;
     std::cout << "Force z: " << this->force_Z << std::endl;
+    gzdbg << "Something after \n";
 
     this->wind_condition_iterator = 0;
     this->test_number++;
@@ -181,6 +187,7 @@ void VerifyLiftdragPlugin::OnUpdate()
     {
       this->control_variable = this->start;
       this->test_number = 0;
+      std::cout << "New batch. " << std::endl;
     }
   }
   else
