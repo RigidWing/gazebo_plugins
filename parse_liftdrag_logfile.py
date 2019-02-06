@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from math import *
-from parse_file import parse_airfoil_data
+from parse_airfoil_data_file import parse_airfoil_data
 
 lift_values = []
 drag_values = []
@@ -54,7 +54,7 @@ with open("verify_liftdrag.txt","r") as f:
 
             ## Obtain the lift and drag based on the forceX and forceY and knowing the AoA: L*sin(alpha) - D*cos(alpha) = Fx L*cos(alpha) + D*sin(alpha) = Fy
             force_x_adjusted = -1*force_x
-            force_z_adjusted = -1*force_z + 9.8*1.4
+            force_z_adjusted = -1*force_z #+ 9.8*1.4
 
 
             D_calculated = force_z_adjusted * np.sin(aoa) - force_x_adjusted * np.cos(aoa)
@@ -85,11 +85,16 @@ print "The size of cl retrieved list is: ", np.size(cl_retrieved_lookup_arr)
 
 print "look here", np.size(aoa_values_arr)
 
-if np.size(aoa_values_arr)%21 == 0:
-    aoa_values_arr = np.reshape(aoa_values_arr,(np.floor(np.size(aoa_values_arr) / 21),21))
-    lift_values_arr = np.reshape(lift_values_arr, (np.floor(np.size(aoa_values_arr) / 21),21))
-    drag_values_arr = np.reshape(drag_values_arr, (np.floor(np.size(aoa_values_arr) / 21),21))
-    cl_retrieved_lookup_arr = np.reshape(cl_retrieved_lookup_arr, (np.floor(np.size(aoa_values_arr) / 21),21))
+if np.size(aoa_values_arr)%17 == 0:
+
+    aoa3 = aoa_values_arr
+    cl3 = cl_retrieved_lookup_arr
+
+
+    aoa_values_arr = np.reshape(aoa_values_arr,(np.floor(np.size(aoa_values_arr) / 17),17)) # reshaping so that the values can be averaged later
+    lift_values_arr = np.reshape(lift_values_arr, (np.floor(np.size(aoa_values_arr) / 17),17))
+    drag_values_arr = np.reshape(drag_values_arr, (np.floor(np.size(aoa_values_arr) / 17),17))
+    cl_retrieved_lookup_arr = np.reshape(cl_retrieved_lookup_arr, (np.floor(np.size(aoa_values_arr) / 17),17))
 
     print "1 Lift values array", lift_values_arr
     # Take the average across the rows:
@@ -99,8 +104,15 @@ if np.size(aoa_values_arr)%21 == 0:
     cl_retrieved_lookup_print = np.mean(cl_retrieved_lookup_arr, axis=0)
 
 
+
+
+
 else:
-    upper_index = int(np.floor(np.size(aoa_values_arr)/21)*21)
+
+    aoa3 = aoa_values_arr
+    cl3 = cl_retrieved_lookup_arr
+
+    upper_index = int(np.floor(np.size(aoa_values_arr)/17)*17) # upper index to get rid of last final values
     print "upper index ", upper_index
     aoa_values_arr_sub = np.array(aoa_values_arr[:upper_index])
     lift_values_arr_sub = np.array(lift_values[:upper_index])
@@ -108,10 +120,12 @@ else:
     cl_retrieved_lookup_arr_sub = np.array(cl_retrieved_lookup_list[:upper_index])
 
 
-    aoa_values_arr_sub = np.reshape(aoa_values_arr_sub,(int(np.floor(np.size(aoa_values_arr)/21)),21))
-    lift_values_arr_sub = np.reshape(lift_values_arr_sub, (int(np.floor(np.size(aoa_values_arr) / 21)),21))
-    drag_values_arr_sub = np.reshape(drag_values_arr_sub, (int(np.floor(np.size(aoa_values_arr) / 21)),21))
-    cl_retrieved_lookup_arr_sub = np.reshape(cl_retrieved_lookup_arr_sub, (int(np.floor(np.size(aoa_values_arr) / 21)),21))
+
+
+    aoa_values_arr_sub = np.reshape(aoa_values_arr_sub,(int(np.floor(np.size(aoa_values_arr)/17)),17))
+    lift_values_arr_sub = np.reshape(lift_values_arr_sub, (int(np.floor(np.size(aoa_values_arr) / 17)),17))
+    drag_values_arr_sub = np.reshape(drag_values_arr_sub, (int(np.floor(np.size(aoa_values_arr) / 17)),17))
+    cl_retrieved_lookup_arr_sub = np.reshape(cl_retrieved_lookup_arr_sub, (int(np.floor(np.size(aoa_values_arr) / 17)),17))
 
     print "2 Lift values array", lift_values_arr_sub
 
@@ -122,41 +136,47 @@ else:
     cl_retrieved_lookup_print = np.mean(cl_retrieved_lookup_arr_sub, axis=0)
 
 
+
+
+
 # Divide the lift values by the dynamic pressure 0.5*rho*V^2*area
-# area: 4
-# rho: 1.225
-# V: magnitude
 
 coefficient = 0.5*rho * area * (magnitude)**2
-
-plt.figure()
-plt.scatter(aoa_values_print, lift_values_print/coefficient)
-
-plt.scatter(aoa_values_print, drag_values_print/coefficient)
-# plt.show()
-
-
 alpha_values, Cl_values, Cd_values, Cm_values = parse_airfoil_data()
 
+########################################################################################################################
+################################# Log the values being plotted to a txt file ###########################################
+########################################################################################################################
 
 
-# plt.ion()
-# plt.figure(2)
-plt.scatter(np.array(alpha_values)*np.pi/180., Cl_values)
-# plt.show()
 
 
-# plt.figure(3)
-# plt.plot(np.array(alpha_values)*np.pi/180., Cm_values)
-# plt.show()
 
-# plt.figure(4)
-plt.plot(np.array(alpha_values)*np.pi/180., Cd_values)
+print (np.shape(aoa_values_arr))
+print (np.shape(lift_values_arr/coefficient))
+print (np.shape(drag_values_arr/coefficient))
+print (np.shape(np.array(alpha_values)*np.pi/180.))
+print (np.shape(Cl_values))
+print (np.shape(Cd_values))
+print (np.shape(aoa3))
+print (np.shape(cl3))
 
-plt.plot(aoa_values_print, cl_retrieved_lookup_print)
+d  = dict(alpha1 = aoa_values_arr, Cl1 = lift_values_arr/coefficient, Cd1 = drag_values_arr/coefficient, alpha2 = np.array(alpha_values)*np.pi/180., Cl2 = Cl_values, Cd2 = Cd_values, alpha3 = aoa3, Cl3 = cl3)
+df = pd.DataFrame.from_dict(d, orient='index').transpose().fillna('')
+df.to_csv('valuesToPlot2.csv', index=False, header=True)
+
+
+plt.figure()
+
+plt.scatter(aoa_values_arr, lift_values_arr/coefficient) #aoa_values_print, lift_values_print/coefficient
+plt.scatter(aoa_values_arr, drag_values_arr/coefficient)
+plt.scatter(np.array(alpha_values)*np.pi/180., Cl_values) #
+plt.scatter(np.array(alpha_values)*np.pi/180., Cd_values)
+plt.scatter(aoa_values_print, cl_retrieved_lookup_print)
+
+plt.gca().legend(('Cl from lift','Cd from drag', 'Cl_values correct (GT)', 'Cd_values correct (GT)', 'cl_retrieved_lookup_print in plugin'))
+
+
 
 plt.show()
 
-# plt.figure()
-# plt.plot(alpha_values)
-# plt.show()
