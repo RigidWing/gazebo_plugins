@@ -35,8 +35,8 @@ int main(int _argc, char **_argv) { //int main(int argc, char * const argv[]) {
   test_pub_topic_ = "/test_topic";
   test_pub_ = node_handle_->Advertise<msgs::Vector3d>(test_pub_topic_, 1);
 
-    while (true) {
-        // printf("inside loop \n");
+    // while (true) {
+
         common::Time::MSleep(100);
 
 
@@ -68,7 +68,7 @@ int main(int _argc, char **_argv) { //int main(int argc, char * const argv[]) {
         // parse_wind_field_msg(&previously_published_message);
         // bool output = previously_published_message.ParseFromString();
         // std::cout << typeid(previously_published_message).name() << std::endl;
-  }
+  // }
   return 0;
 
 }

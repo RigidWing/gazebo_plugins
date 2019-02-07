@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <string>
+#include<string.h>
 #include "common.h"
 #include "gazebo/common/Assert.hh"
 #include "gazebo/physics/physics.hh"
@@ -26,6 +27,9 @@
 #include "liftdrag_plugin/liftdrag_with_lookup_plugin.h"
 // KITEPOWER (Xander)
 #include "common.h"
+
+#include <iostream>
+
 
 bool compute_values = 1;
 
@@ -37,7 +41,7 @@ GZ_REGISTER_MODEL_PLUGIN(LiftDragWithLookupPlugin)
 LiftDragWithLookupPlugin::LiftDragWithLookupPlugin() : cla(1.0), cda(0.01), cma(0.01), rho(1.2041)
 {
   this->cp = ignition::math::Vector3d(0, 0, 0);
-  this->forward = ignition::math::Vector3d(1, 0, 0);
+  this->forward = ignition::math::Vector3d(1, 0, 0); // TODO CHECK IF THIS IS CUMBERSOME
   this->upward = ignition::math::Vector3d(0, 0, 1);
   this->area = 1.0;
   this->alpha0 = 0.0;
@@ -61,6 +65,9 @@ LiftDragWithLookupPlugin::LiftDragWithLookupPlugin() : cla(1.0), cda(0.01), cma(
   /// KITEPOWER
   this->azimuth_wind			= 0.0; // [rad]
   this->vel_wind			= 0.0; // [m/s]
+  this->V_N_wind = 0.0;
+  this->V_E_wind = 0.0;
+  this->V_D_wind = 0.0;
   this->wind_field_sub_topic_		= kDefaultWindFieldSubTopic;
   this->namespace_			= "";
   this->useConstantDragCoefficient	= true;
@@ -82,6 +89,8 @@ void LiftDragWithLookupPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sd
   node_handle_ = transport::NodePtr(new transport::Node());
   node_handle_->Init(namespace_);
 
+
+
   this->world = this->model->GetWorld();
   GZ_ASSERT(this->world, "LiftDragWithLookupPlugin world pointer is NULL");
 
@@ -97,81 +106,95 @@ void LiftDragWithLookupPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sd
   //////////////////////////////////////////////////////////////////////////////
   //(KITEPOWER)
   if (_sdf->HasElement("airfoilDatafilePath")){
-    printf("INSIDE THE AIRFOIL RETRIEVAL PORTION \n");
     compute_values = 0;
     airfoilDatafilePath = _sdf->Get<std::string>("airfoilDatafilePath");
-    cout << typeid(airfoilDatafilePath).name() << endl;
 
-    // TODO ISABELLE GET THE FILEPATH
-
+    // Open the file using the retrieved filepath
     ifstream inFile;
-    inFile.open("/home/isabelle/gazebo_plugins/e423_data.txt", ios::in | ios::binary); // has to be the full path to the file
-    // TODO: change all the print lines to gzdbg lines.
-
+    try {
+      inFile.open(airfoilDatafilePath.c_str(), ios_base::in);
+    }
+    catch (std::ifstream::failure e) {
+      std::cerr << "Exception opening file: " << std::strerror(errno) << "\n";
+    }
+    GZ_ASSERT(inFile.is_open(),"Could not open the airfoil data file!");
 
     // PARSE THE AIRFOIL DATA FILE
     while (inFile)
-    {   counter++;
-        inFile.getline(oneline, MAXLINE);
-        // cout << "the counter is " << counter << endl;
-        line = oneline;
-        // Starting from line 13, the data begins
-        if (counter >= 13 && counter < 300){
-          // cout << "cd is: " << line.substr(20,7) << endl;
+    {
+      gzdbg << "==============================================================\n";
+      gzdbg << "Parsing the airfoil data. \n";
+      counter++;
+      inFile.getline(oneline, MAXLINE);
+      line = oneline;
+      // Starting from line 13, the data begins
+      if (counter >= 13 && counter < 300)
+      {
+        alpha_str = line.substr(0,8);
+        alpha = atof(alpha_str.c_str());
 
-          alpha_str = line.substr(0,8);
-          // cout << "Alpha is: " << alpha_str << endl;
-          alpha = atof(alpha_str.c_str());
-          // cout << "Alpha is: " << alpha << endl;
+        if (alpha_str.length() > 0)
+        {
+          if (counter == 13)
+          {
+            gzdbg << "First alpha is: " << alpha << "\n";
+          }
+          else
+          {
+            gzdbg << "Alpha is " << alpha_str <<"\n";
+          }
 
-          cl_str = line.substr(11,6);
+          cl_str = line.substr(10,7);
+          gzdbg << "Cl is " << cl_str << "\n";
           cl = atof(cl_str.c_str());
-          // cout << "Cl is: " << cl << endl;
+
 
           cd_str = line.substr(20,7);
+          gzdbg << "Cd is " << cd_str << "\n";
           cd = atof(cd_str.c_str());
-          // cout << "Cd is: " << cd << endl;
+
 
           cdp_str = line.substr(30,7);
+          gzdbg << "Cdp is " << cdp_str << "\n";
           cdp = atof(cdp_str.c_str());
-          // cout << "Cdp is: " << cdp << endl;
+
 
           cm_str = line.substr(39,7);
+          gzdbg << "Cm is " << cm_str << "\n";
           cm = atof(cm_str.c_str());
-          // cout << "Cm is: " << cm << endl;
+
 
           top_xtr_str = line.substr(49,6);
           top_xtr = atof(top_xtr_str.c_str());
-          // cout << "top_xtr is: " << top_xtr << endl;
 
           bot_xtr_str = line.substr(58,6);
           bot_xtr = atof(bot_xtr_str.c_str());
-          // cout << "bot_xtr is: " << bot_xtr << endl;
 
           top_itr_str = line.substr(66,7);
           top_itr = atof(top_itr_str.c_str());
-          // cout << "top_itr is: " << top_itr << endl;
+
 
           bot_itr_str = line.substr(74,8);
           bot_itr = atof(bot_itr_str.c_str());
-          // cout << "bot_itr is: " << bot_itr << endl;
 
           // APPEND THE VALUES OBTAINED FROM THE FILE TO VECTORS
-
           alpha_vec.push_back(alpha);
           cl_vec.push_back(cl);
           cd_vec.push_back(cd);
           cm_vec.push_back(cm);
         }
+      }
     }
-
     // CLOSE THE FILE
-
     inFile.close();
   }
 
+  gzdbg << "==============================================================\n";
+  gzdbg << "Values got appended correctly? \n";
+  // gzdbg << "Cl vector " << cl_vec << "\n";
+  // gzdbg << "Cd vector " << cd_vec << "\n";
+  // gzdbg << "Cm vector " << cm_vec << "\n";
   // CONTINUE CHECKING FOR THE OTHER PARAMETERS
-
   if (_sdf->HasElement("radial_symmetry"))
     this->radialSymmetry = _sdf->Get<bool>("radial_symmetry");
 
@@ -220,21 +243,25 @@ void LiftDragWithLookupPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sd
 
   if (_sdf->HasElement("link_name"))
   {
+    gzdbg << "There is the tag link_name. " << "\n";
     sdf::ElementPtr elem = _sdf->GetElement("link_name");
-    // GZ_ASSERT(elem, "Element link_name doesn't exist!");
+    GZ_ASSERT(elem, "Element link_name doesn't exist!");
     std::string linkName = elem->Get<std::string>();
     this->link = this->model->GetLink(linkName);
-    // GZ_ASSERT(this->link, "Link was NULL");
+    GZ_ASSERT(this->link, "Link was NULL");
 
     if (!this->link)
     {
+      gzdbg << "link is not obtained so OnUpdate will not be accessed. " << "\n";
       gzerr << "Link with name[" << linkName << "] not found. "
-        << "The LiftDragWithLookupPlugin will not generate forces\n";
+        << "LiftDragWithLookupPlugin will not generate forces\n";
     }
     else
     {
+      gzdbg << "link is obtained!. " << "\n";
       this->updateConnection = event::Events::ConnectWorldUpdateBegin(
-          boost::bind(&LiftDragWithLookupPlugin::OnUpdate, this));
+      boost::bind(&LiftDragWithLookupPlugin::OnUpdate, this));
+
     }
   }
 
@@ -251,13 +278,13 @@ void LiftDragWithLookupPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sd
   if (_sdf->HasElement("control_joint_rad_to_cl"))
     this->controlJointRadToCL = _sdf->Get<double>("control_joint_rad_to_cl");
 
-  // KITEPOWER
-  if (_sdf->HasElement("robotNamespace"))
-    namespace_ = _sdf->GetElement("robotNamespace")->Get<std::string>();
-  else
-    gzerr << "Please specify a robotNamespace.\n";
-  node_handle_ = transport::NodePtr(new transport::Node());
-  node_handle_->Init(namespace_);
+  // // KITEPOWER
+  // if (_sdf->HasElement("robotNamespace"))
+  //   namespace_ = _sdf->GetElement("robotNamespace")->Get<std::string>();
+  // else
+  //   gzerr << "Please specify a robotNamespace.\n";
+  // node_handle_ = transport::NodePtr(new transport::Node());
+  // node_handle_->Init(namespace_);
 
   // KITEPOWER
   if (_sdf->HasElement("useConstantDragCoefficient"))
@@ -269,36 +296,104 @@ void LiftDragWithLookupPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sd
 
   if (_sdf->HasElement("link_world_velocity"))
   {
-    this->groundspeed_world = _sdf->Get<ignition::math::Vector3d>("link_world_velocity");
+    // this->groundspeed_world = _sdf->Get<ignition::math::Vector3d>("link_world_velocity");
+    // this->model->GetLink("rigid_wing::main_wing")->SetLinearVel({groundspeed_world.X(), groundspeed_world.Y(), groundspeed_world.Z()});
   }
 
+  if (_sdf->HasElement("chord"))
+  {
+    this->chord = _sdf->Get<double>("chord");
+  }
+
+
+  //////////////////////////////////////////////////////////////////////////////
+  // check if the link is rudder
+  gzdbg << "this->link->GetName(): " << this->link->GetName() << "\n";
+
+  string dummy_var = "rigid_wing::rudder";
+  gzdbg << dummy_var.substr(12,6) << "\n";
+  string linkName = this->link->GetName().c_str();
+
+  string dummy_var_sub = dummy_var.substr(12,6);
+  string linkName_sub = linkName.substr(12,6);
+
+  gzdbg << "dummy_var " << dummy_var << "\n";
+  gzdbg << "linkName " << linkName << "\n";
+
+  gzdbg << "__cplusplus " << __cplusplus << "\n";
+  gzdbg << "here " << linkName.compare(dummy_var) << "\n";
+  // result of zero means they are equal
+
+  // result of zero means they are equal
+  if ( linkName.compare(dummy_var) == 0 )
+  {
+    gzdbg << "Inside the loop" << "\n";
+    // string rudderJointNameFull = this->model->GetJoint("rudder_joint")->GetScopedName();
+    this->rudderJointName = _sdf->Get<std::string>("rudder_joint_name");
+    this->rudderJointNameFull = this->model->GetJoint(this->rudderJointName)->GetScopedName();
+    gzdbg << "rudderJointNameFull " << rudderJointNameFull << "\n";
+    this->rudder_joint = this->model->GetJoint(rudderJointNameFull);
+  }
   //getSdfParam<std::string>(_sdf, "windFieldSubTopic", wind_field_sub_topic_, wind_field_sub_topic_);
   //wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>("~/" + this->model->GetName() + wind_field_sub_topic_, &LiftDragWithLookupPlugin::WindFieldCallback, this);
   wind_field_sub_ = node_handle_->Subscribe<wind_field_msgs::msgs::WindField>(wind_field_sub_topic_, &LiftDragWithLookupPlugin::WindFieldCallback, this);
   // An Additional SubscriberPtr To Subscribe to the test_msg Topic
   test_msg_sub_ = node_handle_->Subscribe<msgs::Vector3d>("/test_topic",&LiftDragWithLookupPlugin::TestMsgCallback, this);
+
+  aoa_pub_ = node_handle_->Advertise<msgs::Any>("/aoa_topic",1);
 }
 
 /////////////////////////////////////////////////
 void LiftDragWithLookupPlugin::OnUpdate()
 {
-  // printf("Inside the OnUpdate function \n");
+
+  cout << "OnUpdate of Lift Drag Plugin " << endl;
+  gzdbg << "==============================================================\n";
+  gzdbg << "**************************************************************\n";
+  gzdbg << "OnUpdate LiftDrag Plugin \n";
   GZ_ASSERT(this->link, "Link was NULL");
 
-  // ISABELLE hack the world velocity
-this->model->GetLink("rigid_wing::main_wing")->SetLinearVel({groundspeed_world.X(), groundspeed_world.Y(), groundspeed_world.Z()});
+  // Get the main body axis
+  ignition::math::Pose3d modelPose = this->model->WorldPose();
+  auto modelQuatern = modelPose.Rot();
+  double modelRoll = modelQuatern.Roll();
+  double modelPitch = modelQuatern.Pitch();
+  double modelYaw = modelQuatern.Yaw();
+  ignition::math::Vector3d vectorMainAxisModel(cos(modelYaw)*cos(modelPitch), sin(modelYaw)*cos(modelPitch), -1*sin(modelPitch));
+  gzdbg << "main axis of the model is " << vectorMainAxisModel << "(computed in LiftDrag plugin) \n";
+  // CHECK THE LINK NAME
+  gzdbg << "this->link->GetName(): " << this->link->GetName() << "\n";
+
+  string dummy_var = "rigid_wing::rudder";
+  string linkName = this->link->GetName().c_str();
+  // COMPARE THE STRINGS (RESULT OF ZERO MEANS THEY ARE SAME STRING)
+  if ( linkName.compare(dummy_var) == 0 )
+  {
+    gzdbg << "rudder_joint->Position()" << this->rudder_joint->Position() << "\n";
+    if (this->rudder_joint->Position() >= 0)
+    {
+      gzdbg << "Rudder position is positive so flip upward! \n";
+      this->upward = ignition::math::Vector3d(0,-1, 0);;//-1*this->upward;
+      gzdbg << "this->upward " << this->upward << "\n";
+    }
+
+  }
+
+//  // ISABELLE hack the world velocity
+// this->model->GetLink("rigid_wing::main_wing")->SetLinearVel({groundspeed_world.X(), groundspeed_world.Y(), groundspeed_world.Z()});
 
   // get linear velocity at cp in inertial frame
-#if GAZEBO_MAJOR_VERSION >= 9
-  ignition::math::Vector3d vel = this->link->WorldLinearVel(this->cp);
+#if GAZEBO_MAJOR_VERSION >= 9 // NOTE KEEP AS MAIN WING OTHERWISE HAS TROUBLE GETTING VELOCITY
+ignition::math::Vector3d vel = this->model->GetLink("rigid_wing::main_wing")->WorldLinearVel(this->cp);
 #else
-  ignition::math::Vector3d vel = ignitionFromGazeboMath(this->link->GetWorldLinearVel(this->cp));
+ignition::math::Vector3d vel = ignitionFromGazeboMath(this->model->GetLink("rigid_wing::main_wing")->WorldLinearVel(this->cp);
 #endif
   ignition::math::Vector3d velI = vel;
 
+  // gzdbg << "GROUNDSPEED " << velI << "\n";
+
   // FTERO (jonas) & KITEPOWER (Xander)
   // start ---
-
   //ignition::math::Vector3d constantWind(this->vel_wind*cos(this->azimuth_wind),this->vel_wind*sin(this->azimuth_wind),0);
   ignition::math::Vector3d constantWind(this->V_N_wind,this->V_E_wind,-1 * this->V_D_wind); // minus 1 because NED to world
   vel -= constantWind; // where vel is the ground speed of the vehicle. In which reference frame is vel defined? In the world coordinates.
@@ -386,23 +481,39 @@ this->model->GetLink("rigid_wing::main_wing")->SetLinearVel({groundspeed_world.X
   //   cos(theta) = a.Dot(b)/(a.Length()*b.Lenghth())
   // given upwardI and liftI are both unit vectors, we can drop the denominator
   //   cos(theta) = a.Dot(b)
+  // gzdbg << constantWind << "\n";
+  // gzdbg << "upwardI" << upwardI << "\n";
+  // gzdbg << "spanwiseI" << spanwiseI << "\n";
+  // gzdbg << "Vel " << vel << "\n";
+  // gzdbg << "velInLDPlane" << velInLDPlane << "\n";
+  // gzdbg << "liftI which is the direction of lift" << liftI << "\n";
+  // gzdbg << liftI.Dot(upwardI) << "\n";
+
+
+
   double cosAlpha = ignition::math::clamp(liftI.Dot(upwardI), minRatio, maxRatio);
+  EXPECT_TRUE(isnan(cosAlpha) != 1);
   // Is alpha positive or negative? Test:
   // forwardI points toward zero alpha
   // if forwardI is in the same direction as lift, alpha is positive.
   // liftI is in the same direction as forwardI?
   if (liftI.Dot(forwardI) >= 0.0) // changed forwardI to upwardI
-    // then alpha will be positive
-    this->alpha = acos(cosAlpha); // this->alpha0 + acos(cosAlpha);  TODO ISABELLE, SEE IF THE ADDITION OF a0 is necessary? This is for the shift in the curve as made in the plugin
+    {
+      // then alpha will be positive
+      gzdbg << "Acute angle " << "\n";
+      this->alpha = acos(cosAlpha); // this->alpha0 + acos(cosAlpha);  TODO ISABELLE, SEE IF THE ADDITION OF a0 is necessary? This is for the shift in the curve as made in the plugin
+    }
   else
-    // alpha is negative
-    this->alpha = -1 * acos(cosAlpha); //this->alpha0 - acos(cosAlpha); also added the abs there!to get the acute andle between then
-
-  cout << "cosAlpha is: " << cosAlpha << endl;
+    {// alpha is negative
+      gzdbg << "Obtuse angle " << "\n";
+      this->alpha = -1 * acos(cosAlpha); //this->alpha0 - acos(cosAlpha); also added the abs there!to get the acute andle between then
+    }
   // normalize to within +/-90 deg
   while (fabs(this->alpha) > 0.5 * M_PI)
     this->alpha = this->alpha > 0 ? this->alpha - M_PI
                                   : this->alpha + M_PI;
+
+
 
   // compute dynamic pressure
   double speedInLDPlane = velInLDPlane.Length();
@@ -441,9 +552,9 @@ if (compute_values == 1){
     else
       cl = this->cla * this->alpha_shifted * cosSweepAngle;
 
-      cout << "Alpha shifted " << this->alpha_shifted << endl;
-      cout << this->alpha0 << endl;
-      cout  << "3 the cl value " << cl << endl;
+      // cout << "Alpha shifted " << this->alpha_shifted << endl;
+      // cout << this->alpha0 << endl;
+      // cout  << "3 the cl value " << cl << endl;
 
     // modify cl per control joint value
     if (this->controlJoint)
@@ -455,11 +566,11 @@ if (compute_values == 1){
       #endif
           cl = cl + this->controlJointRadToCL * controlAngle;
       /// \TODO: also change cm and cd
-      cout  << "4 the cl value " << cl << endl;
+      // cout  << "4 the cl value " << cl << endl;
 
     }
 
-    cout  << "the cl value " << cl << endl;
+    // cout  << "the cl value " << cl << endl;
     ////////////////////////////////////////////////////////////////////////////
     // compute cd at cp, check for stall, correct for sweep
     // KITEPOWER: if useConstantDragCoefficient is true, computes the drag
@@ -523,25 +634,36 @@ if (compute_values == 1){
 else{
 
     // (Isabelle) Lookup
-    cout << "Check alpha here: " << this->alpha << endl;
+    // cout << "Check alpha here: " << this->alpha << endl;
 
 
-    float binarySearchResult = binarySearch(alpha_vec,this->alpha * 180.0 / M_PI,0, (int)(alpha_vec.size()-1));
+
+    // if yes get the joint corresponding
+
+    float binarySearchResult =  binarySearch(alpha_vec,this->alpha * 180.0 / M_PI,0, (int)(alpha_vec.size()-1));//binarySearch(alpha_vec,this->alpha * 180.0 / M_PI, alpha_vec[0], alpha_vec[(int)(alpha_vec.size()-1)]); //
     // GZ_ASSERT((int)binarySearchResult != -1, "Angle of attack is out of range");
 
-    cout << "the binary search result " << binarySearchResult << endl;
-    ignition::math::Vector3d vector_cl_cd_cm = retrieve_values(binarySearchResult);
+    if ((int)binarySearchResult != -1)
+    {
+      // cout << "the binary search result " << binarySearchResult << endl;
+      ignition::math::Vector3d vector_cl_cd_cm = retrieve_values(binarySearchResult);
 
-    cl = vector_cl_cd_cm[0] * cosSweepAngle;
-    cd = vector_cl_cd_cm[1] * cosSweepAngle;
-    cm = vector_cl_cd_cm[2] * cosSweepAngle;
+      cl = vector_cl_cd_cm[0] * cosSweepAngle * this->chord;
+      cd = vector_cl_cd_cm[1] * cosSweepAngle * this->chord;
+      cm = vector_cl_cd_cm[2] * cosSweepAngle * this->chord * this->chord;
+    }
+    else{
+      // TODO check this - For AoA out of range
+      cl = 2*cos(this->alpha)*sin(this->alpha)*sin(this->alpha);
+      cd = 2*sin(this->alpha)*sin(this->alpha)*sin(this->alpha);
+      cm = -1*sin(this->alpha)/4; // currently not needed TODO revise!
+    }
 
-    gzdbg << "Cl is " << cl << "\n";
 }
 // compute lift force at cp
-std::cout << "Cl is " << cl << std::endl;
+// std::cout << "Cl is " << cl << std::endl;
 ignition::math::Vector3d lift = cl * q * this->area * liftI;
-std::cout << "the lift is " << lift << std::endl;
+// std::cout << "the lift is " << lift << std::endl;
 // drag at cp
 ignition::math::Vector3d drag = cd * q * this->area * dragDirection;
 
@@ -554,48 +676,90 @@ ignition::math::Vector3d moment = cm * q * this->area * momentDirection;
   ignition::math::Vector3d cog = ignitionFromGazeboMath(this->link->GetInertial()->GetCoG());
 #endif
 
-// moment arm from cg to cp in inertial plane
-ignition::math::Vector3d momentArm = pose.Rot().RotateVector(
-  this->cp - cog
-);
+// moment arm from cg to cp in inertial plane. but isnt cp the distance between cop and cog?
+// Get the axis of the link
+ignition::math::Pose3d linkPose = this->link->WorldPose();
+auto linkQuatern = linkPose.Rot();
+double linkRoll = linkQuatern.Roll();
+double linkPitch =linkQuatern.Pitch();
+double linkYaw = linkQuatern.Yaw();
+ignition::math::Vector3d vectorMainAxis(cos(linkYaw)*cos(linkPitch), sin(linkYaw)*cos(linkPitch), -1*sin(linkPitch)); //-1*sin(modelPitch)
+// with a minus one since the vector points backwards (from cog to cop) and positive is in direction of nose
+ignition::math::Vector3d momentArm = -1*this->cp * vectorMainAxis;//pose.Rot().RotateVector(this->cp - cog);
 // gzerr << this->cp << " : " << this->link->GetInertial()->CoG() << "\n";
 
 // force and torque about cg in inertial frame
-ignition::math::Vector3d force = lift + drag;
+ignition::math::Vector3d aerodynamicForce = lift + drag;
 
 // + moment.Cross(momentArm);
-tmp_vector = momentArm.Cross(force);
+tmp_vector = momentArm.Cross(aerodynamicForce);
 ignition::math::Vector3d torque = moment;  //THIS IS THE LINE!! CHANGING THE EXPRESSION: TORQUE = MOMENT TO TORQUE = TMP_VECTOR
 // - lift.Cross(momentArm) - drag.Cross(momentArm);
 
 
   if (1)
   {
-    gzdbg << "=============================\n";
+    gzdbg << "=================================================================\n";
+    gzdbg << "================= DEBUGGING AOA CALCULATION ==================== \n";
+    gzdbg << "forward " << this->forward << "\n";
+    gzdbg << "upward " << this->upward << "\n";
+    gzdbg << "*****************************\n";
+    gzdbg << "**changing to inertial reference frame \n";
+    gzdbg << "forward (inertial): " << forwardI << "\n";
+    gzdbg << "upward (inertial): " << upwardI << "\n";
+    gzdbg << "*****************************\n";
+    gzdbg << "** Get the spanwise direction (forwardI x upwardI) \n";
+    gzdbg << "spanwiseI: " << spanwiseI << "\n";
+    gzdbg << "*****************************\n";
+    gzdbg << "**Obtain the velocity in LD plane (vel - vel along span) \n";
+    gzdbg << "spd: [" << vel.Length()
+          << "] vel: [" << vel << "]\n";
+    gzdbg << "Windspeed " << constantWind << "\n";
+    gzdbg << "VelI :" << velI << "\n";
+    gzdbg << "LD plane spd: [" << velInLDPlane.Length()
+          << "] velInLDPlane : [" << velInLDPlane << "]\n";
+    gzdbg << "*****************************\n";
+    gzdbg << "** Get the lift direction = spanwiseI.Cross(velInLDPlane) \n";
+    gzdbg << "liftI: " << liftI << "\n";
+    gzdbg << "*****************************\n";
+    gzdbg << "Get the angle of attack angle between liftI and upwardI\n";
+    gzdbg << "cosAlpha " << cosAlpha << "\n";
+    gzdbg << "Finally, alpha " << this->alpha << "\n";
+    gzdbg << "=================================================================\n";
+    gzdbg << "**Retrieve the coefficients \n";
+    gzdbg << "cl: " << cl << "]\n";
+    gzdbg << "cd: " << cd << "]\n";
+    gzdbg << "cm: " << cm << "\n";
+    gzdbg << "=================================================================\n";
+    gzdbg << "computed Lift and Drag and total aerodynamicForce and Moment \n";
+    gzdbg << "Lift " << lift << "\n";
+    gzdbg << "Drag " << drag << "\n";
+    gzdbg << "Aerodynamic force: " << aerodynamicForce << "\n";
+    gzdbg << "cog of " << this->link->GetName() << "is " << cog << "\n";
+    gzdbg << "main axis of " << linkName << " is " << vectorMainAxis << "\n";
+    gzdbg << "this->cp " << this->cp << "\n";
+    gzdbg << "momentArm: " << momentArm << "\n";
+    gzdbg << "Aerodynamic torque: " << torque << "\n";
+    gzdbg << "=================================================================\n";
+
+
     gzdbg << "sensor: [" << this->GetHandle() << "]\n";
     gzdbg << "Link: [" << this->link->GetName()
           << "] pose: [" << pose
           << "] dynamic pressure: [" << q << "]\n";
-    gzdbg << "spd: [" << vel.Length()
-          << "] vel: [" << vel << "]\n";
-    gzdbg << "LD plane spd: [" << velInLDPlane.Length()
-          << "] velInLDPlane : [" << velInLDPlane << "]\n";
-    gzdbg << "VelI :" << velI << "\n";
-    gzdbg << "upward " << this->upward << "\n";
-    gzdbg << "forward (inertial): " << forwardI << "\n";
-    gzdbg << "upward (inertial): " << upwardI << "\n";
-    gzdbg << "lift dir (inertial): " << liftI << "\n";
-    gzdbg << "Span direction (normal to LD plane): " << spanwiseI << "\n";
+
+
+
+
+
     gzdbg << "sweep: " << this->sweep << "\n";
-    gzdbg << "alpha: " << this->alpha << "\n";
     gzdbg << "alpha shifted: " << this->alpha_shifted << "\n";
     gzdbg << "lift: " << lift << "\n";
     gzdbg << "drag: " << drag << " cd: "
           << cd << " cda: " << this->cda << "\n";
     gzdbg << "moment: " << moment << "\n";
     gzdbg << "cp momentArm: " << momentArm << "\n";
-    gzdbg << "force: " << force << "\n";
-    gzdbg << "torque: " << torque << "\n";
+
     gzdbg << "wind: " << constantWind << "\n";
     gzdbg << "airfoilDatafilePath: " << airfoilDatafilePath << "\n";
     gzdbg << "Computing values? " << compute_values << "\n";
@@ -604,38 +768,52 @@ ignition::math::Vector3d torque = moment;  //THIS IS THE LINE!! CHANGING THE EXP
 
   }
 
+
+
   // Correct for nan or inf
-  force.Correct();
+  aerodynamicForce.Correct();
   this->cp.Correct();
   torque.Correct();
+  std::cout << "Groundspeed: " << velI << std::endl;
+  std::cout << "Airspeed: " << vel << std::endl;
+  std::cout << "Area: " << this->area << std::endl;
+  std::cout << "Rho: " << this->rho << std::endl;
+  gzdbg << "aerodynamicForce is " << aerodynamicForce << "\n";
+  std::cout << "Pose: " << pose << std::endl;
+  std::cout << "Cl: " << cl << std::endl;
+  std::cout << "AoA: " << alpha << std::endl;
+  // todo fix this to the cp
+  gzdbg << "Cog " << this->link->WorldCoGPose().Pos() << "\n";
+  this->link->AddForceAtWorldPosition(aerodynamicForce, this->link->WorldCoGPose().Pos());//AddForceAtRelativePosition(force, this->cp)
+  // this->link->AddTorque(torque);
 
-  this->link->AddForceAtRelativePosition(force, this->cp);
-  this->link->AddTorque(torque);
+
+  //Publish the AoA
+  aoa_msg = msgs::ConvertAny(this->alpha);
+  aoa_pub_->Publish(aoa_msg);
 }
 
 // KITEPOWER (Xander)
 void LiftDragWithLookupPlugin::WindFieldCallback(WindFieldPtr &wind_field){
-  printf("Inside the WindFieldCallback function \n");
+  // printf("Inside the WindFieldCallback function \n");
 	vel_wind = wind_field->velocity();
 	azimuth_wind = wind_field->azimuth();
-  std::cout << "The wind velocity is " << vel_wind << std::endl;
+  // std::cout << "wind velocity is " << vel_wind << std::endl;
 }
 
 // Callback of the SubscriberPtr to the test_msg Topic
 void LiftDragWithLookupPlugin::TestMsgCallback(TestMsgPtr &test_msg){
-
-  testMsgCallbackUsed = 1;
-  printf("Inside the TestMsgCallback function \n");
+  gzdbg << "Wind Message Received! \n";
   vel_wind = test_msg->x();
   azimuth_wind = test_msg->y();
   eta_wind = test_msg->z();
   // In north east down coordinates VERIFY
-  V_N_wind = vel_wind * cos(azimuth_wind) * cos(eta_wind + M_PI);
-  V_E_wind = vel_wind * sin(azimuth_wind) * cos(eta_wind + M_PI);
-  V_D_wind = vel_wind * sin(eta_wind + M_PI);
+  this->V_N_wind = vel_wind * cos(azimuth_wind) * cos(eta_wind + M_PI);
+  this->V_E_wind = vel_wind * sin(azimuth_wind) * cos(eta_wind + M_PI);
+  this->V_D_wind = vel_wind * sin(eta_wind + M_PI);
 
-  std::cout << "The velocity magnitude is " << test_msg->x() << std::endl;
-  std::cout << "The azimuth direction is " << test_msg->y() << std::endl;
+  // std::cout << "velocity magnitude is " << test_msg->x() << std::endl;
+  // std::cout << "azimuth direction is " << test_msg->y() << std::endl;
 
 }
 
@@ -646,13 +824,17 @@ void LiftDragWithLookupPlugin::TestMsgCallback(TestMsgPtr &test_msg){
 // otherwise -1
 float LiftDragWithLookupPlugin::binarySearch(vector<double> arr, double x, int l, int r)
 {
-   cout << "x is " << x << endl;
+   // cout << "x is " << x << endl;
+   // cout << "l is " << l << endl;
+   // cout << "r is " << r << endl;
    if (r >= l)
    {
         int mid = l + (r - l)/2;
-        cout << "mid is " << mid << endl;
+        // cout << "mid is " << mid << endl;
         // If the element is present at the middle
         // itself
+        gzdbg << "mid " << mid << "\n";
+        gzdbg << "arr[mid] " << arr[mid] << "\n";
         if (arr[mid] == x)
             return mid;
 
@@ -672,7 +854,7 @@ float LiftDragWithLookupPlugin::binarySearch(vector<double> arr, double x, int l
          // in right subarray
         else {
             if (arr[mid + 1] > x){
-              cout << "inside this case 3" << endl;
+              // cout << "inside this case 3" << endl;
               additional_ratio = (x - arr[mid])/(arr[mid + 1] - arr[mid]);
               return mid + additional_ratio;
             }
@@ -696,6 +878,10 @@ ignition::math::Vector3d LiftDragWithLookupPlugin::retrieve_values(float float_i
     cl_retrieved = cl_vec[floor(float_index)] + additional_ratio * (cl_vec[floor(float_index) + 1] - cl_vec[floor(float_index)]);
     cd_retrieved = cd_vec[floor(float_index)] + additional_ratio * (cd_vec[floor(float_index) + 1] - cd_vec[floor(float_index)]);
     cm_retrieved = cm_vec[floor(float_index)] + additional_ratio * (cm_vec[floor(float_index) + 1] - cm_vec[floor(float_index)]);
+
+    gzdbg << "cl_retrieved (for unit chord) " << cl_retrieved << "\n";
+    gzdbg << "cd_retrieved (for unit chord) " << cd_retrieved << "\n";
+    gzdbg << "cm_retrieved (for unit chord) " << cm_retrieved << "\n";
 
     ignition::math::Vector3d resultant_vector = ignition::math::Vector3d(cl_retrieved,cd_retrieved,cm_retrieved);
     return resultant_vector;

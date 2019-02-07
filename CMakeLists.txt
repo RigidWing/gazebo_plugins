@@ -141,6 +141,31 @@ target_include_directories(
 target_link_libraries(gazebo_control_input_plugin ${GAZEBO_LIBRARIES} ${Qt5Core_LIBRARIES} ${Qt5Widgets_LIBRARIES} ${PROTOBUF_LIBRARY})
 
 ##################################################################################
+add_library(gazebo_waypoint_following_control_plugin SHARED waypoint_following_control_plugin.cpp ${PROTO_SRCS})
+target_include_directories(
+    gazebo_waypoint_following_control_plugin
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+    )
+
+target_link_libraries(gazebo_waypoint_following_control_plugin ${GAZEBO_LIBRARIES} ${PROTOBUF_LIBRARY})
+
+##################################################################################
+add_library(gazebo_verification_components_plugin SHARED verification_components_plugin.cpp ${PROTO_SRCS})
+target_include_directories(
+    gazebo_verification_components_plugin
+    PRIVATE ${CMAKE_SOURCE_DIR}/msgs
+    PRIVATE ${CMAKE_BINARY_DIR}
+    )
+
+target_link_libraries(gazebo_verification_components_plugin ${GAZEBO_LIBRARIES} ${PROTOBUF_LIBRARY})
+
+
+##################################################################################
+#add_library(rotors_gazebo_motor_model_copied SHARED gazebo_motor_model.cpp)
+
+
+##################################################################################
 #set (headers
 #  qt.h
 #  qt_test.h)

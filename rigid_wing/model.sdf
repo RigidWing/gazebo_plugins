@@ -2,26 +2,30 @@
 <sdf version='1.6'>
   <model name='rigid_wing'>
 
+    <!--frame name="mframe">
+      <pose frame="/world">0 0 0 0 0 0</pose>
+    </frame-->
+    <pose frame="mframe">0 0 0 0 0 0</pose>
+
+
     <!-- MAIN WING -->
 
     <link name='main_wing'>
-      <pose frame=''>0 0 0 0 -0 0</pose>
-
       <inertial>
-        <pose frame=''>0 0.5 1.5 -1.57079632679 0.00 3.14159265359</pose>
-        <mass>1.4</mass>
+        <pose frame="MW_frame">-0.12618 0 1.475 -1.57079632679 0.00 3.14159265359</pose>
+        <mass>0.515</mass>
         <inertia>
-          <ixx>0.15</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>0.05</iyy>
-          <iyz>0</iyz>
-          <izz>0.15</izz>
+          <ixx>2.095641270</ixx>
+          <ixy>0</ixy> <!---0.04421988997-->
+          <ixz>0</ixz><!-- -0.32359603857-->
+          <iyy>3.736609922</iyy>
+          <iyz>0</iyz> <!-- -0.029927556-->
+          <izz>3.750130591</izz>
         </inertia>
       </inertial>
 
-      <gravity>1</gravity>
-      <velocity_decay/>
+      <gravity>0</gravity>
+
       <self_collide>0</self_collide>
 
       <!--sensor name='main_altimeter' type='altimeter'>
@@ -68,7 +72,7 @@
 
       <visual name='base_link_wing_visual'>
         <!--plugin name='visualize_vector_plugin' filename='libgazebo_visualize_vector_plugin.so'/-->
-        <pose frame=''>0 0.5 1.5 -1.57079632679 0.00 3.14159265359</pose>
+        <pose frame="MW_frame">-0.1 0.5 1.475 -1.57079632679 0.00 3.14159265359</pose>
         <geometry>
           <mesh>
             <scale>0.004 0.004 0.004</scale>
@@ -90,24 +94,26 @@
       <collision name='base_link_wing_collision'>
         <laser_retro>0</laser_retro>
         <max_contacts>10</max_contacts>
-        <pose frame=''>0 0.5 1.5 -1.57079632679 0.00 3.14159265359</pose>
+        <pose frame="MW_frame">0 0.5 0 -1.57079632679 0.00 3.14159265359</pose>
         <geometry>
-          <!--mesh>
-            <!scale>0.004 0.004 0.004</scale>
+          <mesh>
+            <scale>0.004 0.004 0.004</scale>
             <uri>model://rigid_wing/meshes/rudder.dae</uri>
-          </mesh-->
-          <box>
-            <size>0.7 1 0.2</size>
-          </box>
+          </mesh>
         </geometry>
+        <surface>
+           <contact>
+             <collide_without_contact>true</collide_without_contact>
+           </contact>
+         </surface>
       </collision>
 
       <visual name='base_link_core_visual'>
-        <pose frame=''>-0.5 0 1.475 0 1.57 0</pose>
+        <pose frame="MW_frame">-0.8 0 1.475 0 1.57 0</pose><!--pose frame=''>-0.5 0 1.475 0 1.57 0</pose-->
         <geometry>
           <cylinder>
             <radius>0.01</radius>
-            <length>0.7</length>
+            <length>1.3</length>
           </cylinder>
         </geometry>
         <material>
@@ -130,85 +136,156 @@
       <collision name='base_link_core_collision'>
         <laser_retro>0</laser_retro>
         <max_contacts>10</max_contacts>
-        <pose frame=''>-0.5 0 1.475 0 1.57 0</pose>
+        <pose frame="MW_frame">-0.8 0 1.475 0 1.57 0</pose><!--pose frame=''>-0.5 0 1.475 0 1.57 0</pose-->
         <geometry>
           <cylinder>
             <radius>0.01</radius>
-            <length>0.7</length>
+            <length>1.3</length>
           </cylinder>
         </geometry>
-        <!--surface>
-          <friction>
-            <ode>
-              <mu>1</mu>
-              <mu2>1</mu2>
-              <fdir1>0 0 0</fdir1>
-              <slip1>0</slip1>
-              <slip2>0</slip2>
-            </ode>
-            <torsional>
-              <coefficient>1</coefficient>
-              <patch_radius>0</patch_radius>
-              <surface_radius>0</surface_radius>
-              <use_patch_radius>1</use_patch_radius>
-              <ode>
-                <slip>0</slip>
-              </ode>
-            </torsional>
-          </friction>
-          <bounce>
-            <restitution_coefficient>0</restitution_coefficient>
-            <threshold>1e+06</threshold>
-          </bounce>
+        <surface>
           <contact>
-            <collide_without_contact>0</collide_without_contact>
-            <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
-            <collide_bitmask>10</collide_bitmask>
-            <ode>
-              <soft_cfm>0</soft_cfm>
-              <soft_erp>0.2</soft_erp>
-              <kp>1e+13</kp>
-              <kd>1</kd>
-              <max_vel>10</max_vel>
-              <min_depth>0.01</min_depth>
-            </ode>
-            <bullet>
-              <split_impulse>1</split_impulse>
-              <split_impulse_penetration_threshold>-0.01</split_impulse_penetration_threshold>
-              <soft_cfm>0</soft_cfm>
-              <soft_erp>0.2</soft_erp>
-              <kp>1e+13</kp>
-              <kd>1</kd>
-            </bullet>
+            <collide_without_contact>1</collide_without_contact>
           </contact>
-        </surface-->
+        </surface>
       </collision>
 
     </link>
-
-    <!-- ELEVATOR -->
-
-    <link name='elevator'>
+    <!-- VERTICAL WING -->
+    <link name='vertical_wing_left'>
+      <!--frame name='VML_frame'>
+        <pose frame='mframe'>-0.1 0.2 1.2 0 0 0</pose>
+      </frame-->
       <inertial>
-        <pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose>
-        <mass>0.001</mass>
+        <pose frame='VWL_frame'>-0.1 0.2 1.475 0 0 3.14</pose> <!-- -0.1 0.2 1.475-->
+        <mass>0.03131</mass>
         <inertia>
-          <ixx>1e-06</ixx>
-          <ixy>0</ixy>
-          <iyy>1e-06</iyy>
-          <ixz>0</ixz>
-          <iyz>0</iyz>
-          <izz>1e-06</izz>
+          <ixx>0.006504533</ixx>
+          <ixy>-0.001698795</ixy>
+          <ixz>-0.00314897</ixz>
+          <iyy>-0.001630845</iyy>
+          <iyz>0.000990249</iyz>
+          <izz>0.05</izz>
         </inertia>
       </inertial>
 
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
-      <gravity>1</gravity>
+      <gravity>0</gravity>
+
+
+      <visual name='vertical_wing_left_visual'>
+          <pose frame='VWL_frame'>-0.1 0.2 1.2  0 0 3.14</pose>
+            <geometry>
+              <mesh>
+              <scale>0.004 0.002 0.002</scale>
+              <uri>model://rigid_wing/meshes/rudder.dae</uri>
+              </mesh>
+            </geometry>
+            <material>
+              <script>
+              <name>Gazebo/Blue</name>
+              <uri>__default__</uri>
+              </script>
+            </material>
+      </visual>
+
+      <collision name='vertical_wing_left_collision'>
+        <pose frame='VWL_frame'>-0.1 0.2 1.2  0 0 3.14</pose>
+        <geometry>
+          <mesh>
+            <scale>0.004 0.002 0.002</scale>
+            <uri>model://rigid_wing/meshes/rudder.dae</uri>
+          </mesh>
+        </geometry>
+
+        <surface>
+           <contact>
+             <collide_without_contact>true</collide_without_contact>
+           </contact>
+         </surface>
+      </collision>
+    </link>
+
+    <link name='vertical_wing_right'>
+      <!--frame name='VMR_frame'>
+        <pose frame='mframe'>-0.1 -0.2 1.2 0 0 0</pose>
+      </frame-->
+
+      <inertial>
+        <pose frame='VWR_frame'>-0.1 -0.2 1.475 0 0 3.14</pose> <!-- -0.1 -0.2 1.475 -->
+        <mass>0.03131</mass>
+        <inertia>
+          <ixx>0.006504533</ixx>
+          <ixy>-0.001698795</ixy>
+          <ixz>-0.00314897</ixz>
+          <iyy>-0.001630845</iyy>
+          <iyz>0.000990249</iyz>
+          <izz>0.05</izz> <!-- TO DO -->
+        </inertia>
+      </inertial>
+
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+      <gravity>0</gravity>
+
+      <visual name='vertical_wing_right_visual'>
+          <pose frame='VWR_frame'>-0.1 -0.2 1.2  0 0 3.14</pose>
+            <geometry>
+              <mesh>
+              <scale>0.004 0.002 0.002</scale>
+              <uri>model://rigid_wing/meshes/rudder.dae</uri>
+              </mesh>
+            </geometry>
+            <material>
+              <script>
+              <name>Gazebo/Blue</name>
+              <uri>__default__</uri>
+              </script>
+            </material>
+      </visual>
+
+      <collision name='vertical_wing_right_collision'>
+        <pose frame='VWR_frame'>-0.1 -0.2 1.2  0 0 3.14</pose>
+        <geometry>
+          <mesh>
+            <scale>0.004 0.002 0.002</scale>
+            <uri>model://rigid_wing/meshes/rudder.dae</uri>
+          </mesh>
+        </geometry>
+        <surface>
+           <contact>
+             <collide_without_contact>true</collide_without_contact>
+           </contact>
+         </surface>
+      </collision>
+    </link>
+
+    <!-- ELEVATOR -->
+
+    <link name='elevator'>
+      <inertial>
+        <pose frame=''>-1.44715 0 1.475 1.57 3.14159265359 0</pose> <!-- -0.8434084 0 1.475 1.57 3.14159265359 0 -->
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>0.0015</ixx>
+          <ixy>0</ixy>
+          <iyy>0.0005</iyy>
+          <ixz>0</ixz>
+          <iyz>0</iyz>
+          <izz>0.0015</izz>
+        </inertia>
+      </inertial>
+
+      <self_collide>0</self_collide>
+      <enable_wind>0</enable_wind>
+      <kinematic>0</kinematic>
+      <gravity>0</gravity>
 
       <visual name='elevator_visual'>
-        <pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose>
+        <pose frame=''>-1.44715 0 1.475 1.57 3.14159265359 0</pose>
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.0005</scale>
@@ -233,39 +310,43 @@
       </visual>
 
       <collision name="elevator_collision">
-	      <pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose>
+        <pose frame=''>-1.44715 0 1.475 1.57 3.14159265359 0</pose>
           <geometry>
            <mesh>
             <scale>0.001 0.001 0.0005</scale>
             <uri>model://rigid_wing/meshes/elevator.dae</uri>
            </mesh>
          </geometry>
+         <surface>
+            <contact>
+              <collide_without_contact>true</collide_without_contact>
+            </contact>
+          </surface>
      </collision>
 
    </link>
 
-   <!-- -0.835 0 1.475 0 -0 3.14 -->
     <link name='rudder'>
-
       <inertial>
-        <mass>0.1</mass>
+        <pose frame=''>-1.44715 0.005 1.475 0 -0 3.14159265359</pose> <!-- -0.85 0 1.61 0 -0 3.14159265359 -->
+        <mass>0.01</mass>
         <inertia>
-          <ixx>1e-06</ixx>
+          <ixx>0.00020801189</ixx>
           <ixy>0</ixy>
-          <iyy>1e-06</iyy>
-          <ixz>0</ixz>
+          <ixz>0.001733883</ixz>
+          <iyy>0.0015</iyy>
           <iyz>0</iyz>
-          <izz>1e-06</izz>
+          <izz>0.019290501</izz>
         </inertia>
-        <pose frame=''>-0.834 0.005 1.475 0 -0 3.14159265359</pose>
       </inertial>
 
       <self_collide>0</self_collide>
       <enable_wind>0</enable_wind>
       <kinematic>0</kinematic>
+      <gravity>0</gravity>
 
       <visual name='rudder_visual'>
-        <pose frame=''>-0.834 0.005 1.475 0 -0 3.14159265359</pose>
+        <pose frame=''>-1.44715 0.005 1.475 0 -0 3.14159265359</pose> <!-- -0.834 0.005 1.475-->
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
@@ -274,7 +355,7 @@
         </geometry>
         <material>
           <script>
-            <name>Gazebo/Blue</name>
+            <name>Gazebo/Red</name>
             <uri>__default__</uri>
           </script>
           <shader type='pixel'/>
@@ -285,23 +366,184 @@
       </visual>
 
       <collision name='rudder_collision'>
-        <pose frame=''>-0.834 0.005 1.475 0 -0 3.14159265359</pose>
+        <pose frame=''>-1.44715 0 1.475 0 -0 3.14159265359</pose> <!-- -0.834 0.005 1.475-->
           <geometry>
            <mesh>
             <scale>0.001 0.001 0.001</scale>
             <uri>model://rigid_wing/meshes/rudder.dae</uri>
            </mesh>
          </geometry>
+         <surface>
+            <contact>
+              <collide_without_contact>true</collide_without_contact>
+            </contact>
+          </surface>
      </collision>
 
    </link>
 
+   <link name='propeller'>
+     <inertial>
+       <pose frame='propeller_frame'>0.1 0.0 1.475 0 1.57 0</pose> <!-- 0.1 0.0 1.475 -->
+       <mass>0.001</mass>
+         <inertia>
+           <ixx>1e-06</ixx>
+           <ixy>0</ixy>
+           <iyy>1e-06</iyy>
+           <ixz>0</ixz>
+           <iyz>0</iyz>
+           <izz>1e-06</izz>
+         </inertia>
+     </inertial>
+
+     <self_collide>0</self_collide>
+     <enable_wind>0</enable_wind>
+     <kinematic>0</kinematic>
+     <gravity>0</gravity>
+
+     <visual name='propeller_visual'>
+       <pose frame='propeller_frame'>0.1 0.0 1.475 0 1.57 0</pose>
+         <geometry>
+          <mesh>
+           <scale>0.9 0.9 0.9</scale>
+           <uri>model://rigid_wing/meshes/iris_prop_ccw.dae</uri>
+          </mesh>
+        </geometry>
+        <material>
+          <script>
+          <name>Gazebo/Blue</name>
+          <uri>__default__</uri>
+          </script>
+        </material>
+     </visual>
+
+     <collision name='propeller_collision'>
+       <pose frame='propeller_frame'>0.1 0.0 1.475 0 1.57 0</pose>
+         <geometry>
+          <mesh>
+           <scale>0.9 0.9 0.9</scale>
+           <uri>model://rigid_wing/meshes/iris_prop_ccw.dae</uri>
+          </mesh>
+        </geometry>
+     </collision>
+
+   </link>
+
+   <link name="Waypoints">
+     <inertial>
+       <pose frame='waypoints_frame'>0 0 1.475 0 0 0</pose>
+       <mass>0.01</mass>
+         <inertia>
+           <ixx>1e-06</ixx>
+           <ixy>0</ixy>
+           <iyy>1e-06</iyy>
+           <ixz>0</ixz>
+           <iyz>0</iyz>
+           <izz>1e-06</izz>
+         </inertia>
+     </inertial>
+
+     <self_collide>0</self_collide>
+     <enable_wind>0</enable_wind>
+     <kinematic>0</kinematic>
+     <gravity>0</gravity>
+
+     <visual name='waypoint1'>
+       <pose frame='waypoints_frame'>5 15 0 0 0 0</pose>
+       <geometry>
+         <sphere>
+           <radius>0.05</radius>
+         </sphere>
+       </geometry>
+       <material>
+         <script>
+         <name>Gazebo/Red</name>
+         <uri>__default__</uri>
+         </script>
+       </material>
+     </visual>
+
+     <visual name='waypoint2'>
+       <pose frame='waypoints_frame'>-5 15 0 0 0 0</pose>
+       <geometry>
+         <sphere>
+           <radius>0.05</radius>
+         </sphere>
+       </geometry>
+       <material>
+         <script>
+         <name>Gazebo/Orange</name>
+         <uri>__default__</uri>
+         </script>
+       </material>
+     </visual>
+
+     <visual name='waypoint3'>
+       <pose frame='waypoints_frame'>5 -15 0 0 0 0</pose>
+       <geometry>
+         <sphere>
+           <radius>0.05</radius>
+         </sphere>
+       </geometry>
+       <material>
+         <script>
+         <name>Gazebo/Green</name>
+         <uri>__default__</uri>
+         </script>
+       </material>
+     </visual>
+
+     <visual name='waypoint4'>
+       <pose frame='waypoints_frame'>-5 -15 0 0 0 0</pose>
+       <geometry>
+         <sphere>
+           <radius>0.05</radius>
+         </sphere>
+       </geometry>
+       <material>
+         <script>
+         <name>Gazebo/Blue</name>
+         <uri>__default__</uri>
+         </script>
+       </material>
+     </visual>
+   </link>
+
+    <!------------------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
+    <!----------------------------- JOINTS ------------------------------------>
+    <!------------------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
+
+    <joint name='propeller_joint' type='revolute'>
+     <parent>main_wing</parent>
+     <child>propeller</child>
+     <pose frame=''>0.1 0.0 1.475 0 1.57 0</pose>
+     <axis>
+       <xyz>0 0 1</xyz>
+       <limit>
+         <lower>-1e+12</lower>
+         <upper>1e+12</upper>
+         <effort>-1</effort>
+         <velocity>-1</velocity>
+       </limit>
+       <dynamics>
+         <damping>0.001</damping>
+       </dynamics>
+     </axis>
+     <physics>
+       <ode>
+         <implicit_spring_damper>1</implicit_spring_damper>
+       </ode>
+     </physics>
+    </joint>
+
     <joint name='elevator_joint' type='revolute'>
       <parent>main_wing</parent>
       <child>elevator</child>
-      <pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose>
+      <pose frame=''>-1.44715 0 1.475 1.57 3.14159265359 0</pose>
       <axis>
-        <xyz>0 0 1</xyz>
+        <xyz>1 0 0</xyz>
         <use_parent_model_frame>0</use_parent_model_frame>
         <limit>
           <lower>-6.981</lower>
@@ -323,13 +565,13 @@
     <joint name='rudder_joint' type='revolute'>
       <parent>main_wing</parent>
       <child>rudder</child>
-      <pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose>
+      <pose frame=''>-1.44715 0 0 1.57 3.14159265359 0</pose> <!--pose frame=''>-0.843084 0 1.475 1.57 3.14159265359 0</pose-->
       <axis>
         <xyz>0 1 0</xyz>
         <use_parent_model_frame>0</use_parent_model_frame>
         <limit>
-          <lower>-6.981</lower>
-          <upper>6.981</upper>
+          <lower>-0.5</lower>
+          <upper>0.5</upper>
           <effort>-1</effort>
           <velocity>-1</velocity>
         </limit>
@@ -344,22 +586,107 @@
       </physics>
     </joint>
 
-    <!--static>0</static>
-    <allow_auto_disable>1</allow_auto_disable-->
+    <joint name='fixed_to_main_wing_left_wing' type='fixed'>
+      <parent>main_wing</parent>
+      <child>vertical_wing_left</child>
+      <pose>0 0 0 0 0 0</pose>
+        <sensor type="force_torque" name="force_torque_vertical_wing_left">
+          <always_on>true</always_on>
+          <topic>/force_torque_data_vertical_wing_left</topic>
+          <visualize>true</visualize>
+          <update_rate>100</update_rate>
+          <force_torque>
+            <frame>child</frame>
+            <measure_direction>child_to_parent</measure_direction>
+          </force_torque>
+        </sensor>
+    </joint>
 
-    <plugin name='gazebo_control' filename='libgazebo_control_plugin.so'>
-    <elevator_joint_name>elevator_joint</elevator_joint_name>
-    <rudder_joint_name>rudder_joint</rudder_joint_name>
-    <link_name>elevator</link_name>
-    <elevator_p_gain>1</elevator_p_gain>
-    <elevator_i_gain>0.01</elevator_i_gain>
-    <elevator_d_gain>0</elevator_d_gain>
-    <rudder_p_gain>1</rudder_p_gain>
-    <rudder_i_gain>0.01</rudder_i_gain>
-    <rudder_d_gain>1</rudder_d_gain>
-  </plugin>
+    <joint name='fixed_to_main_wing_right_wing' type='fixed'>
+      <parent>main_wing</parent>
+      <child>vertical_wing_right</child>
+      <pose>0 0 0 0 0 0</pose>
+        <sensor type="force_torque" name="force_torque_vertical_wing_right">
+          <always_on>true</always_on>
+          <topic>/force_torque_data_vertical_wing_right</topic>
+          <visualize>true</visualize>
+          <update_rate>100</update_rate>
+          <force_torque>
+            <frame>child</frame>
+            <measure_direction>child_to_parent</measure_direction>
+          </force_torque>
+        </sensor>
+    </joint>
 
-    <!--plugin name='gazebo_lift_distribution' filename='libgazebo_lift_distribution_plugin.so'>
+    <joint name="fixed_to_origin" type="fixed">
+      <parent>world</parent>
+      <child>rigid_wing::main_wing</child>
+      <pose>0 0 0 0 0 0</pose>
+        <sensor type="force_torque" name="main_force_torque">
+        <always_on>true</always_on>
+        <topic>/force_torque_data</topic>
+        <visualize>true</visualize>
+        <update_rate>100</update_rate>
+        <force_torque>
+          <frame >child</frame>
+          <measure_direction>child_to_parent</measure_direction>
+        </force_torque>
+        </sensor>
+    </joint>
+
+    <!--joint name="fixed_at_elevator" type="fixed">
+      <parent>world</parent>
+      <child>rigid_wing::elevator</child>
+      <pose>0 0 0 0 0 0</pose>
+        <sensor type="force_torque" name="elevator_force_torque">
+        <always_on>true</always_on>
+        <topic>/force_torque_data</topic>
+        <visualize>true</visualize>
+        <update_rate>100</update_rate>
+        <force_torque>
+          <frame >child</frame>
+          <measure_direction>child_to_parent</measure_direction>
+        </force_torque>
+        </sensor>
+    </joint-->
+
+    <!------------------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
+    <!------------------------ GUIDANCE PLUGINS ------------------------------->
+    <!------------------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
+
+    <!--plugin name='gazebo_waypoint_following_control' filename='libgazebo_waypoint_following_control_plugin.so'>
+      <rudder_joint_name>rudder_joint</rudder_joint_name>
+      <propeller_joint_name>propeller_joint</propeller_joint_name>
+      <rudder_p_gain>2</rudder_p_gain>
+      <rudder_i_gain>0.0</rudder_i_gain>
+      <rudder_d_gain>0.0</rudder_d_gain>
+      <propeller_p_gain>5</propeller_p_gain>
+      <propeller_i_gain>0</propeller_i_gain>
+      <propeller_d_gain>0</propeller_d_gain>
+      <thrust_p_gain>10</thrust_p_gain>
+      <thrust_i_gain>0.00</thrust_i_gain>
+      <thrust_d_gain>0.00</thrust_d_gain>
+      <waypointOne>5 15 1.475</waypointOne>
+      <waypointTwo>-5 15 1.475</waypointTwo>
+      <waypointThree>5 -15 1.475</waypointThree>
+      <waypointFour>-5 -15 1.475</waypointFour>
+      <forwardSpeed>25</forwardSpeed>
+      <link_name>rigid_wing::main_wing</link_name>
+    </plugin-->
+
+
+    <!------------------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
+    <!-------------------------- LDM PLUGINS ---------------------------------->
+    <!------------------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
+
+
+    <!----------------------- HORIZONTAL COMPONENTS --------------------------->
+
+    <plugin name='gazebo_lift_drag_with_lookup' filename='libgazebo_lift_drag_with_lookup.so'>
       <radial_symmetry/>
       <a0>0.20944</a0>
       <cla>4.95360274037</cla>
@@ -371,12 +698,117 @@
       <cp>0.8</cp>
       <forward>1 0.0 0</forward>
       <upward>0 0 1</upward>
-      <span>2.5</span>
       <area>0.8</area>
+      <chord>0.32</chord>
       <air_density>1.225</air_density>
       <link_name>rigid_wing::main_wing</link_name>
-      <airfoilDatafilePath>"/home/isabelle/gazebo_plugins/e423_data.txt"</airfoilDatafilePath>
+      <airfoilDatafilePath>/home/isabelle/gazebo_plugins/e423_data.txt</airfoilDatafilePath>
+      <link_world_velocity>0 0 0</link_world_velocity>
+    </plugin>
+
+    <!--plugin name='gazebo_lift_drag_with_lookup' filename='libgazebo_lift_drag_with_lookup.so'>
+      <radial_symmetry/>
+      <a0>0.20944</a0>
+      <cla>4.95360274037</cla>
+      <cda>0.0501742347925</cda>
+      <cma>0.228386760863</cma>
+      <alpha_stall>0.4625127</alpha_stall>
+      <cla_stall>-2.1419</cla_stall>
+      <cma_stall>0.0</cma_stall>
+      <cp>0.8</cp>
+      <forward>1 0.0 0</forward>
+      <upward>0 0 1</upward>
+      <area>0.1376</area>
+      <chord>0.16</chord>
+      <air_density>1.225</air_density>
+      <link_name>rigid_wing::elevator</link_name>
+      <airfoilDatafilePath>/home/isabelle/gazebo_plugins/naca4412_data.txt</airfoilDatafilePath>
       <link_world_velocity>0 0 0</link_world_velocity>
     </plugin-->
+
+    <!------------------------- VERTICAL COMPONENTS --------------------------->
+
+    <!--plugin name='gazebo_lift_drag_with_lookup' filename='libgazebo_lift_drag_with_lookup.so'>
+      <radial_symmetry/>
+      <a0>0.20944</a0>
+      <cla>4.95360274037</cla>
+      <cda>0.0501742347925</cda>
+      <cma>0.228386760863</cma>
+      <alpha_stall>0.4625127</alpha_stall>
+      <cla_stall>-2.1419</cla_stall>
+      <cma_stall>0.0</cma_stall>
+      <cp>0.8</cp>
+      <forward>1 0.0 0</forward>
+      <upward>0 1 0</upward>
+      <area>0.295</area>
+      <chord>0.16</chord>
+      <air_density>1.225</air_density>
+      <link_name>rigid_wing::vertical_wing_left</link_name>
+      <airfoilDatafilePath>/home/isabelle/gazebo_plugins/naca12_data.txt</airfoilDatafilePath>
+      <link_world_velocity>0 0 0</link_world_velocity>
+    </plugin>
+
+    <plugin name='gazebo_lift_drag_with_lookup' filename='libgazebo_lift_drag_with_lookup.so'>
+      <radial_symmetry/>
+      <a0>0.20944</a0>
+      <cla>4.95360274037</cla>
+      <cda>0.0501742347925</cda>
+      <cma>0.228386760863</cma>
+      <alpha_stall>0.4625127</alpha_stall>
+      <cla_stall>-2.1419</cla_stall>
+      <cma_stall>0.0</cma_stall>
+      <cp>0.8</cp>
+      <forward>1 0.0 0</forward>
+      <upward>0 1 0</upward>
+      <area>0.295</area>
+      <air_density>1.225</air_density>
+      <link_name>rigid_wing::vertical_wing_right</link_name>
+      <airfoilDatafilePath>/home/isabelle/gazebo_plugins/naca12_data.txt</airfoilDatafilePath>
+      <link_world_velocity>0 0 0</link_world_velocity>
+    </plugin-->
+
+    <!--plugin name='gazebo_lift_drag_with_lookup' filename='libgazebo_lift_drag_with_lookup.so'>
+      <radial_symmetry/>
+      <a0>0.20944</a0>
+      <cla>4.95360274037</cla>
+      <cda>0.0501742347925</cda>
+      <cma>0.228386760863</cma>
+      <alpha_stall>0.4625127</alpha_stall>
+      <cla_stall>-2.1419</cla_stall>
+      <cma_stall>0.0</cma_stall>
+      <cp>0.8</cp>
+      <forward>1 0.0 0</forward>
+      <upward>0 1 0</upward>
+      <area>0.048</area>
+      <air_density>1.225</air_density>
+      <link_name>rigid_wing::rudder</link_name>
+      <airfoilDatafilePath>/home/isabelle/gazebo_plugins/naca12_data.txt</airfoilDatafilePath>
+      <link_world_velocity>0 0 0</link_world_velocity>
+      <rudder_joint_name>rudder_joint</rudder_joint_name>
+    </plugin-->
+
+
+    <!------------------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
+    <!------------------------ VERIFICATION PLUGINS --------------------------->
+    <!------------------------------------------------------------------------->
+    <!------------------------------------------------------------------------->
+
+    <!--plugin name='gazebo_verification_components_plugin' filename='libgazebo_verification_components_plugin.so'>
+  </plugin-->
+
+    <plugin name='gazebo_verify_liftdrag_plugin' filename='libgazebo_verify_liftdrag_plugin.so'>
+      <type_of_test>1</type_of_test>
+      <start_elevation>-0.16</start_elevation>
+      <end_elevation>0.16</end_elevation>
+      <step_elevation>0.02</step_elevation>
+      <magnitude>10</magnitude>
+      <azimuth>0</azimuth>
+      <joint_name>fixed_to_origin</joint_name>
+      <link_name>rigid_wing::main_wing</link_name>
+    </plugin>
+
+
+
   </model>
 </sdf>

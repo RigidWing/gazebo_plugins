@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <time.h>
 // #include <stdlib.h>     /* atof */
 #include <string>
 #include <list>
@@ -42,6 +43,8 @@
 #include "send_protobuf_msgs.hh"
 
 #include <math.h>
+
+#include <gtest/gtest.h>
 
 static const std::string kDefaultWindFieldSubTopic = "/wind_field";
 
@@ -153,6 +156,8 @@ namespace gazebo
     /// \brief angle of attack
     protected: double alpha;
 
+    protected: double chord;
+
     // (ISabelle) this will be the input to the model that computes the aerodynamic coefficients. It will be equal to alpha + alpha0 as complying with the plugin.
     protected: double alpha_shifted;
 
@@ -185,16 +190,22 @@ namespace gazebo
     /// \brief SDF for this plugin;
     protected: sdf::ElementPtr sdf;
 
+    private: physics::JointPtr rudder_joint;
+    private: std::string rudderJointName;
+    private: std::string rudderJointNameFull;
+
     // KITEPOWER (Xander)
     private:
 	  transport::NodePtr node_handle_;
 	  std::string wind_field_sub_topic_;
 	  transport::SubscriberPtr wind_field_sub_;
+    msgs::Any aoa_msg;
 	  void WindFieldCallback(WindFieldPtr &wind_field);
 	  std::string namespace_;
 
     // An Additional SubscriberPtr To Subscribe to the test_msg Topic
     transport::SubscriberPtr test_msg_sub_;
+    transport::PublisherPtr aoa_pub_;
     typedef const boost::shared_ptr<const msgs::Vector3d> TestMsgPtr;
     void TestMsgCallback(TestMsgPtr &test_msg);
 

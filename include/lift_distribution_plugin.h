@@ -62,12 +62,12 @@ namespace gazebo
    double current_y;
    double D = 0.05;
    double rho;
-
+   double saved_component;
    double cosSweepAngle;
 
    // Number of N_segments
-   int N_segments = 100;
-   int N_iterations = 500;
+   int N_segments;
+   int N_iterations;
    // Circulation Stuff
    double circulation_element;
    std::vector<double> circulation_vector;

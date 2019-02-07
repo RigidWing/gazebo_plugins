@@ -39,6 +39,8 @@ iostream
 -
 fstream
 -
+time.h
+-
 string
 -
 list
@@ -50,6 +52,8 @@ ignition/math/Vector3.hh
 send_protobuf_msgs.hh
 ../include/liftdrag_plugin/send_protobuf_msgs.hh
 math.h
+-
+gtest/gtest.h
 -
 
 ../include/send_protobuf_msgs.hh
@@ -197,6 +201,8 @@ algorithm
 -
 string
 -
+string.h
+-
 common.h
 /home/isabelle/gazebo_plugins/common.h
 gazebo/common/Assert.hh
@@ -213,6 +219,8 @@ liftdrag_plugin/liftdrag_with_lookup_plugin.h
 /home/isabelle/gazebo_plugins/liftdrag_plugin/liftdrag_with_lookup_plugin.h
 common.h
 /home/isabelle/gazebo_plugins/common.h
+iostream
+-
 
 /usr/include/gazebo-9/gazebo/Master.hh
 string

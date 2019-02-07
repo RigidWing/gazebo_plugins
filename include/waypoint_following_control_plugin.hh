@@ -17,6 +17,7 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
 #include <gtest/gtest.h>
+#include <gazebo/rendering/rendering.hh>
 
 using namespace gazebo;
 
@@ -31,9 +32,15 @@ class GAZEBO_VISIBLE WaypointFollowingControlPlugin : public ModelPlugin
   private: physics::JointPtr rudder_joint;
   private: physics::JointPtr propeller_joint;
 
+  // protected: physics::JointControllerPtr rudderJointController;
+  protected: double rudder_pos_target;
+  protected: double previous_rudder_pos_target;
+  protected: double diff;
+
   // The ptrs to the PID control for the control surfaces
   private: common::PID rudder_pid;
   private: common::PID propeller_pid;
+  private: common::PID thrust_pid;
 
   // the gains
   private: double rudder_p_gain;
@@ -42,6 +49,9 @@ class GAZEBO_VISIBLE WaypointFollowingControlPlugin : public ModelPlugin
   private: double propeller_p_gain;
   private: double propeller_i_gain;
   private: double propeller_d_gain;
+  private: double thrust_p_gain;
+  private: double thrust_i_gain;
+  private: double thrust_d_gain;
 
   // names of the joints
   private: std::string rudderJointName;
@@ -56,8 +66,11 @@ class GAZEBO_VISIBLE WaypointFollowingControlPlugin : public ModelPlugin
   // An Additional SubscriberPtr To Subscribe to the test_msg Topic
   private: transport::NodePtr node;
   private: transport::SubscriberPtr test_msg_sub_;
+  private: transport::SubscriberPtr aoa_msg_sub_;
   typedef const boost::shared_ptr<const msgs::Vector3d> TestMsgPtr;
+  typedef const boost::shared_ptr<const msgs::Any> AoaMsgPtr;
   void TestMsgCallback(TestMsgPtr &test_msg);
+  void AoaMsgCallback(AoaMsgPtr &aoa_msg);
 
   // Wind variables
   protected: double azimuth_wind;	// [rad/s]
@@ -86,23 +99,32 @@ class GAZEBO_VISIBLE WaypointFollowingControlPlugin : public ModelPlugin
   protected: physics::WorldPtr world;
 
   // Waypoints
+  public: ignition::math::Vector3d currentWaypoint;
   public: ignition::math::Vector3d waypointOne;
   public: ignition::math::Vector3d waypointTwo;
   public: ignition::math::Vector3d waypointThree;
   public: ignition::math::Vector3d waypointFour;
+
+  public: ignition::math::Vector3d lineStartingPoint;
+  public: ignition::math::Vector3d lineEndPoint;
+  public: rendering::DynamicLines dynamicLine;//ScenePtr scene;
 
   // the constant forwardSpeed
   public: double forwardSpeed;
 
   // state machine for the waypoints tracking 1,2,3,4 for each waypoint
   public: int followed_waypoint_number;
-  public: bool reached_waypoint;
+  public: int currentWaypointInt;
   public: bool rotation_direction; // 0 for clockwise, 1 for counterclockwise
   public: double heading_error;
   public: double speed_error;
   public: double force_to_apply_rudder;
   public: double force_to_apply_to_propeller;
+  public: double force_to_apply_to_body;
   public: double threshold;
+  public: double alpha;
+
+  public: int updateIterationInt;
   // Functions
   public: virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
   private: void OnUpdate();
