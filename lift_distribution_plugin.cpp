@@ -195,6 +195,11 @@ void LiftDistributionPlugin::Load(physics::ModelPtr _model,sdf::ElementPtr _sdf)
     }
   }
 
+  if (_sdf->HasElement("chord"))
+  {
+    this->chord = _sdf->Get<double>("chord");
+  }
+
 
 
 }
@@ -566,10 +571,24 @@ std::vector<double> LiftDistributionPlugin::get_local_cl_vector(std::vector<doub
   for (int o = 0; o <= N_segments; ++o){
     double current_angle = AoA_vector[o];
     float binarySearchResult = binarySearch(alpha_vec,current_angle * 180.0 / M_PI,0, (int)(alpha_vec.size()-1));
-    ignition::math::Vector3d vector_cl_cd_cm = retrieve_values(binarySearchResult);
-    cl = vector_cl_cd_cm[0] * this->cosSweepAngle;
-    cd = vector_cl_cd_cm[1] * this->cosSweepAngle;
-    cm = vector_cl_cd_cm[2] * this->cosSweepAngle;
+
+
+    if ((int)binarySearchResult != -1)
+    {
+      // cout << "the binary search result " << binarySearchResult << endl;
+      ignition::math::Vector3d vector_cl_cd_cm = retrieve_values(binarySearchResult);
+
+      cl = vector_cl_cd_cm[0] * cosSweepAngle * this->chord;
+      cd = vector_cl_cd_cm[1] * cosSweepAngle * this->chord;
+      cm = vector_cl_cd_cm[2] * cosSweepAngle * this->chord * this->chord;
+    }
+    else{
+      // TODO check this - For AoA out of range
+      cl = 2*cos(this->alpha)*sin(this->alpha)*sin(this->alpha);
+      cd = 2*sin(this->alpha)*sin(this->alpha)*sin(this->alpha);
+      cm = -1*sin(this->alpha)/4; // currently not needed TODO revise!
+    }
+
     local_cl_vector.push_back(cl);
   }
   return this->local_cl_vector;
